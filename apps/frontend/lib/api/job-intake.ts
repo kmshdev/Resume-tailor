@@ -66,7 +66,13 @@ export interface JobIntakeConfirmResponse {
 }
 
 async function parseJsonResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
-  const data = await response.json().catch(() => null);
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(fallbackMessage);
+  }
+
   if (!response.ok) {
     const detail =
       data && typeof data === 'object' && 'detail' in data ? String(data.detail) : fallbackMessage;

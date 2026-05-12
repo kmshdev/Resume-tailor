@@ -79,7 +79,7 @@ POST /api/v1/jobs/upload
 
 ## Job Intake
 
-```
+```text
 POST /api/v1/jobs/intake/extract
 ├── Validate source type (manual text, job URL, PDF URL, recruiter message)
 ├── For URLs: validate public http/https URL, fetch with httpx, optionally fall back to Playwright

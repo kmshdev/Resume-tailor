@@ -524,7 +524,7 @@
       "changeSource": "更改来源",
       "reviewJdLabel": "用于定制的职位描述",
       "methods": {
-        "manual": "Manual",
+        "manual": "手动",
         "deterministic": "已解析",
         "http": "HTTP",
         "playwright": "浏览器",

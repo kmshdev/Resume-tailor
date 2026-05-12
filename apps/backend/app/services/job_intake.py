@@ -21,6 +21,7 @@ from app.prompts.job_intake import JOB_INTAKE_EXTRACTION_PROMPT
 from app.schemas.job_intake import (
     DetectedJobLink,
     DraftAnswer,
+    ExtractionMethod,
     JobIntakeExtractRequest,
     JobIntakeExtractResponse,
     JobSourceType,
@@ -564,7 +565,7 @@ def _build_response(
     raw_text: str,
     source_url: str | None = None,
     source_title: str | None = None,
-    extraction_method: str,
+    extraction_method: ExtractionMethod,
     resume_text: str | None = None,
     warnings: list[str] | None = None,
     confidence: float = 0.8,
@@ -591,7 +592,7 @@ def _build_response(
         screening_questions=questions,
         draft_answers=_draft_answers(questions, evidence_text),
         raw_text=cleaned_raw,
-        extraction_method=extraction_method,  # type: ignore[arg-type]
+        extraction_method=extraction_method,
         warnings=warning_list,
         confidence=max(0.0, min(confidence, 1.0)),
         requires_review=True,
@@ -630,7 +631,7 @@ async def _extract_remote_url(
     warnings: list[str] = []
     if _content_looks_like_pdf(fetched.content_type, fetched.body):
         raw_text = await parse_document(fetched.body, _pdf_filename_from_url(fetched.url))
-        method = "pdf"
+        method: ExtractionMethod = "pdf"
     elif request.source_type == "pdf_url":
         raise JobIntakeError("The provided PDF URL did not return PDF content.")
     else:

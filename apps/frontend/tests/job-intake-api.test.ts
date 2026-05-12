@@ -55,6 +55,23 @@ describe('job intake API helpers', () => {
     );
   });
 
+  it('throws the fallback message when a successful response is not JSON', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response('not json', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      extractJobIntake({
+        source_type: 'manual_text',
+        source_text: 'Senior Backend Engineer using Python, FastAPI, and AWS.',
+      })
+    ).rejects.toThrow('Failed to extract the job description.');
+  });
+
   it('uploads PDF intake with FormData and no JSON content type', async () => {
     const payload: JobIntakeExtractResponse = {
       source_type: 'pdf_upload',

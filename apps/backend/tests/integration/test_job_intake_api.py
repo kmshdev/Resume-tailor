@@ -2,16 +2,17 @@
 
 from unittest.mock import AsyncMock, patch
 
-import pytest
+import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 
 
-@pytest.fixture
-def client():
+@pytest_asyncio.fixture
+async def client():
     transport = ASGITransport(app=app)
-    return AsyncClient(transport=transport, base_url="http://test")
+    async with AsyncClient(transport=transport, base_url="http://test") as async_client:
+        yield async_client
 
 
 class TestJobIntakeExtract:
@@ -24,11 +25,10 @@ class TestJobIntakeExtract:
             "Requirements include Docker, AWS, and strong communication."
         )
 
-        async with client:
-            resp = await client.post(
-                "/api/v1/jobs/intake/extract",
-                json={"source_type": "manual_text", "source_text": jd},
-            )
+        resp = await client.post(
+            "/api/v1/jobs/intake/extract",
+            json={"source_type": "manual_text", "source_text": jd},
+        )
 
         assert resp.status_code == 200
         data = resp.json()
@@ -46,15 +46,14 @@ class TestJobIntakeExtract:
             "Do you have Python experience?"
         )
 
-        async with client:
-            resp = await client.post(
-                "/api/v1/jobs/intake/extract",
-                json={
-                    "source_type": "recruiter_message",
-                    "source_text": message,
-                    "resume_text": "Jane built APIs using Python and FastAPI.",
-                },
-            )
+        resp = await client.post(
+            "/api/v1/jobs/intake/extract",
+            json={
+                "source_type": "recruiter_message",
+                "source_text": message,
+                "resume_text": "Jane built APIs using Python and FastAPI.",
+            },
+        )
 
         assert resp.status_code == 200
         data = resp.json()
@@ -79,15 +78,14 @@ class TestJobIntakeExtract:
             "Do you have Python and FastAPI experience?"
         )
 
-        async with client:
-            resp = await client.post(
-                "/api/v1/jobs/intake/extract",
-                json={
-                    "source_type": "recruiter_message",
-                    "source_text": message,
-                    "resume_id": "resume-123",
-                },
-            )
+        resp = await client.post(
+            "/api/v1/jobs/intake/extract",
+            json={
+                "source_type": "recruiter_message",
+                "source_text": message,
+                "resume_id": "resume-123",
+            },
+        )
 
         assert resp.status_code == 200
         data = resp.json()
@@ -96,11 +94,10 @@ class TestJobIntakeExtract:
         mock_db.get_resume.assert_called_once_with("resume-123")
 
     async def test_extract_blocks_private_url(self, client):
-        async with client:
-            resp = await client.post(
-                "/api/v1/jobs/intake/extract",
-                json={"source_type": "job_url", "url": "http://127.0.0.1/jobs/1"},
-            )
+        resp = await client.post(
+            "/api/v1/jobs/intake/extract",
+            json={"source_type": "job_url", "url": "http://127.0.0.1/jobs/1"},
+        )
 
         assert resp.status_code == 400
         assert "public" in resp.json()["detail"].lower()
@@ -122,11 +119,10 @@ class TestJobIntakeExtract:
             "requires_review": True,
         }
 
-        async with client:
-            resp = await client.post(
-                "/api/v1/jobs/intake/pdf-upload",
-                files={"file": ("job.pdf", b"%PDF-1.4 fake", "application/pdf")},
-            )
+        resp = await client.post(
+            "/api/v1/jobs/intake/pdf-upload",
+            files={"file": ("job.pdf", b"%PDF-1.4 fake", "application/pdf")},
+        )
 
         assert resp.status_code == 200
         assert resp.json()["source_type"] == "pdf_upload"
@@ -134,11 +130,10 @@ class TestJobIntakeExtract:
 
     @patch("app.routers.job_intake.extract_pdf_upload", new_callable=AsyncMock)
     async def test_pdf_upload_rejects_non_pdf_bytes(self, mock_extract, client):
-        async with client:
-            resp = await client.post(
-                "/api/v1/jobs/intake/pdf-upload",
-                files={"file": ("job.pdf", b"not a pdf", "application/pdf")},
-            )
+        resp = await client.post(
+            "/api/v1/jobs/intake/pdf-upload",
+            files={"file": ("job.pdf", b"not a pdf", "application/pdf")},
+        )
 
         assert resp.status_code == 400
         assert "PDF" in resp.json()["detail"]
@@ -156,40 +151,39 @@ class TestJobIntakeConfirm:
             "created_at": "2026-01-01T00:00:00Z",
         }
 
-        async with client:
-            resp = await client.post(
-                "/api/v1/jobs/intake/confirm",
-                json={
-                    "job_description": "Senior Backend Engineer using Python, FastAPI, and AWS.",
-                    "resume_id": "resume-123",
-                    "intake_metadata": {
-                        "source_type": "recruiter_message",
-                        "source_url": "https://jobs.example.com/backend",
-                        "source_title": "Backend role",
-                        "links": [
-                            {
-                                "url": "https://jobs.example.com/backend",
-                                "label": "jobs.example.com",
-                            }
-                        ],
-                        "screening_questions": [
-                            {"id": "q1", "question": "Do you have Python experience?"}
-                        ],
-                        "draft_answers": [
-                            {
-                                "question_id": "q1",
-                                "answer": "Yes, I have Python experience.",
-                                "evidence": ["Python"],
-                                "needs_user_input": False,
-                                "prompt": "",
-                            }
-                        ],
-                        "extraction_method": "deterministic",
-                        "warnings": [],
-                        "confidence": 0.8,
-                    },
+        resp = await client.post(
+            "/api/v1/jobs/intake/confirm",
+            json={
+                "job_description": "Senior Backend Engineer using Python, FastAPI, and AWS.",
+                "resume_id": "resume-123",
+                "intake_metadata": {
+                    "source_type": "recruiter_message",
+                    "source_url": "https://jobs.example.com/backend",
+                    "source_title": "Backend role",
+                    "links": [
+                        {
+                            "url": "https://jobs.example.com/backend",
+                            "label": "jobs.example.com",
+                        }
+                    ],
+                    "screening_questions": [
+                        {"id": "q1", "question": "Do you have Python experience?"}
+                    ],
+                    "draft_answers": [
+                        {
+                            "question_id": "q1",
+                            "answer": "Yes, I have Python experience.",
+                            "evidence": ["Python"],
+                            "needs_user_input": False,
+                            "prompt": "",
+                        }
+                    ],
+                    "extraction_method": "deterministic",
+                    "warnings": [],
+                    "confidence": 0.8,
                 },
-            )
+            },
+        )
 
         assert resp.status_code == 200
         assert resp.json()["job_id"] == "job-123"

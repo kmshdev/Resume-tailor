@@ -23,7 +23,7 @@ Dashboard → Upload Master Resume → Tailor for Job → View/Edit → Download
 
 ### 3. Tailor (`/tailor`)
 - JD intake wizard for manual paste, job URL, PDF URL/upload, or pasted recruiter message
-- Process: Extract JD → Review/edit JD and questions → Confirm job → Preview Improve → Diff review → Save tailored resume
+- Process: Extract JD → Review/edit JD and questions → Confirm job → Preview Improvements → Diff review → Save tailored resume
 - Screening questions and draft answers are shown in review but kept out of the JD text used for tailoring keywords
 
 ### 4. Builder (`/builder`)

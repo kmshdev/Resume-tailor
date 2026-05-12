@@ -131,6 +131,14 @@ export function JobIntakeWizard({
     setError(null);
   };
 
+  const handleSourceChange = (nextSourceType: IntakeSource) => {
+    if (nextSourceType === sourceType) return;
+    setSourceType(nextSourceType);
+    setSourceText('');
+    setSelectedFile(null);
+    resetReview();
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -149,10 +157,7 @@ export function JobIntakeWizard({
                 className="h-auto min-h-16 flex-col whitespace-normal px-3 py-3 text-center"
                 aria-pressed={selected}
                 disabled={disabled || isExtracting || isConfirming}
-                onClick={() => {
-                  setSourceType(source.id);
-                  resetReview();
-                }}
+                onClick={() => handleSourceChange(source.id)}
               >
                 <Icon className="w-4 h-4" />
                 {t(`tailor.intake.sources.${source.id}`)}
@@ -169,6 +174,7 @@ export function JobIntakeWizard({
           </label>
           {sourceType === 'pdf_upload' ? (
             <Input
+              key="pdf_upload"
               id="job-intake-input"
               type="file"
               accept="application/pdf,.pdf"
@@ -177,6 +183,7 @@ export function JobIntakeWizard({
             />
           ) : sourceType === 'job_url' || sourceType === 'pdf_url' ? (
             <Input
+              key={sourceType}
               id="job-intake-input"
               value={sourceText}
               disabled={disabled || isExtracting}
@@ -185,6 +192,7 @@ export function JobIntakeWizard({
             />
           ) : (
             <Textarea
+              key={sourceType}
               id="job-intake-input"
               value={sourceText}
               disabled={disabled || isExtracting}

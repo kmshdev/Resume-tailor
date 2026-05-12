@@ -141,6 +141,36 @@ describe('JobIntakeWizard', () => {
     );
   });
 
+  it('clears source-specific values when switching intake sources', async () => {
+    render(
+      <JobIntakeWizard
+        masterResumeId="resume-123"
+        disabled={false}
+        canTailor={true}
+        onJobConfirmed={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
+    fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
+      target: {
+        files: [new File(['fake pdf'], 'job.pdf', { type: 'application/pdf' })],
+      },
+    });
+    expect(screen.getByRole('button', { name: 'tailor.intake.extractButton' })).not.toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.job_url' }));
+    expect(screen.getByLabelText('tailor.intake.inputLabel')).toHaveValue('');
+
+    fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
+      target: { value: 'https://company.example/jobs/backend' },
+    });
+    expect(screen.getByRole('button', { name: 'tailor.intake.extractButton' })).not.toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
+    expect(screen.getByRole('button', { name: 'tailor.intake.extractButton' })).toBeDisabled();
+  });
+
   it('allows extraction but blocks tailoring confirmation when tailoring is unavailable', async () => {
     extractJobIntake.mockResolvedValue(extraction());
 

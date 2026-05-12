@@ -524,7 +524,7 @@
       "changeSource": "ソースを変更",
       "reviewJdLabel": "調整に使う求人内容",
       "methods": {
-        "manual": "Manual",
+        "manual": "手動",
         "deterministic": "解析済み",
         "http": "HTTP",
         "playwright": "ブラウザー",
