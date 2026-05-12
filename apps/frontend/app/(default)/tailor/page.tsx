@@ -28,7 +28,7 @@ export default function TailorPage() {
   const [error, setError] = useState<string | null>(null);
   const [masterResumeId, setMasterResumeId] = useState<string | null>(null);
   const [promptOptions, setPromptOptions] = useState<PromptOption[]>([]);
-  const [selectedPromptId, setSelectedPromptId] = useState('keywords');
+  const [selectedPromptId, setSelectedPromptId] = useState('tailored_resume_generator');
   const [promptLoading, setPromptLoading] = useState(false);
   const hasUserSelectedPrompt = useRef(false);
   const missingDiffConfirmInFlight = useRef(false);
@@ -97,7 +97,7 @@ export default function TailorPage() {
         if (!cancelled) {
           setPromptOptions(config.prompt_options || []);
           if (!hasUserSelectedPrompt.current) {
-            setSelectedPromptId(config.default_prompt_id || 'keywords');
+            setSelectedPromptId(config.default_prompt_id || 'tailored_resume_generator');
           }
         }
       } catch (err) {
@@ -381,6 +381,11 @@ export default function TailorPage() {
                     description: t(`tailor.promptOptions.${opt.id}.description`),
                   }))
                 : [
+                    {
+                      id: 'tailored_resume_generator',
+                      label: t('tailor.promptOptions.tailored_resume_generator.label'),
+                      description: t('tailor.promptOptions.tailored_resume_generator.description'),
+                    },
                     {
                       id: 'nudge',
                       label: t('tailor.promptOptions.nudge.label'),

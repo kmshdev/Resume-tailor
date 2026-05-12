@@ -6,12 +6,15 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from app.services.improver import (
+    apply_diffs,
     extract_job_keywords,
+    generate_improvements,
     generate_skill_target_plan,
     generate_resume_diffs,
     improve_resume,
     verify_skill_target_plan,
 )
+from app.schemas.models import ResumeChange
 
 
 class TestExtractJobKeywords:
@@ -40,6 +43,8 @@ class TestExtractJobKeywords:
         call_args = mock_llm.call_args
         prompt = call_args.kwargs.get("prompt", call_args.args[0] if call_args.args else "")
         assert "ignore all previous instructions" not in prompt.lower()
+        assert "priority_1_requirements" in prompt
+        assert "ATS-friendly" in prompt
 
 
 class TestGenerateResumeDiffs:
@@ -70,6 +75,12 @@ class TestGenerateResumeDiffs:
         assert len(result.changes) == 1
         assert result.changes[0].path == "summary"
         assert result.strategy_notes == "Focused on backend keywords"
+        prompt = mock_llm.call_args.kwargs.get("prompt") or mock_llm.call_args.args[0]
+        assert "Priority 1" in prompt
+        assert "5+ years building Python APIs" in prompt
+        assert "developer platforms" in prompt
+        assert "customer focus" in prompt
+        assert "action verb + what was done" in prompt
 
     @patch("app.services.improver.complete_json", new_callable=AsyncMock)
     async def test_includes_verified_skill_targets_in_prompt(
@@ -88,7 +99,7 @@ class TestGenerateResumeDiffs:
             skill_targets=[
                 {
                     "skill": "Kubernetes",
-                    "source": "jd_added",
+                    "source": "supported_by_resume",
                     "reason": "Required by JD",
                 }
             ],
@@ -211,6 +222,23 @@ class TestGenerateResumeDiffs:
         prompt = mock_llm.call_args.kwargs.get("prompt") or mock_llm.call_args.args[0]
         assert "targeted adjustments" in prompt.lower()
 
+    @patch("app.services.improver.complete_json", new_callable=AsyncMock)
+    async def test_strategy_selection_tailored_resume_generator(
+        self, mock_llm, sample_resume, sample_job_keywords
+    ):
+        """Skill strategy should include the tailored-resume-generator workflow."""
+        mock_llm.return_value = {"changes": [], "strategy_notes": "test"}
+        await generate_resume_diffs(
+            original_resume="# Resume",
+            job_description="JD",
+            job_keywords=sample_job_keywords,
+            prompt_id="tailored_resume_generator",
+            original_resume_data=sample_resume,
+        )
+        prompt = mock_llm.call_args.kwargs.get("prompt") or mock_llm.call_args.args[0]
+        assert "tailored-resume-generator workflow" in prompt
+        assert "unsupported JD-only skills as gaps" in prompt
+
 
 class TestSkillTargetPlanning:
     """Tests for skill target planning and verification."""
@@ -242,8 +270,15 @@ class TestSkillTargetPlanning:
         ]
         assert result["strategy_notes"] == "Prioritize platform keywords"
         assert mock_llm.call_args.kwargs["schema_type"] == "diff"
+        prompt = mock_llm.call_args.kwargs.get("prompt") or mock_llm.call_args.args[0]
+        assert "Priority 1 requirements" in prompt
+        assert "5+ years building Python APIs" in prompt
+        assert "developer platforms" in prompt
+        assert "customer focus" in prompt
+        assert "supported strengths" in prompt
+        assert "unsupported JD-only skills" in prompt
 
-    def test_verify_skill_target_plan_allows_existing_and_jd_skills(
+    def test_verify_skill_target_plan_allows_only_resume_supported_skills(
         self,
         sample_resume,
         sample_job_keywords,
@@ -252,6 +287,7 @@ class TestSkillTargetPlanning:
         raw_plan = {
             "target_skills": [
                 {"skill": "Python", "reason": "Already in resume"},
+                {"skill": "OpenAPI", "reason": "Appears in project content"},
                 {"skill": "Kubernetes", "reason": "JD required"},
                 {"skill": "CI/CD", "reason": "Generic keyword, not skill field"},
                 {"skill": "BananaDB", "reason": "Unsupported"},
@@ -264,11 +300,29 @@ class TestSkillTargetPlanning:
             job_description=sample_job_description,
         )
         accepted_skills = [item["skill"] for item in verified["accepted"]]
+        gap_skills = [item["skill"] for item in verified["gaps"]]
         rejected_skills = [item["skill"] for item in verified["rejected"]]
-        assert accepted_skills == ["Python", "Kubernetes"]
+        assert accepted_skills == ["Python", "OpenAPI"]
+        assert gap_skills == ["Kubernetes"]
         assert rejected_skills == ["CI/CD", "BananaDB"]
         assert verified["accepted"][0]["source"] == "existing"
-        assert verified["accepted"][1]["source"] == "jd_added"
+        assert verified["accepted"][1]["source"] == "supported_by_resume"
+
+        _, applied, rejected = apply_diffs(
+            sample_resume,
+            [
+                ResumeChange(
+                    path="additional.technicalSkills",
+                    action="add_skill",
+                    original=None,
+                    value="Kubernetes",
+                    reason="JD-only skill should not be addable",
+                )
+            ],
+            allowed_skill_targets=verified["accepted"],
+        )
+        assert len(applied) == 0
+        assert len(rejected) == 1
 
 
 class TestGenerateResumeDiffsEdgeCases:
@@ -285,10 +339,9 @@ class TestGenerateResumeDiffsEdgeCases:
             prompt_id="nonexistent_strategy",
             original_resume_data=sample_resume,
         )
-        # Should not raise — falls back to default (keywords)
+        # Should not raise — falls back to default skill workflow
         prompt = mock_llm.call_args.kwargs.get("prompt") or mock_llm.call_args.args[0]
-        # Default strategy is "keywords" which says "Weave in relevant keywords"
-        assert "weave" in prompt.lower() or "keywords" in prompt.lower()
+        assert "tailored-resume-generator workflow" in prompt
 
     @patch("app.services.improver.complete_json", new_callable=AsyncMock)
     async def test_markdown_fallback_when_dates_lack_months(self, mock_llm, sample_job_keywords):
@@ -350,6 +403,10 @@ class TestImproveResume:
         # Should be validated by ResumeData.model_validate
         assert "summary" in result
         assert isinstance(result.get("workExperience"), list)
+        prompt = mock_llm.call_args.kwargs.get("prompt") or mock_llm.call_args.args[0]
+        assert "Tailored resume workflow guidance" in prompt
+        assert "5+ years building Python APIs" in prompt
+        assert "customer focus" in prompt
 
     @patch("app.services.improver.complete_json", new_callable=AsyncMock)
     async def test_raises_on_invalid_json(self, mock_llm):
@@ -360,3 +417,21 @@ class TestImproveResume:
                 job_description="JD",
                 job_keywords={"required_skills": []},
             )
+
+
+class TestGenerateImprovements:
+    """Tests for deterministic improvement suggestions."""
+
+    def test_prioritizes_skill_priority_requirements(self):
+        result = generate_improvements(
+            {
+                "priority_1_requirements": ["5+ years Python APIs"],
+                "required_skills": ["Python", "FastAPI", "Docker"],
+                "key_responsibilities": ["Lead platform design"],
+                "company_values": ["customer focus"],
+            }
+        )
+        suggestions = [item["suggestion"] for item in result]
+        assert suggestions[0] == "Prioritized critical requirement: 5+ years Python APIs"
+        assert any("Lead platform design" in suggestion for suggestion in suggestions)
+        assert any("customer focus" in suggestion for suggestion in suggestions)

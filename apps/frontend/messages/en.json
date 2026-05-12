@@ -504,6 +504,10 @@
     "promptLabel": "Tailoring intensity",
     "promptDescription": "Choose how strongly to align your resume to the job description.",
     "promptOptions": {
+      "tailored_resume_generator": {
+        "label": "Skill tailor",
+        "description": "Runs priority analysis, ATS alignment, and verified skill-gap checks."
+      },
       "nudge": {
         "label": "Light nudge",
         "description": "Minimal edits to better align existing experience."

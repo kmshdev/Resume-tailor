@@ -17,6 +17,7 @@ from app.prompts import (
     EXTRACT_KEYWORDS_PROMPT,
     IMPROVE_RESUME_PROMPTS,
     SKILL_TARGET_PLAN_PROMPT,
+    TAILORED_RESUME_SKILL_GUIDANCE,
     get_language_name,
 )
 from app.prompts.templates import IMPROVE_SCHEMA_EXAMPLE
@@ -506,6 +507,7 @@ async def generate_resume_diffs(
         resume_input = original_resume
 
     prompt = DIFF_IMPROVE_PROMPT.format(
+        tailored_resume_skill_guidance=TAILORED_RESUME_SKILL_GUIDANCE,
         strategy_instruction=strategy_instruction,
         output_language=output_language,
         job_keywords=keywords_str,
@@ -563,7 +565,10 @@ async def extract_job_keywords(job_description: str) -> dict[str, Any]:
     """
     # LLM-011: Sanitize job description before using in prompt
     sanitized_jd = _sanitize_user_input(job_description)
-    prompt = EXTRACT_KEYWORDS_PROMPT.format(job_description=sanitized_jd)
+    prompt = EXTRACT_KEYWORDS_PROMPT.format(
+        job_description=sanitized_jd,
+        tailored_resume_skill_guidance=TAILORED_RESUME_SKILL_GUIDANCE,
+    )
 
     return await complete_json(
         prompt=prompt,
@@ -607,25 +612,50 @@ def _has_month_in_dates(data: dict[str, Any]) -> bool:
 def _prepare_keywords_for_prompt(job_keywords: dict[str, Any]) -> str:
     """Format job keywords as a focused, readable list for the LLM prompt.
 
-    Extracts only actionable fields (skills and keywords) and drops
+    Extracts actionable fields from the tailored-resume workflow and drops
     informational fields that add noise without helping the LLM tailor.
     """
     sections: list[str] = []
 
-    required = job_keywords.get("required_skills", [])
-    if required:
-        sections.append("Required skills to emphasize:\n- " + "\n- ".join(str(s) for s in required))
+    priority_sections = (
+        ("priority_1_requirements", "Priority 1 critical requirements"),
+        ("priority_2_requirements", "Priority 2 important qualifications"),
+        ("priority_3_requirements", "Priority 3 nice-to-have signals"),
+    )
+    for field, label in priority_sections:
+        values = _coerce_keyword_strings(job_keywords.get(field, []))
+        if values:
+            sections.append(label + ":\n- " + "\n- ".join(values))
 
-    preferred = job_keywords.get("preferred_skills", [])
+    required = _coerce_keyword_strings(job_keywords.get("required_skills", []))
+    if required:
+        sections.append("Required skills to emphasize:\n- " + "\n- ".join(required))
+
+    preferred = _coerce_keyword_strings(job_keywords.get("preferred_skills", []))
     if preferred:
         sections.append(
             "Preferred skills (include only if resume supports them):\n- "
-            + "\n- ".join(str(s) for s in preferred)
+            + "\n- ".join(preferred)
         )
 
-    keywords = job_keywords.get("keywords", [])
+    supporting_sections = (
+        ("soft_skills", "Soft skills to reflect through substantiated evidence"),
+        ("industry_knowledge", "Industry context to emphasize when supported"),
+        ("company_values", "Company value signals"),
+        ("experience_requirements", "Experience requirements"),
+        ("education_requirements", "Education requirements"),
+        ("key_responsibilities", "Key responsibilities to align with"),
+    )
+    for field, label in supporting_sections:
+        values = _coerce_keyword_strings(job_keywords.get(field, []))
+        if values:
+            sections.append(label + ":\n- " + "\n- ".join(values))
+
+    keywords = _coerce_keyword_strings(job_keywords.get("keywords", []))
     if keywords:
-        sections.append("Additional keywords to weave in naturally:\n- " + "\n- ".join(str(k) for k in keywords))
+        sections.append(
+            "Additional keywords to weave in naturally:\n- " + "\n- ".join(keywords)
+        )
 
     return "\n\n".join(sections) if sections else "No specific keywords extracted."
 
@@ -710,10 +740,10 @@ def verify_skill_target_plan(
 ) -> dict[str, list[dict[str, str]] | str]:
     """Filter and classify LLM-proposed skill targets before diff generation.
 
-    Existing resume skills are accepted as low-risk targets. Required and
-    preferred JD skills are accepted as explicit JD-added targets for user
-    review. Other skills are accepted only when they already appear in the
-    resume text.
+    Existing resume skills are accepted as low-risk targets. Skills that are
+    missing from the skills list are accepted only when they appear elsewhere
+    in the resume text. JD-only skills are tracked as gaps, not as addable
+    resume facts.
     """
     original_skills = _extract_skill_index(
         original_resume_data.get("additional", {}).get("technicalSkills", [])
@@ -721,6 +751,7 @@ def verify_skill_target_plan(
     jd_skills = _extract_jd_skill_index(job_keywords, job_description)
     raw_targets = raw_plan.get("target_skills", [])
     accepted: list[dict[str, str]] = []
+    gaps: list[dict[str, str]] = []
     rejected: list[dict[str, str]] = []
     seen: set[str] = set()
 
@@ -750,20 +781,21 @@ def verify_skill_target_plan(
                     "reason": reason or "Already present in resume skills",
                 }
             )
-        elif skill_key in jd_skills:
-            accepted.append(
-                {
-                    "skill": jd_skills[skill_key],
-                    "source": "jd_added",
-                    "reason": reason or "Required or preferred by the job description",
-                }
-            )
         elif _skill_present_in_resume_text(skill, original_resume_data):
             accepted.append(
                 {
                     "skill": skill,
                     "source": "supported_by_resume",
                     "reason": reason or "Appears in the existing resume content",
+                }
+            )
+        elif skill_key in jd_skills:
+            gaps.append(
+                {
+                    "skill": jd_skills[skill_key],
+                    "source": "jd_gap",
+                    "reason": reason
+                    or "Required or preferred by the job description but not found in the resume",
                 }
             )
         else:
@@ -777,6 +809,7 @@ def verify_skill_target_plan(
 
     return {
         "accepted": accepted,
+        "gaps": gaps,
         "rejected": rejected,
         "strategy_notes": str(raw_plan.get("strategy_notes", "")),
     }
@@ -795,6 +828,7 @@ async def generate_skill_target_plan(
     )
     sanitized_jd = _sanitize_user_input(job_description)
     prompt = SKILL_TARGET_PLAN_PROMPT.format(
+        tailored_resume_skill_guidance=TAILORED_RESUME_SKILL_GUIDANCE,
         output_language=output_language,
         existing_skills=json.dumps(existing_skills, ensure_ascii=False),
         job_keywords=_prepare_keywords_for_prompt(job_keywords),
@@ -913,6 +947,7 @@ async def improve_resume(
         resume_input = original_resume
 
     prompt = prompt_template.format(
+        tailored_resume_skill_guidance=TAILORED_RESUME_SKILL_GUIDANCE,
         job_description=sanitized_jd,
         job_keywords=keywords_str,
         original_resume=resume_input,
@@ -1331,8 +1366,24 @@ def calculate_resume_diff(
     return summary, changes
 
 
+def _coerce_keyword_strings(value: Any) -> list[str]:
+    """Normalize LLM keyword fields into a list of non-empty strings."""
+    if isinstance(value, str):
+        stripped = value.strip()
+        return [stripped] if stripped else []
+    if not isinstance(value, list):
+        return []
+    result: list[str] = []
+    for item in value:
+        if isinstance(item, str):
+            stripped = item.strip()
+            if stripped:
+                result.append(stripped)
+    return result
+
+
 def generate_improvements(job_keywords: dict[str, Any]) -> list[dict[str, Any]]:
-    """Generate improvement suggestions based on job keywords.
+    """Generate improvement suggestions based on the tailored-resume workflow.
 
     Args:
         job_keywords: Extracted job keywords
@@ -1342,9 +1393,21 @@ def generate_improvements(job_keywords: dict[str, Any]) -> list[dict[str, Any]]:
     """
     improvements = []
 
+    priority_requirements = _coerce_keyword_strings(
+        job_keywords.get("priority_1_requirements", [])
+    )
+    for requirement in priority_requirements[:2]:
+        improvements.append(
+            {
+                "suggestion": f"Prioritized critical requirement: {requirement}",
+                "lineNumber": None,
+            }
+        )
+
     # Generate suggestions based on required skills
-    required_skills = job_keywords.get("required_skills", [])
-    for skill in required_skills[:3]:  # Top 3 required skills
+    required_skills = _coerce_keyword_strings(job_keywords.get("required_skills", []))
+    remaining_skill_slots = max(0, 3 - len(improvements))
+    for skill in required_skills[:remaining_skill_slots]:
         improvements.append(
             {
                 "suggestion": f"Emphasized '{skill}' to match job requirements",
@@ -1353,11 +1416,22 @@ def generate_improvements(job_keywords: dict[str, Any]) -> list[dict[str, Any]]:
         )
 
     # Generate suggestions based on key responsibilities
-    responsibilities = job_keywords.get("key_responsibilities", [])
-    for resp in responsibilities[:2]:  # Top 2 responsibilities
+    responsibilities = _coerce_keyword_strings(
+        job_keywords.get("key_responsibilities", [])
+    )
+    for resp in responsibilities[:2]:
         improvements.append(
             {
                 "suggestion": f"Aligned experience with: {resp}",
+                "lineNumber": None,
+            }
+        )
+
+    company_values = _coerce_keyword_strings(job_keywords.get("company_values", []))
+    for value in company_values[:1]:
+        improvements.append(
+            {
+                "suggestion": f"Reflected company value signal: {value}",
                 "lineNumber": None,
             }
         )

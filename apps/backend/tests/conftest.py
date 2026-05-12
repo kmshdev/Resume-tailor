@@ -97,12 +97,18 @@ def sample_job_keywords() -> dict:
     return {
         "required_skills": ["Python", "FastAPI", "Docker", "Kubernetes"],
         "preferred_skills": ["AWS", "Terraform", "GraphQL"],
+        "soft_skills": ["technical leadership", "cross-functional communication"],
+        "industry_knowledge": ["developer platforms"],
         "experience_requirements": ["5+ years backend development"],
         "education_requirements": ["Bachelor's in CS or equivalent"],
         "key_responsibilities": [
             "Design and build scalable APIs",
             "Lead technical architecture decisions",
         ],
+        "company_values": ["customer focus"],
+        "priority_1_requirements": ["5+ years building Python APIs"],
+        "priority_2_requirements": ["AWS deployment experience"],
+        "priority_3_requirements": ["GraphQL familiarity"],
         "keywords": ["microservices", "CI/CD", "agile", "REST API"],
         "experience_years": 5,
         "seniority_level": "senior",

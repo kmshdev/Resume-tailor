@@ -1,5 +1,7 @@
 """Integration tests for resume CRUD endpoints."""
 
+import copy
+from types import SimpleNamespace
 from unittest.mock import patch, AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -7,6 +9,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from app.main import app
+from app.schemas.models import ImproveDiffResult
 
 
 @pytest.fixture
@@ -171,3 +174,205 @@ class TestRetryProcessing:
         async with client:
             resp = await client.post("/api/v1/resumes/res-123/retry-processing")
         assert resp.status_code == 400
+
+
+class TestImproveTailoringWorkflow:
+    """Integration coverage for the backend tailoring workflow."""
+
+    async def test_direct_improve_uses_verified_skill_targets(
+        self,
+        client,
+        mock_resume_record,
+        sample_resume,
+        sample_job_keywords,
+        sample_job_description,
+    ):
+        tailored_resume = copy.deepcopy(sample_resume)
+        tailored_resume["additional"]["technicalSkills"].append("OpenAPI")
+        verified_targets = [
+            {
+                "skill": "OpenAPI",
+                "source": "supported_by_resume",
+                "reason": "Appears in project content",
+            }
+        ]
+
+        with (
+            patch("app.routers.resumes.db") as mock_db,
+            patch(
+                "app.routers.resumes.extract_job_keywords",
+                new_callable=AsyncMock,
+            ) as mock_extract_keywords,
+            patch(
+                "app.routers.resumes.generate_skill_target_plan",
+                new_callable=AsyncMock,
+            ) as mock_generate_skill_target_plan,
+            patch("app.routers.resumes.verify_skill_target_plan") as mock_verify_plan,
+            patch(
+                "app.routers.resumes.generate_resume_diffs",
+                new_callable=AsyncMock,
+            ) as mock_generate_diffs,
+            patch("app.routers.resumes.apply_diffs") as mock_apply_diffs,
+            patch(
+                "app.routers.resumes.refine_resume",
+                new_callable=AsyncMock,
+            ) as mock_refine_resume,
+            patch(
+                "app.routers.resumes._generate_auxiliary_messages",
+                new_callable=AsyncMock,
+            ) as mock_auxiliary_messages,
+        ):
+            mock_db.get_resume.return_value = mock_resume_record
+            mock_db.get_job.return_value = {
+                "job_id": "job-123",
+                "content": sample_job_description,
+            }
+            mock_db.get_master_resume.return_value = None
+            mock_db.create_resume.return_value = {
+                **mock_resume_record,
+                "resume_id": "tailored-123",
+                "parent_id": "res-123",
+                "processed_data": tailored_resume,
+                "is_master": False,
+                "title": "Senior Backend Engineer @ TechCorp",
+            }
+            mock_db.create_improvement.return_value = {}
+
+            mock_extract_keywords.return_value = sample_job_keywords
+            mock_generate_skill_target_plan.return_value = {
+                "target_skills": verified_targets,
+                "strategy_notes": "Prioritize platform requirements",
+            }
+            mock_verify_plan.return_value = {
+                "accepted": verified_targets,
+                "gaps": [{"skill": "Kubernetes", "source": "jd_gap"}],
+                "rejected": [{"skill": "BananaDB", "source": "unsupported"}],
+            }
+            mock_generate_diffs.return_value = ImproveDiffResult(
+                changes=[],
+                strategy_notes="Used verified skill targets",
+            )
+            mock_apply_diffs.return_value = (tailored_resume, [], [])
+            mock_refine_resume.return_value = SimpleNamespace(
+                refined_data=tailored_resume,
+                passes_completed=0,
+                keyword_analysis=None,
+                ai_phrases_removed=[],
+                alignment_report=None,
+                final_match_percentage=0.0,
+            )
+            mock_auxiliary_messages.return_value = (
+                None,
+                None,
+                "Senior Backend Engineer @ TechCorp",
+                [],
+            )
+
+            async with client:
+                resp = await client.post(
+                    "/api/v1/resumes/improve",
+                    json={
+                        "resume_id": "res-123",
+                        "job_id": "job-123",
+                        "prompt_id": "full",
+                    },
+                )
+
+        assert resp.status_code == 200
+        payload = resp.json()["data"]
+        assert payload["resume_id"] == "tailored-123"
+        assert "1 unsupported skill target(s) rejected" in payload["warnings"]
+        mock_generate_skill_target_plan.assert_awaited_once()
+        assert mock_generate_diffs.await_args.kwargs["skill_targets"] == verified_targets
+        assert mock_apply_diffs.call_args.kwargs["allowed_skill_targets"] == verified_targets
+
+    async def test_preview_improve_uses_verified_skill_targets(
+        self,
+        client,
+        mock_resume_record,
+        sample_resume,
+        sample_job_keywords,
+        sample_job_description,
+    ):
+        tailored_resume = copy.deepcopy(sample_resume)
+        tailored_resume["additional"]["technicalSkills"].append("OpenAPI")
+        verified_targets = [
+            {
+                "skill": "OpenAPI",
+                "source": "supported_by_resume",
+                "reason": "Appears in project content",
+            }
+        ]
+
+        with (
+            patch("app.routers.resumes.db") as mock_db,
+            patch(
+                "app.routers.resumes.extract_job_keywords",
+                new_callable=AsyncMock,
+            ) as mock_extract_keywords,
+            patch(
+                "app.routers.resumes.generate_skill_target_plan",
+                new_callable=AsyncMock,
+            ) as mock_generate_skill_target_plan,
+            patch("app.routers.resumes.verify_skill_target_plan") as mock_verify_plan,
+            patch(
+                "app.routers.resumes.generate_resume_diffs",
+                new_callable=AsyncMock,
+            ) as mock_generate_diffs,
+            patch("app.routers.resumes.apply_diffs") as mock_apply_diffs,
+            patch(
+                "app.routers.resumes.refine_resume",
+                new_callable=AsyncMock,
+            ) as mock_refine_resume,
+        ):
+            mock_db.get_resume.return_value = mock_resume_record
+            mock_db.get_job.return_value = {
+                "job_id": "job-123",
+                "content": sample_job_description,
+            }
+            mock_db.update_job.return_value = {
+                "job_id": "job-123",
+                "content": sample_job_description,
+            }
+            mock_db.get_master_resume.return_value = None
+
+            mock_extract_keywords.return_value = sample_job_keywords
+            mock_generate_skill_target_plan.return_value = {
+                "target_skills": verified_targets,
+                "strategy_notes": "Prioritize supported platform evidence",
+            }
+            mock_verify_plan.return_value = {
+                "accepted": verified_targets,
+                "gaps": [{"skill": "Kubernetes", "source": "jd_gap"}],
+                "rejected": [],
+            }
+            mock_generate_diffs.return_value = ImproveDiffResult(
+                changes=[],
+                strategy_notes="Used verified skill targets",
+            )
+            mock_apply_diffs.return_value = (tailored_resume, [], [])
+            mock_refine_resume.return_value = SimpleNamespace(
+                refined_data=tailored_resume,
+                passes_completed=0,
+                keyword_analysis=None,
+                ai_phrases_removed=[],
+                alignment_report=None,
+                final_match_percentage=0.0,
+            )
+
+            async with client:
+                resp = await client.post(
+                    "/api/v1/resumes/improve/preview",
+                    json={
+                        "resume_id": "res-123",
+                        "job_id": "job-123",
+                        "prompt_id": "full",
+                    },
+                )
+
+        assert resp.status_code == 200
+        payload = resp.json()["data"]
+        assert payload["resume_id"] is None
+        mock_generate_skill_target_plan.assert_awaited_once()
+        assert mock_generate_diffs.await_args.kwargs["skill_targets"] == verified_targets
+        assert mock_apply_diffs.call_args.kwargs["allowed_skill_targets"] == verified_targets

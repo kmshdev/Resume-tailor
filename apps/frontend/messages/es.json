@@ -504,6 +504,10 @@
     "promptLabel": "Intensidad de ajuste",
     "promptDescription": "Elige qué tanto alinear tu currículum con la descripción del puesto.",
     "promptOptions": {
+      "tailored_resume_generator": {
+        "label": "Ajuste con skill",
+        "description": "Ejecuta análisis de prioridades, alineación ATS y revisión de brechas verificadas."
+      },
       "nudge": {
         "label": "Ajuste leve",
         "description": "Cambios mínimos para alinear tu experiencia existente."

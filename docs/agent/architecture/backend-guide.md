@@ -69,7 +69,7 @@ DELETE /api/v1/resumes/{id}
 
 **Upload:** File → markitdown → Markdown → LLM parse → JSON → TinyDB
 
-**Improve:** Resume + Job → Extract keywords (LLM) → Tailor (LLM) → Store
+**Improve:** Resume + Job → Extract priority keywords (LLM) → Verify skill targets → Generate/apply diffs → Refine → Store
 
 ## Error Handling
 

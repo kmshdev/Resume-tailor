@@ -504,6 +504,10 @@
     "promptLabel": "調整の強さ",
     "promptDescription": "求人情報にどの程度合わせるかを選択してください。",
     "promptOptions": {
+      "tailored_resume_generator": {
+        "label": "スキル調整",
+        "description": "優先度分析、ATS 対応、検証済みスキルギャップ確認を実行。"
+      },
       "nudge": {
         "label": "軽く調整",
         "description": "既存の経験に合わせて最小限の修正。"
