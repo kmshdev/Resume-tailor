@@ -241,10 +241,30 @@ async def validate_public_url(url: str) -> str:
     except ValueError:
         pass
 
-    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    try:
+        parsed_port = parsed.port
+    except ValueError as exc:
+        raise JobIntakeError("Invalid port in URL.") from exc
+    port = parsed_port or (443 if parsed.scheme == "https" else 80)
     await _resolve_public_addresses(hostname, port)
 
     return parsed.geturl()
+
+
+def _redact_url_for_logging(url: str) -> str:
+    """Return a URL safe for logs by dropping secrets and user-specific state."""
+    parsed = urlparse(url)
+    if not parsed.scheme or not parsed.hostname:
+        return "<invalid-url>"
+
+    hostname = parsed.hostname
+    host = f"[{hostname}]" if ":" in hostname else hostname
+    try:
+        port = parsed.port
+    except ValueError:
+        port = None
+    netloc = f"{host}:{port}" if port else host
+    return parsed._replace(netloc=netloc, query="", fragment="").geturl()
 
 
 def extract_links_from_text(text: str) -> list[DetectedJobLink]:
@@ -476,7 +496,10 @@ async def _fulfill_with_safe_fetch(route: Any) -> None:
     try:
         fetched = await _fetch_url(request.url)
     except JobIntakeError:
-        logger.warning("Blocked unsafe browser request during JD intake: %s", request.url)
+        logger.warning(
+            "Blocked unsafe browser request during JD intake: %s",
+            _redact_url_for_logging(request.url),
+        )
         await route.abort()
         return
 
@@ -531,6 +554,11 @@ def _pdf_filename_from_url(url: str) -> str:
     if filename.lower().endswith(".pdf"):
         return filename
     return "job.pdf"
+
+
+def _filename_looks_like_pdf(filename: str) -> bool:
+    """Return whether an upload filename has a PDF extension."""
+    return Path(filename).suffix.lower() == ".pdf"
 
 
 async def _maybe_refine_with_llm(raw_text: str) -> dict[str, Any] | None:
@@ -605,6 +633,9 @@ async def extract_pdf_upload(
     resume_text: str | None = None,
 ) -> JobIntakeExtractResponse:
     """Extract JD text from uploaded PDF bytes."""
+    if not _filename_looks_like_pdf(filename) or not body_looks_like_pdf(content):
+        raise JobIntakeError("Uploaded file is not a valid PDF.")
+
     markdown = await parse_document(content, "job.pdf")
     if not markdown.strip():
         raise JobIntakeError("Could not extract text from the uploaded PDF.")
@@ -644,7 +675,11 @@ async def _extract_remote_url(
                 source_title = playwright_title or source_title
                 method = "playwright"
             except Exception as exc:
-                logger.warning("Playwright JD fallback failed for %s: %s", fetched.url, exc)
+                logger.warning(
+                    "Playwright JD fallback failed for %s: %s",
+                    _redact_url_for_logging(fetched.url),
+                    exc,
+                )
                 warnings.append("Browser fallback failed; please review extracted text.")
 
     metadata_source_text = raw_text

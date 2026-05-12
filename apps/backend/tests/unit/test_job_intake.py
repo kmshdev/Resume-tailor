@@ -13,6 +13,7 @@ from app.services.job_intake import (
     _extract_remote_url,
     _fetch_url,
     _maybe_refine_with_llm,
+    _redact_url_for_logging,
     _resolve_public_addresses,
     build_evidence_only_answer,
     extract_job_intake,
@@ -39,6 +40,20 @@ async def test_validate_public_url_rejects_shared_address_space() -> None:
 async def test_validate_public_url_rejects_userinfo() -> None:
     with pytest.raises(JobIntakeError, match="credentials"):
         await validate_public_url("https://user:pass@example.com/jobs/123")
+
+
+@pytest.mark.asyncio
+async def test_validate_public_url_rejects_invalid_port() -> None:
+    with pytest.raises(JobIntakeError, match="Invalid port"):
+        await validate_public_url("https://jobs.example.com:99999/role")
+
+
+def test_redact_url_for_logging_removes_query_fragment_and_credentials() -> None:
+    redacted = _redact_url_for_logging(
+        "https://user:pass@jobs.example.com:8443/role?token=secret#screening"
+    )
+
+    assert redacted == "https://jobs.example.com:8443/role"
 
 
 @pytest.mark.asyncio
@@ -366,7 +381,25 @@ async def test_pdf_upload_uses_safe_parser_filename() -> None:
     with patch("app.services.job_intake.parse_document", new_callable=AsyncMock) as mock_parse:
         mock_parse.return_value = "Senior Backend Engineer using Python and FastAPI."
 
-        response = await extract_pdf_upload(b"%PDF-1.4", "job.docx")
+        response = await extract_pdf_upload(b"%PDF-1.4", "job.pdf")
 
     mock_parse.assert_awaited_once_with(b"%PDF-1.4", "job.pdf")
-    assert response.source_title == "job.docx"
+    assert response.source_title == "job.pdf"
+
+
+@pytest.mark.asyncio
+async def test_pdf_upload_rejects_non_pdf_filename_before_parsing() -> None:
+    with patch("app.services.job_intake.parse_document", new_callable=AsyncMock) as mock_parse:
+        with pytest.raises(JobIntakeError, match="valid PDF"):
+            await extract_pdf_upload(b"%PDF-1.4", "job.docx")
+
+    mock_parse.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_pdf_upload_rejects_non_pdf_bytes_before_parsing() -> None:
+    with patch("app.services.job_intake.parse_document", new_callable=AsyncMock) as mock_parse:
+        with pytest.raises(JobIntakeError, match="valid PDF"):
+            await extract_pdf_upload(b"not a pdf", "job.pdf")
+
+    mock_parse.assert_not_awaited()
