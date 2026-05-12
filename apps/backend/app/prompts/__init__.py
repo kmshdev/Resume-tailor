@@ -12,6 +12,7 @@ from app.prompts.templates import (
     IMPROVE_RESUME_PROMPTS,
     PARSE_RESUME_PROMPT,
     SKILL_TARGET_PLAN_PROMPT,
+    TAILORED_RESUME_SKILL_GUIDANCE,
     get_language_name,
 )
 
@@ -50,6 +51,7 @@ __all__ = [
     "DIFF_IMPROVE_PROMPT",
     "DIFF_STRATEGY_INSTRUCTIONS",
     "SKILL_TARGET_PLAN_PROMPT",
+    "TAILORED_RESUME_SKILL_GUIDANCE",
     "GENERATE_TITLE_PROMPT",
     "REQUIRED_FEATURE_PROMPT_PLACEHOLDERS",
     "validate_prompt_placeholders",

@@ -504,6 +504,10 @@
     "promptLabel": "Intensidade de personalização",
     "promptDescription": "Escolha o quanto alinhar seu currículo à descrição da vaga.",
     "promptOptions": {
+      "tailored_resume_generator": {
+        "label": "Personalização por skill",
+        "description": "Executa análise de prioridade, alinhamento ATS e checagem de lacunas verificadas."
+      },
       "nudge": {
         "label": "Ajuste leve",
         "description": "Edições mínimas para melhor alinhar a experiência existente."

@@ -88,6 +88,14 @@ RESUME_SCHEMA_EXAMPLE = """{
   }
 }"""
 
+TAILORED_RESUME_SKILL_GUIDANCE = """Tailored resume workflow guidance:
+- Analyze the job description for must-have qualifications, important skills, soft skills, industry context, repeated ATS keywords, and company-value signals.
+- Prioritize requirements as Priority 1 critical requirements, Priority 2 important qualifications, and Priority 3 nice-to-have signals.
+- Map candidate evidence to each priority before editing: direct matches first, then truthful transferable skills, then gaps to de-emphasize or flag.
+- Keep the resume ATS-friendly by using standard section content, exact job-description terminology where truthful, and concise bullets with action, scope, and impact.
+- Do not fabricate experience, metrics, certifications, tools, companies, dates, or seniority. Only include skills the candidate can substantiate.
+- Prefer strategic recommendations that call out strengths, gaps, interview talking points, and cover-letter hooks when recommendations are requested."""
+
 # Schema for improve prompts - excludes personalInfo (preserved from original)
 IMPROVE_SCHEMA_EXAMPLE = """{
   "summary": "Experienced software engineer with 5+ years...",
@@ -178,13 +186,21 @@ Resume to parse:
 
 EXTRACT_KEYWORDS_PROMPT = """Extract job requirements as JSON. Output ONLY the JSON object, no other text.
 
+{tailored_resume_skill_guidance}
+
 Example format:
 {{
   "required_skills": ["Python", "AWS"],
   "preferred_skills": ["Kubernetes"],
+  "soft_skills": ["communication", "leadership"],
+  "industry_knowledge": ["healthcare analytics"],
   "experience_requirements": ["5+ years"],
   "education_requirements": ["Bachelor's in CS"],
   "key_responsibilities": ["Lead team"],
+  "company_values": ["customer focus"],
+  "priority_1_requirements": ["5+ years Python API development"],
+  "priority_2_requirements": ["AWS deployment experience"],
+  "priority_3_requirements": ["GraphQL familiarity"],
   "keywords": ["microservices", "agile"],
   "experience_years": 5,
   "seniority_level": "senior"
@@ -215,6 +231,9 @@ def _build_truthfulness_rules(rule_7: str) -> str:
 
 
 CRITICAL_TRUTHFULNESS_RULES = {
+    "tailored_resume_generator": _build_truthfulness_rules(
+        "You may expand existing bullet points or add new ones that elaborate on existing work, but DO NOT invent entirely new responsibilities"
+    ),
     "nudge": _build_truthfulness_rules(
         "DO NOT add new bullet points or content - only rephrase existing content"
     ),
@@ -227,6 +246,8 @@ CRITICAL_TRUTHFULNESS_RULES = {
 }
 
 IMPROVE_RESUME_PROMPT_NUDGE = """Lightly nudge this resume toward the job description. Output ONLY the JSON object, no other text.
+
+{tailored_resume_skill_guidance}
 
 {critical_truthfulness_rules}
 
@@ -259,6 +280,8 @@ Output in this JSON format:
 
 IMPROVE_RESUME_PROMPT_KEYWORDS = """Enhance this resume with relevant keywords from the job description. Output ONLY the JSON object, no other text.
 
+{tailored_resume_skill_guidance}
+
 {critical_truthfulness_rules}
 
 IMPORTANT: Generate ALL text content (summary, descriptions, skills) in {output_language}.
@@ -287,6 +310,8 @@ Output in this JSON format:
 {schema}"""
 
 IMPROVE_RESUME_PROMPT_FULL = """Tailor this resume for the job. Output ONLY the JSON object, no other text.
+
+{tailored_resume_skill_guidance}
 
 {critical_truthfulness_rules}
 
@@ -319,6 +344,11 @@ Output in this JSON format:
 
 IMPROVE_PROMPT_OPTIONS = [
     {
+        "id": "tailored_resume_generator",
+        "label": "Skill tailor",
+        "description": "Use the tailored-resume-generator workflow with priority analysis, ATS alignment, and verified skill gaps.",
+    },
+    {
         "id": "nudge",
         "label": "Light nudge",
         "description": "Minimal edits to better align existing experience.",
@@ -336,12 +366,13 @@ IMPROVE_PROMPT_OPTIONS = [
 ]
 
 IMPROVE_RESUME_PROMPTS = {
+    "tailored_resume_generator": IMPROVE_RESUME_PROMPT_FULL,
     "nudge": IMPROVE_RESUME_PROMPT_NUDGE,
     "keywords": IMPROVE_RESUME_PROMPT_KEYWORDS,
     "full": IMPROVE_RESUME_PROMPT_FULL,
 }
 
-DEFAULT_IMPROVE_PROMPT_ID = "keywords"
+DEFAULT_IMPROVE_PROMPT_ID = "tailored_resume_generator"
 
 # Backward-compatible alias
 IMPROVE_RESUME_PROMPT = IMPROVE_RESUME_PROMPT_FULL
@@ -414,6 +445,7 @@ RESUME_SCHEMA = RESUME_SCHEMA_EXAMPLE
 # Diff-based improvement: outputs targeted changes instead of full resume
 
 DIFF_STRATEGY_INSTRUCTIONS = {
+    "tailored_resume_generator": "Use the tailored-resume-generator workflow: prioritize critical requirements, map truthful resume evidence, surface unsupported JD-only skills as gaps, and make ATS-friendly targeted edits.",
     "nudge": "Make minimal edits. Only rephrase where there is a clear match. Do not add new bullet points.",
     "keywords": "Weave in relevant keywords where evidence already exists. You may rephrase bullets but do not add new ones.",
     "full": "Make targeted adjustments. You may rephrase bullets, add verified JD skills, and add new bullets that elaborate on existing work, but do not invent new responsibilities.",
@@ -423,13 +455,17 @@ SKILL_TARGET_PLAN_PROMPT = """Build a concise skill target plan for tailoring th
 
 Return ONLY a JSON object. Do not rewrite the resume.
 
+{tailored_resume_skill_guidance}
+
 Rules:
 1. Prefer required and preferred JD skills.
 2. Include existing resume skills that are highly relevant to the JD.
-3. You may include JD skills that are missing from the resume skills list.
-4. Do not include skills unrelated to the JD.
-5. Do not include certifications.
-6. Generate reasons in {output_language}.
+3. You may include JD skills missing from the resume skills list only when the skill appears elsewhere in the resume content.
+4. Do not include unsupported JD-only skills as target_skills. Mention them as gaps in strategy_notes instead.
+5. Do not include skills unrelated to the JD.
+6. Do not include certifications.
+7. Treat Priority 1 requirements as the strongest targeting signal.
+8. Generate reasons and strategy notes in {output_language}.
 
 Existing resume skills:
 {existing_skills}
@@ -451,10 +487,12 @@ Output this exact JSON format:
       "reason": "why this skill should be emphasized"
     }}
   ],
-  "strategy_notes": "brief notes for the next editing pass"
+  "strategy_notes": "brief notes on priority requirements, supported strengths, and gaps for the next editing pass"
 }}"""
 
 DIFF_IMPROVE_PROMPT = """Given this resume and job description, output a JSON object with targeted changes to better align the resume with the job.
+
+{tailored_resume_skill_guidance}
 
 RULES:
 1. Only modify content — never change names, companies, dates, institutions, or degrees
@@ -468,6 +506,8 @@ RULES:
 9. Keep changes minimal and targeted — do not rewrite content that already aligns well
 10. Exception to rule 2: you may add a skill only if it appears in the verified skill targets below
 11. Improve work and project bullets around the verified skill targets when the original text supports that alignment
+12. Reorder or rewrite bullets so the most relevant Priority 1 evidence appears first within the same section
+13. Prefer bullet wording in the form: action verb + what was done + how or why + substantiated result or scale
 
 PATHS you can target:
 - "summary" — the resume summary text

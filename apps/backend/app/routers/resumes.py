@@ -137,6 +137,47 @@ def _get_original_resume_data(resume: dict[str, Any]) -> dict[str, Any] | None:
     return original_data
 
 
+async def _build_verified_skill_targets(
+    *,
+    original_resume_data: dict[str, Any],
+    job_description: str,
+    job_keywords: dict[str, Any],
+    language: str,
+    response_warnings: list[str],
+) -> list[dict[str, Any]]:
+    """Create the verified skill targeting plan used by diff-based tailoring."""
+    try:
+        raw_skill_plan = await generate_skill_target_plan(
+            original_resume_data=original_resume_data,
+            job_description=job_description,
+            job_keywords=job_keywords,
+            language=language,
+        )
+        verified_skill_plan = verify_skill_target_plan(
+            raw_skill_plan,
+            original_resume_data=original_resume_data,
+            job_keywords=job_keywords,
+            job_description=job_description,
+        )
+        accepted_targets = verified_skill_plan.get("accepted", [])
+        skill_targets = (
+            [target for target in accepted_targets if isinstance(target, dict)]
+            if isinstance(accepted_targets, list)
+            else []
+        )
+
+        rejected_targets = verified_skill_plan.get("rejected", [])
+        if isinstance(rejected_targets, list) and rejected_targets:
+            response_warnings.append(
+                f"{len(rejected_targets)} unsupported skill target(s) rejected"
+            )
+        return skill_targets
+    except Exception as e:
+        logger.warning("Skill target planning failed, continuing without it: %s", e)
+        response_warnings.append("Skill target planning failed")
+        return []
+
+
 def _get_original_markdown(resume: dict[str, Any]) -> str | None:
     """Get the original markdown content from a resume.
 
@@ -753,35 +794,13 @@ async def _improve_preview_flow(
 
     # Diff-based improvement: generate targeted changes, apply with verification
     if original_resume_data:
-        skill_targets: list[dict[str, Any]] = []
-        try:
-            raw_skill_plan = await generate_skill_target_plan(
-                original_resume_data=original_resume_data,
-                job_description=job["content"],
-                job_keywords=job_keywords,
-                language=language,
-            )
-            verified_skill_plan = verify_skill_target_plan(
-                raw_skill_plan,
-                original_resume_data=original_resume_data,
-                job_keywords=job_keywords,
-                job_description=job["content"],
-            )
-            accepted_targets = verified_skill_plan.get("accepted", [])
-            if isinstance(accepted_targets, list):
-                skill_targets = [
-                    target
-                    for target in accepted_targets
-                    if isinstance(target, dict)
-                ]
-            rejected_targets = verified_skill_plan.get("rejected", [])
-            if isinstance(rejected_targets, list) and rejected_targets:
-                response_warnings.append(
-                    f"{len(rejected_targets)} unsupported skill target(s) rejected"
-                )
-        except Exception as e:
-            logger.warning("Skill target planning failed, continuing without it: %s", e)
-            response_warnings.append("Skill target planning failed")
+        skill_targets = await _build_verified_skill_targets(
+            original_resume_data=original_resume_data,
+            job_description=job["content"],
+            job_keywords=job_keywords,
+            language=language,
+            response_warnings=response_warnings,
+        )
 
         diff_result = await generate_resume_diffs(
             original_resume=resume["content"],
@@ -1135,6 +1154,14 @@ async def improve_resume_endpoint(
 
         # Diff-based improvement: generate targeted changes, apply with verification
         if original_resume_data:
+            skill_targets = await _build_verified_skill_targets(
+                original_resume_data=original_resume_data,
+                job_description=job["content"],
+                job_keywords=job_keywords,
+                language=language,
+                response_warnings=response_warnings,
+            )
+
             diff_result = await generate_resume_diffs(
                 original_resume=resume["content"],
                 job_description=job["content"],
@@ -1142,11 +1169,13 @@ async def improve_resume_endpoint(
                 language=language,
                 prompt_id=prompt_id,
                 original_resume_data=original_resume_data,
+                skill_targets=skill_targets,
             )
 
             improved_data, applied_changes, rejected_changes = apply_diffs(
                 original=original_resume_data,
                 changes=diff_result.changes,
+                allowed_skill_targets=skill_targets,
             )
 
             diff_warnings = verify_diff_result(

@@ -504,6 +504,10 @@
     "promptLabel": "匹配强度",
     "promptDescription": "选择与职位描述对齐的程度。",
     "promptOptions": {
+      "tailored_resume_generator": {
+        "label": "技能定制",
+        "description": "运行优先级分析、ATS 对齐和已验证技能差距检查。"
+      },
       "nudge": {
         "label": "轻度调整",
         "description": "最小化修改以更好匹配现有经验。"

@@ -293,6 +293,41 @@ class TestLanguageConfig:
         assert resp.status_code == 400
 
 
+class TestPromptConfig:
+    """GET/PUT /api/v1/config/prompts"""
+
+    @patch("app.routers.config._load_config")
+    async def test_get_prompts_defaults_to_skill_workflow(self, mock_load, client):
+        mock_load.return_value = {}
+        async with client:
+            resp = await client.get("/api/v1/config/prompts")
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["default_prompt_id"] == "tailored_resume_generator"
+        option_ids = [option["id"] for option in data["prompt_options"]]
+        assert option_ids[0] == "tailored_resume_generator"
+        assert {"nudge", "keywords", "full"}.issubset(set(option_ids))
+
+    @patch("app.routers.config._save_config")
+    @patch("app.routers.config._load_config")
+    async def test_put_prompts_accepts_skill_workflow(
+        self, mock_load, mock_save, client
+    ):
+        mock_load.return_value = {}
+        async with client:
+            resp = await client.put(
+                "/api/v1/config/prompts",
+                json={"default_prompt_id": "tailored_resume_generator"},
+            )
+
+        assert resp.status_code == 200
+        assert resp.json()["default_prompt_id"] == "tailored_resume_generator"
+        assert mock_save.call_args.args[0]["default_prompt_id"] == (
+            "tailored_resume_generator"
+        )
+
+
 class TestResetDatabase:
     """POST /api/v1/config/reset"""
 

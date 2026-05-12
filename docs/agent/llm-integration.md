@@ -71,6 +71,18 @@ except Exception as e:
 
 Add new prompt templates to `apps/backend/app/prompts/templates.py`.
 
+### Tailored Resume Workflow
+
+Resume tailoring prompts include a shared `TAILORED_RESUME_SKILL_GUIDANCE` block adapted from the Composio tailored-resume-generator skill. Keep that guidance wired into:
+
+- `EXTRACT_KEYWORDS_PROMPT` for priority requirements, ATS keywords, soft skills, industry context, and company values.
+- `SKILL_TARGET_PLAN_PROMPT` for verified skill targeting before diff generation.
+- `DIFF_IMPROVE_PROMPT` and `IMPROVE_RESUME_PROMPTS` for conservative ATS-friendly resume edits.
+
+The app exposes this as the first prompt option, `tailored_resume_generator`, and uses it as the default tailoring strategy when no saved default exists.
+
+Smoke-test expectation: the backend should extract job priorities, verify skill targets against the resume/JD, pass accepted targets into diff generation and `apply_diffs()`, and reject unsupported skill additions.
+
 ### Prompt Guidelines
 
 1. Use `{variable}` for substitution (single braces)

@@ -134,7 +134,7 @@ export default function SettingsPage() {
   const [featureConfigLoading, setFeatureConfigLoading] = useState(false);
   const [promptConfigLoading, setPromptConfigLoading] = useState(false);
   const [promptOptions, setPromptOptions] = useState<PromptOption[]>([]);
-  const [defaultPromptId, setDefaultPromptId] = useState('keywords');
+  const [defaultPromptId, setDefaultPromptId] = useState('tailored_resume_generator');
 
   // Custom feature prompts (cover letter, cold outreach). Empty string
   // means "use default"; the backend's *_default fields give us the
@@ -173,6 +173,11 @@ export default function SettingsPage() {
   const fallbackPromptOptions = useMemo<PromptOption[]>(
     () => [
       {
+        id: 'tailored_resume_generator',
+        label: t('tailor.promptOptions.tailored_resume_generator.label'),
+        description: t('tailor.promptOptions.tailored_resume_generator.description'),
+      },
+      {
         id: 'nudge',
         label: t('tailor.promptOptions.nudge.label'),
         description: t('tailor.promptOptions.nudge.description'),
@@ -192,6 +197,10 @@ export default function SettingsPage() {
   );
   const promptOptionOverrides = useMemo<Record<string, { label: string; description: string }>>(
     () => ({
+      tailored_resume_generator: {
+        label: t('tailor.promptOptions.tailored_resume_generator.label'),
+        description: t('tailor.promptOptions.tailored_resume_generator.description'),
+      },
       nudge: {
         label: t('tailor.promptOptions.nudge.label'),
         description: t('tailor.promptOptions.nudge.description'),
@@ -299,7 +308,7 @@ export default function SettingsPage() {
 
         if (promptConfig) {
           setPromptOptions(promptConfig.prompt_options || []);
-          setDefaultPromptId(promptConfig.default_prompt_id || 'keywords');
+          setDefaultPromptId(promptConfig.default_prompt_id || 'tailored_resume_generator');
         }
 
         if (featurePrompts) {
