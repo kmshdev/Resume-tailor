@@ -53,6 +53,18 @@ from app.schemas.models import (
     UpdateOutreachMessageRequest,
     UpdateTitleRequest,
 )
+from app.schemas.job_intake import (
+    DetectedJobLink,
+    DraftAnswer,
+    ExtractionMethod,
+    JobIntakeConfirmRequest,
+    JobIntakeConfirmResponse,
+    JobIntakeExtractRequest,
+    JobIntakeExtractResponse,
+    JobIntakeMetadata,
+    JobSourceType,
+    ScreeningQuestion,
+)
 
 __all__ = [
     "PersonalInfo",
@@ -106,4 +118,14 @@ __all__ = [
     "GenerateContentResponse",
     "HealthResponse",
     "StatusResponse",
+    "DetectedJobLink",
+    "DraftAnswer",
+    "ExtractionMethod",
+    "JobIntakeConfirmRequest",
+    "JobIntakeConfirmResponse",
+    "JobIntakeExtractRequest",
+    "JobIntakeExtractResponse",
+    "JobIntakeMetadata",
+    "JobSourceType",
+    "ScreeningQuestion",
 ]

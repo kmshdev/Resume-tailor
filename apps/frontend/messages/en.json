@@ -501,6 +501,48 @@
     "pasteJobDescription": "Paste Job Description",
     "pasteJobDescriptionBelow": "Paste Job Description Below",
     "jobDescriptionPlaceholder": "Paste the job description here...",
+    "intake": {
+      "subtitle": "Add a job URL, PDF, recruiter message, or manual JD",
+      "stepLabel": "Step {step}",
+      "sources": {
+        "manual_text": "Manual Paste",
+        "job_url": "Job URL",
+        "pdf_url": "PDF URL",
+        "pdf_upload": "PDF Upload",
+        "recruiter_message": "Recruiter Message"
+      },
+      "inputLabel": "Job Source",
+      "placeholders": {
+        "manual_text": "Paste the job description here...",
+        "job_url": "https://company.com/jobs/role",
+        "pdf_url": "https://company.com/job-description.pdf",
+        "recruiter_message": "Paste the recruiter message, job link, and questions..."
+      },
+      "extractButton": "Extract JD",
+      "extracting": "Extracting",
+      "reviewTitle": "Review Extracted JD",
+      "changeSource": "Change Source",
+      "reviewJdLabel": "Job Description Used for Tailoring",
+      "methods": {
+        "manual": "Manual",
+        "deterministic": "Parsed",
+        "http": "HTTP",
+        "playwright": "Browser",
+        "pdf": "PDF",
+        "llm": "AI Cleaned"
+      },
+      "confidence": "{value}% confidence",
+      "linksTitle": "Detected Links",
+      "questionsTitle": "Screening Questions",
+      "needsInput": "Needs your input before sending.",
+      "warningsTitle": "Review Notes",
+      "confirmButton": "Use This JD",
+      "confirming": "Saving JD",
+      "errors": {
+        "extractFailed": "Couldn't extract the job description.",
+        "confirmFailed": "Couldn't save the reviewed job description."
+      }
+    },
     "promptLabel": "Tailoring intensity",
     "promptDescription": "Choose how strongly to align your resume to the job description.",
     "promptOptions": {

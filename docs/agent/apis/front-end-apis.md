@@ -40,6 +40,17 @@ updateCoverLetter(resumeId: string, content: string) → void
 updateOutreachMessage(resumeId: string, content: string) → void
 ```
 
+## Job Intake Operations (`lib/api/job-intake.ts`)
+
+```typescript
+// Extract reviewable JD content before tailoring
+extractJobIntake(request) → JobIntakeExtractResponse
+uploadJobIntakePdf(file: File) → JobIntakeExtractResponse
+confirmJobIntake(request) → { job_id }
+```
+
+The reviewed `job_description` becomes the canonical job content used by tailoring. Screening questions, detected links, warnings, extraction method, and draft answers are stored as job metadata and are not appended to the JD used for keyword extraction.
+
 ## Config Operations (`lib/api/config.ts`)
 
 ```typescript

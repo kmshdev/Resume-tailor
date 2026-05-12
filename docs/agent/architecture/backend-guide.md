@@ -60,6 +60,8 @@ GET  /api/v1/health          # LLM check
 GET  /api/v1/status          # Full status
 GET/PUT /api/v1/config/llm-api-key
 POST /api/v1/resumes/upload  # PDF/DOCX
+POST /api/v1/jobs/intake/extract # Extract reviewable JD
+POST /api/v1/jobs/intake/confirm # Store reviewed JD
 POST /api/v1/resumes/improve # Tailor (LLM)
 GET  /api/v1/resumes/{id}/pdf
 DELETE /api/v1/resumes/{id}
@@ -68,6 +70,8 @@ DELETE /api/v1/resumes/{id}
 ## Data Flow
 
 **Upload:** File → markitdown → Markdown → LLM parse → JSON → TinyDB
+
+**JD Intake:** URL/PDF/message/manual source → Extract reviewable JD + metadata → Store reviewed JD
 
 **Improve:** Resume + Job → Extract priority keywords (LLM) → Verify skill targets → Generate/apply diffs → Refine → Store
 

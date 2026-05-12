@@ -4,15 +4,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { useResumePreview } from '@/components/common/resume_previewer_context';
 import type { ImprovedResult } from '@/components/common/resume_previewer_context';
 import type { ResumeData } from '@/components/dashboard/resume-component';
-import {
-  uploadJobDescriptions,
-  previewImproveResume,
-  confirmImproveResume,
-} from '@/lib/api/resume';
+import { previewImproveResume, confirmImproveResume } from '@/lib/api/resume';
 import { fetchPromptConfig, type PromptOption } from '@/lib/api/config';
 import { Dropdown } from '@/components/ui/dropdown';
 import { useStatusCache } from '@/lib/context/status-cache';
@@ -20,6 +15,7 @@ import { Loader2, ArrowLeft, AlertTriangle, Settings } from 'lucide-react';
 import { useTranslations } from '@/lib/i18n';
 import { DiffPreviewModal } from '@/components/tailor/diff-preview-modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { JobIntakeWizard } from '@/components/tailor/job-intake-wizard';
 
 export default function TailorPage() {
   const { t } = useTranslations();
@@ -27,6 +23,7 @@ export default function TailorPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [masterResumeId, setMasterResumeId] = useState<string | null>(null);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [promptOptions, setPromptOptions] = useState<PromptOption[]>([]);
   const [selectedPromptId, setSelectedPromptId] = useState('tailored_resume_generator');
   const [promptLoading, setPromptLoading] = useState(false);
@@ -115,10 +112,6 @@ export default function TailorPage() {
     };
   }, []);
 
-  const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter') e.stopPropagation();
-  };
-
   const buildConfirmPayload = (result: ImprovedResult) => {
     if (!masterResumeId) {
       throw new Error('Master resume ID is missing.');
@@ -169,14 +162,8 @@ export default function TailorPage() {
     return null;
   };
 
-  const runGenerate = async (resumeId: string, description: string) => {
+  const runPreviewForJob = async (resumeId: string, jobId: string) => {
     try {
-      // 1. Upload Job Description
-      // The API expects an array of strings
-      const jobId = await uploadJobDescriptions([description], resumeId);
-      incrementJobs(); // Update cached counter
-
-      // 2. Preview Resume
       const result = await previewImproveResume(resumeId, jobId, selectedPromptId);
 
       if (!result?.data?.diff_summary || !result?.data?.detailed_changes) {
@@ -190,7 +177,6 @@ export default function TailorPage() {
         return;
       }
 
-      // 3. Show diff preview modal
       setDiffConfirmError(null);
       setMissingDiffError(null);
       setPendingResult(result);
@@ -222,8 +208,14 @@ export default function TailorPage() {
     }
   };
 
-  const handleGenerate = async () => {
-    const trimmedDescription = jobDescription.trim();
+  const handleJobConfirmed = async ({
+    jobId,
+    jobDescription: reviewedJobDescription,
+  }: {
+    jobId: string;
+    jobDescription: string;
+  }) => {
+    const trimmedDescription = reviewedJobDescription.trim();
     if (!trimmedDescription || !masterResumeId) return;
     const validationError = getGenerateValidationError(trimmedDescription);
     if (validationError) {
@@ -231,11 +223,14 @@ export default function TailorPage() {
       return;
     }
     const resumeId = masterResumeId;
+    setCurrentJobId(jobId);
+    setJobDescription(trimmedDescription);
+    incrementJobs();
     setIsLoading(true);
     setError(null);
     startTimer();
     try {
-      await runGenerate(resumeId, trimmedDescription);
+      await runPreviewForJob(resumeId, jobId);
     } finally {
       setIsLoading(false);
       stopTimer();
@@ -308,7 +303,7 @@ export default function TailorPage() {
   const handleRegenerateConfirm = async () => {
     setShowRegenerateDialog(false);
     const trimmedDescription = jobDescription.trim();
-    if (!trimmedDescription || !masterResumeId) return;
+    if (!trimmedDescription || !masterResumeId || !currentJobId) return;
     const validationError = getGenerateValidationError(trimmedDescription);
     if (validationError) {
       setError(validationError);
@@ -319,7 +314,7 @@ export default function TailorPage() {
     setError(null);
     startTimer();
     try {
-      await runGenerate(resumeId, trimmedDescription);
+      await runPreviewForJob(resumeId, currentJobId);
     } finally {
       setIsLoading(false);
       stopTimer();
@@ -341,7 +336,7 @@ export default function TailorPage() {
           </h1>
           <p className="font-mono text-sm text-blue-700 font-bold uppercase">
             {'// '}
-            {t('tailor.pasteJobDescriptionBelow')}
+            {t('tailor.intake.subtitle')}
           </p>
         </div>
 
@@ -413,19 +408,22 @@ export default function TailorPage() {
             disabled={isLoading || promptLoading}
           />
 
-          <div className="relative">
-            <Textarea
-              placeholder={t('tailor.jobDescriptionPlaceholder')}
-              className="min-h-[300px] font-mono text-sm bg-background border-2 border-black focus:ring-0 focus:border-blue-700 resize-none p-4 rounded-none"
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              onKeyDown={handleTextareaKeyDown}
-              disabled={isLoading}
+          {masterResumeId && (
+            <JobIntakeWizard
+              masterResumeId={masterResumeId}
+              disabled={isLoading || statusLoading}
+              canTailor={Boolean(isLlmConfigured)}
+              onJobConfirmed={handleJobConfirmed}
             />
-            <div className="absolute bottom-2 right-2 text-xs font-mono text-steel-grey pointer-events-none">
-              {t('tailor.charactersCount', { count: jobDescription.length })}
+          )}
+
+          {isLoading && (
+            <div className="border-2 border-black bg-white p-4 font-mono text-sm flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              {t('common.processing')}
+              {elapsed > 0 && <span className="text-xs opacity-70">{elapsed}s</span>}
             </div>
-          </div>
+          )}
 
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-mono flex items-center gap-2">
@@ -433,31 +431,12 @@ export default function TailorPage() {
             </div>
           )}
 
-          <Button
-            size="lg"
-            onClick={handleGenerate}
-            disabled={isLoading || statusLoading || !jobDescription.trim() || !isLlmConfigured}
-            className="w-full"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                {t('common.processing')}
-                {elapsed > 0 && (
-                  <span className="font-mono text-xs opacity-70 ml-2">{elapsed}s</span>
-                )}
-              </>
-            ) : statusLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                {t('common.checking')}
-              </>
-            ) : !isLlmConfigured ? (
-              t('tailor.configureApiKeyFirst')
-            ) : (
-              t('tailor.generateTailored')
-            )}
-          </Button>
+          {statusLoading && (
+            <div className="border-2 border-black bg-white p-4 font-mono text-sm flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              {t('common.checking')}
+            </div>
+          )}
         </div>
       </div>
 
