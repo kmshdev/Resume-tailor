@@ -1,12 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
-import Check from 'lucide-react/dist/esm/icons/check';
-import FileUp from 'lucide-react/dist/esm/icons/file-up';
-import Lock from 'lucide-react/dist/esm/icons/lock';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { StackingCardItem, StackingCards } from '@/components/fancy/stacking-cards';
+import { TailorStepCard, type TailorStepState } from '@/components/tailor/tailor-step-card';
 import { useTranslations } from '@/lib/i18n';
 
 interface TailorCardStackProps {
@@ -19,9 +15,10 @@ interface TailorCardStackProps {
 
 type StackCard = {
   key: 'masterResume' | 'jobIntake' | 'tailorFlow' | 'reviewLift';
-  active: boolean;
-  enabled: boolean;
-  tone: string;
+  state: TailorStepState;
+  actionHref?: string;
+  actionKind?: 'navigate' | 'upload';
+  onAction?: () => void;
 };
 
 export function TailorCardStack({
@@ -35,103 +32,66 @@ export function TailorCardStack({
   const cards: StackCard[] = [
     {
       key: 'masterResume',
-      active: hasMasterResume,
-      enabled: canUploadMaster,
-      tone: hasMasterResume
-        ? 'bg-green-700 text-white'
-        : canUploadMaster
-          ? 'bg-background text-black'
-          : 'bg-secondary text-black',
+      state: hasMasterResume ? 'complete' : 'active',
+      actionKind: !hasMasterResume && canUploadMaster ? 'upload' : undefined,
+      onAction: !hasMasterResume && canUploadMaster ? onUploadMaster : undefined,
     },
     {
       key: 'jobIntake',
-      active: canTailor || hasTailoredResume,
-      enabled: canTailor,
-      tone: canTailor || hasTailoredResume ? 'bg-blue-700 text-white' : 'bg-secondary text-black',
+      state: canTailor || hasTailoredResume ? 'active' : 'pending',
+      actionHref: canTailor ? '/tailor' : undefined,
     },
     {
       key: 'tailorFlow',
-      active: hasTailoredResume,
-      enabled: canTailor,
-      tone: hasTailoredResume ? 'bg-black text-white' : 'bg-white text-black',
+      state: hasTailoredResume ? 'complete' : 'pending',
+      actionHref: canTailor ? '/tailor' : undefined,
     },
     {
       key: 'reviewLift',
-      active: hasTailoredResume,
-      enabled: hasTailoredResume,
-      tone: hasTailoredResume ? 'bg-orange-500 text-white' : 'bg-background text-black',
+      state: hasTailoredResume ? 'complete' : 'pending',
+      actionHref: hasTailoredResume ? '/dashboard' : undefined,
     },
   ];
 
   return (
-    <div className="relative h-[23rem] overflow-hidden p-4">
-      {cards.map((card, index) => {
-        const label = t(`dashboard.cardStack.${card.key}`);
-        const offset = index * 68;
-        return (
-          <article
-            key={card.key}
-            className={cn(
-              'absolute left-4 right-4 flex h-40 flex-col border-2 border-black p-4',
-              'shadow-[4px_4px_0px_0px_#000000]',
-              card.tone
-            )}
-            style={{ top: `${offset}px`, zIndex: index + 1 }}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <span className="font-mono text-xs font-bold uppercase tracking-wide">
-                  {String(index + 1).padStart(2, '0')}
-                </span>
-                <h3 className="mt-1 line-clamp-2 max-w-[10rem] font-serif text-lg font-bold uppercase leading-tight">
-                  {label}
-                </h3>
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    'flex h-8 w-8 items-center justify-center border border-current',
-                    card.active ? 'bg-white text-black' : 'bg-transparent'
-                  )}
-                >
-                  {card.active ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-                </span>
-                {card.key === 'masterResume' && !hasMasterResume && canUploadMaster ? (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={onUploadMaster}
-                    aria-label={label}
-                    title={label}
-                    className="bg-white"
-                  >
-                    <FileUp aria-hidden="true" className="h-4 w-4" />
-                  </Button>
-                ) : card.enabled ? (
-                  <Link
-                    href="/tailor"
-                    aria-label={label}
-                    title={label}
-                    className="inline-flex h-11 w-11 items-center justify-center border border-black bg-white text-black shadow-sw-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
-                  >
-                    <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                  </Link>
-                ) : (
-                  <span
-                    aria-hidden="true"
-                    className="inline-flex h-11 w-11 items-center justify-center border border-current opacity-50"
-                  >
-                    <Lock className="h-4 w-4" />
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="mt-auto h-4 border-t border-current" aria-hidden="true" />
-          </article>
-        );
-      })}
+    <div className="relative min-h-[32rem] overflow-hidden p-4">
+      <StackingCards
+        data-layout="fancy-stacking-cards"
+        totalCards={cards.length}
+        scaleMultiplier={0.02}
+        className="relative flex min-h-[30rem] flex-col gap-4"
+      >
+        {cards.map((card, index) => {
+          const label = t(`dashboard.cardStack.${card.key}`);
+
+          return (
+            <StackingCardItem
+              key={card.key}
+              index={index}
+              topPosition={`${2 + index * 3.25}rem`}
+              className="min-h-40"
+            >
+              <TailorStepCard
+                index={index}
+                title={label}
+                state={card.state}
+                actionLabel={card.actionHref || card.onAction ? label : undefined}
+                actionHref={card.actionHref}
+                actionKind={card.actionKind}
+                onAction={card.onAction}
+              />
+            </StackingCardItem>
+          );
+        })}
+      </StackingCards>
+      {hasMasterResume && canTailor ? (
+        <Link
+          href="/tailor"
+          className="mt-4 inline-flex w-full justify-center border-2 border-black bg-blue-700 px-4 py-3 font-mono text-sm font-bold uppercase tracking-wider text-white shadow-sw-default hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+        >
+          {t('dashboard.tailorCta')}
+        </Link>
+      ) : null}
     </div>
   );
 }

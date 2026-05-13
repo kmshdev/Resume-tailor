@@ -123,7 +123,7 @@ describe('CommandCenter', () => {
 });
 
 describe('TailorCardStack', () => {
-  it('keeps the master upload action in a visible touch-sized stagger band', () => {
+  it('uses Fancy stacking cards for the dashboard tailoring deck', () => {
     const onUploadMaster = vi.fn();
     const { container } = render(
       <TailorCardStack
@@ -135,15 +135,37 @@ describe('TailorCardStack', () => {
       />
     );
 
-    const cards = Array.from(container.querySelectorAll('article'));
-    const offsets = cards.map((card) => Number.parseInt(card.style.top, 10));
+    const deck = container.querySelector('[data-layout="fancy-stacking-cards"]');
+    expect(deck).toBeInTheDocument();
 
-    expect(offsets).toHaveLength(4);
-    expect(offsets[1] - offsets[0]).toBeGreaterThanOrEqual(64);
+    const cards = Array.from(container.querySelectorAll('article'));
+    expect(cards).toHaveLength(4);
+    expect(cards[0]).toHaveAttribute('data-state', 'active');
+    expect(cards[1]).toHaveAttribute('data-state', 'pending');
+
+    fireEvent.click(screen.getByRole('button', { name: 'dashboard.cardStack.masterResume' }));
+    expect(onUploadMaster).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the master upload action visible and clickable', () => {
+    const onUploadMaster = vi.fn();
+
+    render(
+      <TailorCardStack
+        hasMasterResume={false}
+        canUploadMaster
+        canTailor={false}
+        hasTailoredResume={false}
+        onUploadMaster={onUploadMaster}
+      />
+    );
 
     const uploadAction = screen.getByRole('button', {
       name: 'dashboard.cardStack.masterResume',
     });
-    expect(uploadAction).toHaveClass('h-11', 'w-11');
+    expect(uploadAction).toBeVisible();
+
+    fireEvent.click(uploadAction);
+    expect(onUploadMaster).toHaveBeenCalledTimes(1);
   });
 });
