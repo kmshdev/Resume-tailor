@@ -72,6 +72,16 @@ describe('EvaluationCard', () => {
     expect(screen.getByText('evaluation.confidence:91')).toBeInTheDocument();
   });
 
+  it('uses light Swiss metric surfaces instead of dark metric blocks', () => {
+    render(<EvaluationCard phase="readiness" evaluation={baseEvaluation} />);
+
+    const card = screen.getByText('evaluation.phases.readiness').closest('article');
+    expect(card).toHaveClass('bg-background');
+    expect(card).toHaveClass('text-black');
+    expect(card?.className).not.toContain('bg-[#10131A]');
+    expect(card?.className).not.toContain('text-white');
+  });
+
   it('shows a missing score state and check action', () => {
     const onCheck = vi.fn();
 

@@ -55,24 +55,24 @@ export function EvaluationPopover({ phase, evaluation, error }: EvaluationPopove
             <span>{t(`evaluation.phases.${phase}`)}</span>
           </div>
           {evaluation ? (
-            <p className="font-mono text-xs uppercase tracking-wide text-white/75">
+            <p className="font-mono text-xs uppercase tracking-wide text-ink-soft">
               {t('evaluation.confidence', { value: formatConfidence(evaluation.confidence) })}
             </p>
           ) : (
-            <p className="font-mono text-xs uppercase tracking-wide text-white/75">
+            <p className="font-mono text-xs uppercase tracking-wide text-ink-soft">
               {t('evaluation.states.notChecked')}
             </p>
           )}
         </div>
 
         {error ? (
-          <div className="border border-red-600 bg-red-600/20 p-3 font-mono text-xs uppercase tracking-wide text-white">
+          <div className="border border-red-600 bg-red-50 p-3 font-mono text-xs uppercase tracking-wide text-red-700">
             {error}
           </div>
         ) : null}
 
         {evaluation?.stale ? (
-          <div className="border border-orange-500 bg-orange-500/20 p-3 font-mono text-xs uppercase tracking-wide text-white">
+          <div className="border border-orange-500 bg-orange-50 p-3 font-mono text-xs uppercase tracking-wide text-orange-700">
             {t('evaluation.states.stale')}
           </div>
         ) : null}
@@ -80,14 +80,11 @@ export function EvaluationPopover({ phase, evaluation, error }: EvaluationPopove
         {evaluation ? (
           <div className="space-y-2">
             {dimensionOrder.map((key) => (
-              <div
-                key={key}
-                className="grid grid-cols-[1fr_auto] gap-4 border-t border-white/30 pt-2"
-              >
-                <span className="font-mono text-xs uppercase tracking-wide text-white/70">
+              <div key={key} className="grid grid-cols-[1fr_auto] gap-4 border-t border-black pt-2">
+                <span className="font-mono text-xs uppercase tracking-wide text-ink-soft">
                   {t(`evaluation.dimensions.${key}`)}
                 </span>
-                <span className="font-mono text-xs font-bold text-white">
+                <span className="font-mono text-xs font-bold text-black">
                   {formatScore(evaluation.dimensions[key])}
                 </span>
               </div>
@@ -96,7 +93,7 @@ export function EvaluationPopover({ phase, evaluation, error }: EvaluationPopove
         ) : null}
 
         {evaluation ? (
-          <div className="border-t border-white/40 pt-3 font-mono text-[11px] uppercase tracking-wide text-white/65">
+          <div className="border-t border-black pt-3 font-mono text-[11px] uppercase tracking-wide text-ink-soft">
             <p>
               {evaluation.provider} / {evaluation.model}
             </p>

@@ -72,19 +72,19 @@ export function EvaluationCard({
   return (
     <article
       className={cn(
-        'flex min-h-52 flex-col border-2 border-white/60 bg-[#10131A] p-5 text-white',
-        'shadow-[4px_4px_0px_0px_#000000]'
+        'flex min-h-52 flex-col border-2 border-black bg-background p-5 text-black',
+        'shadow-sw-default'
       )}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2">
-          <p className="font-mono text-xs font-bold uppercase tracking-wide text-white/70">
+          <p className="font-mono text-xs font-bold uppercase tracking-wide text-steel-grey">
             {t(`evaluation.phases.${phase}`)}
           </p>
           <p
             className={cn(
               'font-serif text-5xl font-bold leading-none',
-              !scoreAvailable && 'text-white/45'
+              !scoreAvailable && 'text-steel-grey'
             )}
           >
             {formatScore(evaluation)}
@@ -93,7 +93,7 @@ export function EvaluationCard({
         <div
           aria-hidden="true"
           className={cn(
-            'h-4 w-4 border border-white',
+            'h-4 w-4 border border-black',
             isLoading
               ? 'bg-blue-700'
               : error
@@ -108,12 +108,12 @@ export function EvaluationCard({
 
       <div className="mt-auto space-y-4 pt-5">
         <div className="space-y-2">
-          <div className="flex min-h-5 items-center gap-2 font-mono text-xs uppercase tracking-wide text-white/80">
+          <div className="flex min-h-5 items-center gap-2 font-mono text-xs uppercase tracking-wide text-ink-soft">
             {isLoading ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : null}
             <span>{statusLabel}</span>
           </div>
           {error ? (
-            <p className="font-mono text-xs uppercase tracking-wide text-red-200">{error}</p>
+            <p className="font-mono text-xs uppercase tracking-wide text-red-600">{error}</p>
           ) : null}
         </div>
 
