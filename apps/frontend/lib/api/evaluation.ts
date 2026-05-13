@@ -71,10 +71,18 @@ function toQuery(params: Record<string, string | undefined>): string {
 
 async function parseOrThrow<T>(res: Response, fallback: string): Promise<T> {
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.detail || `${fallback} (status ${res.status}).`);
+    const data = (await res.json().catch(() => ({}))) as { detail?: unknown };
+    throw new Error(data.detail ? String(data.detail) : `${fallback} (status ${res.status}).`);
   }
-  return res.json();
+  return parseJsonOrThrow<T>(res, fallback);
+}
+
+async function parseJsonOrThrow<T>(res: Response, fallback: string): Promise<T> {
+  try {
+    return (await res.json()) as T;
+  } catch {
+    throw new Error(fallback);
+  }
 }
 
 export async function createResumeEvaluation(

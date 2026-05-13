@@ -88,4 +88,17 @@ describe('evaluation api', () => {
       expect.any(Object)
     );
   });
+
+  it('throws the fallback message when a successful response is not JSON', async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response('not json', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+
+    await expect(fetchResumeEvaluations('resume-1')).rejects.toThrow(
+      'Failed to load resume evaluations'
+    );
+  });
 });
