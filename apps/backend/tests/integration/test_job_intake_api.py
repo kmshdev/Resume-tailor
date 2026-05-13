@@ -174,6 +174,22 @@ class TestJobIntakeExtract:
         assert "PDF" in resp.json()["detail"]
         mock_extract.assert_not_awaited()
 
+    @patch("app.routers.job_intake.extract_pdf_upload", new_callable=AsyncMock)
+    async def test_pdf_upload_returns_500_for_unexpected_parser_failure(
+        self,
+        mock_extract,
+        client,
+    ):
+        mock_extract.side_effect = RuntimeError("parser crashed")
+
+        resp = await client.post(
+            "/api/v1/jobs/intake/pdf-upload",
+            files={"file": ("job.pdf", b"%PDF-1.4 fake", "application/pdf")},
+        )
+
+        assert resp.status_code == 500
+        assert "Failed to extract text" in resp.json()["detail"]
+
 
 class TestJobIntakeConfirm:
     """POST /api/v1/jobs/intake/confirm"""

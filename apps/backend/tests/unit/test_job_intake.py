@@ -26,6 +26,7 @@ from app.services.job_intake import (
     validate_public_url,
 )
 from app.services.job_intake.constants import PLAYWRIGHT_TIMEOUT_MS
+from app.services.job_intake.extraction import _question_needs_personal_input
 
 
 @pytest.mark.asyncio
@@ -157,6 +158,11 @@ def test_build_evidence_only_answer_marks_missing_input() -> None:
     assert answer.needs_user_input is True
     assert answer.answer == ""
     assert "sponsorship" in answer.prompt.lower()
+
+
+def test_question_needs_personal_input_matches_whole_terms_only() -> None:
+    assert _question_needs_personal_input("Do you require visa sponsorship?") is True
+    assert _question_needs_personal_input("Do you have preonsite tooling experience?") is False
 
 
 def test_build_evidence_only_answer_requires_all_question_terms() -> None:

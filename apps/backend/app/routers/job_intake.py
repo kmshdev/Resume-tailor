@@ -120,9 +120,9 @@ async def upload_job_pdf(
     except Exception as exc:
         logger.error("JD PDF intake failed: %s", exc)
         raise HTTPException(
-            status_code=422,
+            status_code=500,
             detail="Failed to extract text from the PDF. Please paste the job description manually.",
-        )
+        ) from exc
 
 
 @router.post("/confirm", response_model=JobIntakeConfirmResponse)

@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JobIntakeWizard } from '@/components/tailor/job-intake-wizard';
+import { SourceInput } from '@/components/tailor/job-intake/source-input';
 import type { JobIntakeExtractResponse } from '@/lib/api/job-intake';
 
 const extractJobIntake = vi.fn();
@@ -45,6 +46,24 @@ describe('JobIntakeWizard', () => {
     extractJobIntake.mockReset();
     uploadJobIntakePdf.mockReset();
     confirmJobIntake.mockReset();
+  });
+
+  it('keeps the source extract button disabled while extracting', () => {
+    render(
+      <SourceInput
+        sourceType="manual_text"
+        sourceText="Senior Backend Engineer using Python, FastAPI, and AWS."
+        disabled={false}
+        isExtracting={true}
+        canExtract={true}
+        onTextChange={vi.fn()}
+        onFileChange={vi.fn()}
+        onExtract={vi.fn()}
+        onTextareaKeyDown={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('button', { name: 'tailor.intake.extracting' })).toBeDisabled();
   });
 
   it('extracts manual text, shows review, and confirms reviewed JD', async () => {

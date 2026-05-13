@@ -69,7 +69,10 @@ def _extract_relevant_terms(question: str) -> list[str]:
 def _question_needs_personal_input(question: str) -> bool:
     """Return whether a question needs user-specific preference input."""
     lowered = question.lower()
-    return any(term in lowered for term in USER_INPUT_TERMS)
+    return any(
+        re.search(rf"(?<![a-z0-9]){re.escape(term)}(?![a-z0-9])", lowered)
+        for term in USER_INPUT_TERMS
+    )
 
 
 def _term_in_text(term: str, text: str) -> bool:

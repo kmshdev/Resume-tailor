@@ -68,7 +68,13 @@ export function SourceInput({
           className="min-h-[240px] font-mono text-sm bg-background border-2 border-black rounded-none"
         />
       )}
-      <Button type="button" size="lg" className="w-full" onClick={onExtract} disabled={!canExtract}>
+      <Button
+        type="button"
+        size="lg"
+        className="w-full"
+        onClick={onExtract}
+        disabled={!canExtract || disabled || isExtracting}
+      >
         {isExtracting ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
