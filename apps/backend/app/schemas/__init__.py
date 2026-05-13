@@ -65,6 +65,15 @@ from app.schemas.job_intake import (
     JobSourceType,
     ScreeningQuestion,
 )
+from app.schemas.evaluation import (
+    EvaluationDimensionScores,
+    EvaluationEvidenceItem,
+    EvaluationPhase,
+    LatestResumeEvaluationsResponse,
+    ResumeEvaluationListResponse,
+    ResumeEvaluationRequest,
+    ResumeEvaluationResponse,
+)
 
 __all__ = [
     "PersonalInfo",
@@ -121,11 +130,18 @@ __all__ = [
     "DetectedJobLink",
     "DraftAnswer",
     "ExtractionMethod",
+    "EvaluationDimensionScores",
+    "EvaluationEvidenceItem",
+    "EvaluationPhase",
     "JobIntakeConfirmRequest",
     "JobIntakeConfirmResponse",
     "JobIntakeExtractRequest",
     "JobIntakeExtractResponse",
     "JobIntakeMetadata",
     "JobSourceType",
+    "LatestResumeEvaluationsResponse",
+    "ResumeEvaluationListResponse",
+    "ResumeEvaluationRequest",
+    "ResumeEvaluationResponse",
     "ScreeningQuestion",
 ]
