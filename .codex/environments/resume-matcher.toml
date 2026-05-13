@@ -2,7 +2,10 @@ version = 1
 name = "Resume Matcher"
 
 [setup]
-script = "scripts/setup-local.sh --skip-browser"
+script = "scripts/codex-worktree-setup.sh"
+
+[cleanup]
+script = "scripts/codex-worktree-cleanup.sh"
 
 [[actions]]
 name = "Check Toolchain"
