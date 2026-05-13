@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { StackingCardItem, StackingCards } from '@/components/fancy/stacking-cards';
+import { TailorStepCard, type TailorStepState } from '@/components/tailor/tailor-step-card';
 import { useTranslations } from '@/lib/i18n';
 
 export const TAILOR_SESSION_STEPS = [
@@ -15,8 +16,6 @@ export const TAILOR_SESSION_STEPS = [
 
 export type TailorSessionStep = (typeof TAILOR_SESSION_STEPS)[number];
 
-const STEP_OFFSET_CLASSES = ['md:ml-0', 'md:ml-2', 'md:ml-4', 'md:ml-6', 'md:ml-8', 'md:ml-10'];
-
 interface TailorSessionCardsProps {
   activeStep: TailorSessionStep;
   completedSteps?: TailorSessionStep[];
@@ -26,6 +25,21 @@ interface TailorSessionCardsProps {
 
 function formatScore(value: number): string {
   return `${Math.round(value)}/100`;
+}
+
+function getStepState({
+  isActive,
+  isComplete,
+  warning,
+}: {
+  isActive: boolean;
+  isComplete: boolean;
+  warning?: string | null;
+}): TailorStepState {
+  if (warning) return 'warning';
+  if (isComplete) return 'complete';
+  if (isActive) return 'active';
+  return 'pending';
 }
 
 export function TailorSessionCards({
@@ -39,70 +53,45 @@ export function TailorSessionCards({
 
   return (
     <section aria-label={t('tailor.session.deckLabel')} className="w-full">
-      <ul
+      <StackingCards
         role="list"
         aria-label={t('tailor.session.deckLabel')}
-        data-layout="stacked-deck"
-        className="grid gap-3"
+        data-layout="fancy-stacking-cards"
+        totalCards={TAILOR_SESSION_STEPS.length}
+        scaleMultiplier={0.018}
+        className="relative flex min-h-[44rem] flex-col gap-4"
       >
         {TAILOR_SESSION_STEPS.map((step, index) => {
           const isActive = step === activeStep;
-          const isComplete = completedSet.has(step);
           const warning = warnings[step];
           const score = scores[step];
-          const state = isComplete ? 'complete' : isActive ? 'active' : 'pending';
+          const state = getStepState({
+            isActive,
+            isComplete: completedSet.has(step),
+            warning,
+          });
 
           return (
-            <li
+            <StackingCardItem
               key={step}
+              role="listitem"
               aria-current={isActive ? 'step' : undefined}
               data-state={state}
-              className={cn(
-                'relative min-h-20 border-2 border-black bg-white p-4 shadow-sw-default',
-                'flex flex-col justify-between gap-3 overflow-hidden',
-                STEP_OFFSET_CLASSES[index],
-                isActive && 'bg-blue-50 shadow-sw-lg',
-                isComplete && 'bg-green-50',
-                warning && 'bg-amber-50'
-              )}
+              index={index}
+              topPosition={`${5 + index * 2}rem`}
+              className="min-h-40"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 items-start gap-3">
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      'mt-1 h-3 w-3 shrink-0 border border-black bg-white',
-                      isActive && 'bg-blue-700',
-                      isComplete && 'bg-green-700',
-                      warning && 'bg-orange-500'
-                    )}
-                  />
-                  <div className="min-w-0">
-                    <p className="font-mono text-[11px] uppercase tracking-wider text-steel-grey">
-                      {String(index + 1).padStart(2, '0')}
-                    </p>
-                    <p className="break-words font-serif text-xl font-bold leading-tight">
-                      {t(`tailor.session.steps.${step}`)}
-                    </p>
-                  </div>
-                </div>
-
-                {typeof score === 'number' && (
-                  <span className="shrink-0 border border-black bg-white px-2 py-1 font-mono text-xs font-bold">
-                    {formatScore(score)}
-                  </span>
-                )}
-              </div>
-
-              {warning && (
-                <p className="border border-orange-500 bg-white px-2 py-1 font-mono text-xs text-orange-700">
-                  {warning}
-                </p>
-              )}
-            </li>
+              <TailorStepCard
+                index={index}
+                title={t(`tailor.session.steps.${step}`)}
+                state={state}
+                score={typeof score === 'number' ? formatScore(score) : undefined}
+                warning={warning}
+              />
+            </StackingCardItem>
           );
         })}
-      </ul>
+      </StackingCards>
     </section>
   );
 }
