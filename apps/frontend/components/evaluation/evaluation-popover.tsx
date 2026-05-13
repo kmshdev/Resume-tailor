@@ -45,7 +45,7 @@ export function EvaluationPopover({ phase, evaluation, error }: EvaluationPopove
           <span>{t('evaluation.details')}</span>
         </>
       }
-      className="w-[min(22rem,calc(100vw-2rem))]"
+      className="w-[min(22rem,calc(100vw-2rem))] border-black bg-background text-black"
     >
       <div className="space-y-4">
         <div className="space-y-2">

@@ -82,6 +82,18 @@ describe('EvaluationCard', () => {
     expect(card?.className).not.toContain('text-white');
   });
 
+  it('opens evaluation details in a light Swiss popover shell', () => {
+    render(<EvaluationCard phase="readiness" evaluation={baseEvaluation} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'evaluation.details' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'evaluation.details' });
+    expect(dialog).toHaveClass('bg-background');
+    expect(dialog).toHaveClass('text-black');
+    expect(dialog.className).not.toContain('bg-[#10131A]');
+    expect(dialog.className).not.toContain('text-white');
+  });
+
   it('shows a missing score state and check action', () => {
     const onCheck = vi.fn();
 
