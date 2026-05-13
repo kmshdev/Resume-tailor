@@ -97,7 +97,7 @@ COPY docker/start.sh /app/start.sh
 RUN sed -i 's/\r$//' /app/start.sh && chmod +x /app/start.sh
 
 # ============================================
-# Data Directory & Volume
+# Data Directory
 # ============================================
 RUN mkdir -p /app/backend/data
 
@@ -112,9 +112,6 @@ RUN python -m playwright install chromium
 
 # Expose the public port (backend remains internal on 8000)
 EXPOSE 3000
-
-# Volume for persistent data
-VOLUME ["/app/backend/data"]
 
 # Set working directory
 WORKDIR /app
