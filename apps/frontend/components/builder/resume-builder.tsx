@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense, useCallback, useMemo } from 'react';
-import Image from 'next/image';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { type ResumeData } from '@/components/dashboard/resume-component';
 import { ResumeForm } from './resume-form';
 import { FormattingControls } from './formatting-controls';
@@ -18,7 +17,6 @@ import {
   Download,
   Save,
   AlertTriangle,
-  ArrowLeft,
   RotateCcw,
   Copy,
   Check,
@@ -119,7 +117,6 @@ const ResumeBuilderContent = () => {
   const improvedCoverLetter = improvedData?.data?.cover_letter;
   const improvedOutreach = improvedData?.data?.outreach_message;
   const searchParams = useSearchParams();
-  const router = useRouter();
   const resumeId = searchParams.get('id');
 
   useEffect(() => {
@@ -603,26 +600,14 @@ const ResumeBuilderContent = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-background flex justify-center items-center p-4 md:p-8">
+    <div className="flex min-h-[calc(100vh-12rem)] w-full">
       {/* Main Container */}
-      <div className="w-full h-full max-w-[90%] md:max-w-[95%] xl:max-w-[1800px] border border-black bg-background shadow-sw-lg flex flex-col">
-        {/* Header Section */}
-        <div className="border-b border-black p-6 md:p-8 bg-background no-print">
-          {/* Top Row: Back button and Actions */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+      <div className="flex w-full flex-col border border-black bg-background shadow-sw-lg">
+        {/* Action bar */}
+        <div className="border-b border-black bg-background p-4 md:p-6 no-print">
+          <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <Button
-                variant="link"
-                onClick={() => router.push('/dashboard')}
-                className="mb-2 -ml-1"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                {t('nav.backToDashboard')}
-              </Button>
-              <h1 className="font-serif text-3xl md:text-5xl text-black tracking-tight leading-[0.95] uppercase">
-                {t('nav.builder')}
-              </h1>
-              <div className="mt-3 flex items-center gap-3">
+              <div className="flex items-center gap-3">
                 <p className="text-sm font-mono text-blue-700 uppercase tracking-wide font-bold">
                   {'// '}
                   {resumeId ? t('builder.editMode') : t('builder.createAndPreview')}
@@ -636,7 +621,7 @@ const ResumeBuilderContent = () => {
               </div>
             </div>
 
-            <div className="flex gap-3 mt-4 md:mt-0">
+            <div className="flex flex-wrap gap-3">
               {/* Resume tab actions */}
               {activeTab === 'resume' && (
                 <>
@@ -924,35 +909,6 @@ const ResumeBuilderContent = () => {
                 <JDComparisonView jobDescription={jobDescription} resumeData={resumeData} />
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 bg-background flex justify-between items-center font-mono text-xs text-blue-700 border-t border-black no-print">
-          <span className="uppercase font-bold flex items-center gap-2">
-            <Image
-              src="/logo.svg"
-              alt="Resume Matcher"
-              width={20}
-              height={20}
-              className="w-5 h-5"
-            />
-            {t('builder.footer.moduleLabel')}
-          </span>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-700"></div>
-              <span className="uppercase">
-                {templateSettings.template === 'swiss-single' ||
-                templateSettings.template === 'modern'
-                  ? t('builder.footer.singleColumn')
-                  : t('builder.footer.twoColumn')}
-              </span>
-            </div>
-            <span className="text-steel-grey">|</span>
-            <span className="uppercase">
-              {templateSettings.pageSize === 'A4' ? 'A4' : t('builder.pageSize.usLetter')}
-            </span>
           </div>
         </div>
       </div>

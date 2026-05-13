@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import {
   fetchLlmConfig,
   updateLlmConfig,
@@ -25,7 +23,6 @@ import {
   type FeaturePromptsUpdate,
 } from '@/lib/api/config';
 import { API_URL } from '@/lib/api/client';
-import { getVersionString } from '@/lib/config/version';
 import { ToggleSwitch } from '@/components/ui/toggle-switch';
 import { useStatusCache } from '@/lib/context/status-cache';
 import { Button } from '@/components/ui/button';
@@ -39,7 +36,6 @@ import {
   Database,
   Activity,
   Loader2,
-  ArrowLeft,
   CheckCircle2,
   XCircle,
   RefreshCw,
@@ -582,10 +578,10 @@ export default function SettingsPage() {
   const requiresApiKey = providerInfo.requiresKey ?? true;
 
   return (
-    <div className="flex flex-col items-center justify-start p-6 md:p-12 min-h-screen overflow-y-auto">
-      <div className="w-full max-w-4xl border border-black bg-background shadow-sw-lg">
+    <div className="w-full max-w-4xl">
+      <div className="w-full border border-black bg-background shadow-sw-lg">
         {/* Header */}
-        <div className="border-b border-black p-8 bg-white flex justify-between items-start">
+        <div className="border-b border-black bg-white p-8">
           <div>
             <h1 className="font-serif text-3xl font-bold tracking-tight uppercase">
               {t('settings.title')}
@@ -595,12 +591,6 @@ export default function SettingsPage() {
               {t('settings.subtitle')}
             </p>
           </div>
-          <Link href="/dashboard">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="w-4 h-4" />
-              {t('common.back')}
-            </Button>
-          </Link>
         </div>
 
         <div className="p-8 space-y-10">
@@ -1278,49 +1268,6 @@ export default function SettingsPage() {
               </div>
             </div>
           </section>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-secondary p-4 border-t border-black flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/logo.svg"
-              alt="Resume Matcher"
-              width={20}
-              height={20}
-              className="w-5 h-5"
-            />
-            <span className="font-mono text-xs text-steel-grey">
-              {getVersionString().toUpperCase()}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            {statusLoading ? (
-              <>
-                <Loader2 className="w-3 h-3 animate-spin text-steel-grey" />
-                <span className="font-mono text-xs text-steel-grey">
-                  {t('settings.footer.status.checking')}
-                </span>
-              </>
-            ) : systemStatus ? (
-              <>
-                <div
-                  className={`w-3 h-3 ${systemStatus.status === 'ready' ? 'bg-green-700' : 'bg-amber-500'}`}
-                ></div>
-                <span
-                  className={`font-mono text-xs font-bold ${systemStatus.status === 'ready' ? 'text-green-700' : 'text-amber-600'}`}
-                >
-                  {systemStatus.status === 'ready'
-                    ? t('settings.footer.status.ready')
-                    : t('settings.footer.status.setupRequired')}
-                </span>
-              </>
-            ) : (
-              <span className="font-mono text-xs text-steel-grey">
-                {t('settings.footer.status.offline')}
-              </span>
-            )}
-          </div>
         </div>
       </div>
 
