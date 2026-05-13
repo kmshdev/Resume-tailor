@@ -540,7 +540,9 @@
       "confirming": "JDを保存中",
       "errors": {
         "extractFailed": "求人内容を抽出できませんでした。",
-        "confirmFailed": "確認済みの求人内容を保存できませんでした。"
+        "confirmFailed": "確認済みの求人内容を保存できませんでした。",
+        "invalidUrl": "公開されている http または https のURLを入力してください。",
+        "invalidPdf": "PDFファイルをアップロードしてください。"
       }
     },
     "promptLabel": "調整の強さ",

@@ -540,7 +540,9 @@
       "confirming": "Guardando JD",
       "errors": {
         "extractFailed": "No se pudo extraer la descripción del puesto.",
-        "confirmFailed": "No se pudo guardar la descripción revisada."
+        "confirmFailed": "No se pudo guardar la descripción revisada.",
+        "invalidUrl": "Ingresa una URL pública http o https.",
+        "invalidPdf": "Sube un archivo PDF."
       }
     },
     "promptLabel": "Intensidad de ajuste",

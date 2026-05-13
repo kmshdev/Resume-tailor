@@ -540,7 +540,9 @@
       "confirming": "Salvando JD",
       "errors": {
         "extractFailed": "Não foi possível extrair a descrição da vaga.",
-        "confirmFailed": "Não foi possível salvar a descrição revisada."
+        "confirmFailed": "Não foi possível salvar a descrição revisada.",
+        "invalidUrl": "Informe uma URL pública http ou https.",
+        "invalidPdf": "Envie um arquivo PDF."
       }
     },
     "promptLabel": "Intensidade de personalização",

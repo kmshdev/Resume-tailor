@@ -18,6 +18,7 @@ from app.services.job_intake import (
     body_looks_like_pdf,
     extract_job_intake,
     extract_pdf_upload,
+    redact_url_for_metadata,
 )
 
 logger = logging.getLogger(__name__)
@@ -32,7 +33,9 @@ def _metadata_payload(request: JobIntakeConfirmRequest) -> dict[str, Any] | None
     """Return serializable intake metadata."""
     if request.intake_metadata is None:
         return None
-    return request.intake_metadata.model_dump()
+    payload = request.intake_metadata.model_dump()
+    payload["source_url"] = redact_url_for_metadata(request.intake_metadata.source_url)
+    return payload
 
 
 def _request_with_resume_evidence(request: JobIntakeExtractRequest) -> JobIntakeExtractRequest:

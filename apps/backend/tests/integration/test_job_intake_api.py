@@ -36,6 +36,7 @@ class TestJobIntakeExtract:
         assert data["job_description"] == jd
         assert data["extraction_method"] == "manual"
         assert data["requires_review"] is True
+        assert "raw_text" not in data
 
     async def test_extract_recruiter_message_keeps_questions_separate(self, client):
         message = (
@@ -112,7 +113,6 @@ class TestJobIntakeExtract:
             "links": [],
             "screening_questions": [],
             "draft_answers": [],
-            "raw_text": "Senior Backend Engineer using Python and FastAPI.",
             "extraction_method": "pdf",
             "warnings": [],
             "confidence": 0.9,
@@ -192,3 +192,33 @@ class TestJobIntakeConfirm:
         assert kwargs["content"] == "Senior Backend Engineer using Python, FastAPI, and AWS."
         assert kwargs["resume_id"] == "resume-123"
         assert kwargs["intake_metadata"]["source_type"] == "recruiter_message"
+
+    @patch("app.routers.job_intake.db")
+    async def test_confirm_redacts_source_url_metadata_before_persisting(self, mock_db, client):
+        mock_db.create_job.return_value = {
+            "job_id": "job-123",
+            "content": "Senior Backend Engineer using Python, FastAPI, and AWS.",
+            "created_at": "2026-01-01T00:00:00Z",
+        }
+
+        resp = await client.post(
+            "/api/v1/jobs/intake/confirm",
+            json={
+                "job_description": "Senior Backend Engineer using Python, FastAPI, and AWS.",
+                "intake_metadata": {
+                    "source_type": "job_url",
+                    "source_url": "https://jobs.example.com/backend?token=secret#apply",
+                    "source_title": "Backend role",
+                    "links": [],
+                    "screening_questions": [],
+                    "draft_answers": [],
+                    "extraction_method": "http",
+                    "warnings": [],
+                    "confidence": 0.8,
+                },
+            },
+        )
+
+        assert resp.status_code == 200
+        _, kwargs = mock_db.create_job.call_args
+        assert kwargs["intake_metadata"]["source_url"] == "https://jobs.example.com/backend"

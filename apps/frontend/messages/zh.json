@@ -540,7 +540,9 @@
       "confirming": "正在保存 JD",
       "errors": {
         "extractFailed": "无法提取职位描述。",
-        "confirmFailed": "无法保存已检查的职位描述。"
+        "confirmFailed": "无法保存已检查的职位描述。",
+        "invalidUrl": "请输入公开的 http 或 https URL。",
+        "invalidPdf": "请上传 PDF 文件。"
       }
     },
     "promptLabel": "匹配强度",

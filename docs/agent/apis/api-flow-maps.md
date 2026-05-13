@@ -85,7 +85,7 @@ POST /api/v1/jobs/intake/extract
 ├── For URLs: validate public http/https URL, fetch with httpx, optionally fall back to Playwright
 ├── For PDFs: parse with existing parse_document()
 ├── Extract JD text, links, screening questions, warnings, and evidence-only draft answers
-└── Return reviewable intake payload
+└── Return reviewable intake payload with redacted source URL and no raw scraped text
 
 POST /api/v1/jobs/intake/pdf-upload
 ├── Validate PDF upload
@@ -94,7 +94,7 @@ POST /api/v1/jobs/intake/pdf-upload
 
 POST /api/v1/jobs/intake/confirm
 ├── Store reviewed JD as jobs.content
-├── Store source links/questions/answers/warnings as intake_metadata
+├── Store source links/questions/answers/warnings as intake_metadata with redacted source URL
 └── Return {job_id}
 ```
 

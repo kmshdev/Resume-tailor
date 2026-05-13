@@ -540,7 +540,9 @@
       "confirming": "Saving JD",
       "errors": {
         "extractFailed": "Couldn't extract the job description.",
-        "confirmFailed": "Couldn't save the reviewed job description."
+        "confirmFailed": "Couldn't save the reviewed job description.",
+        "invalidUrl": "Enter a public http or https URL.",
+        "invalidPdf": "Upload a PDF file."
       }
     },
     "promptLabel": "Tailoring intensity",

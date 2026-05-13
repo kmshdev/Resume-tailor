@@ -49,7 +49,6 @@ export interface JobIntakeExtractRequest {
 
 export interface JobIntakeExtractResponse extends JobIntakeMetadata {
   job_description: string;
-  raw_text: string;
   requires_review: boolean;
 }
 

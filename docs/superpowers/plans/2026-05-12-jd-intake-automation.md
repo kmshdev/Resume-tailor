@@ -1,21 +1,19 @@
-# JD Intake Automation Implementation Plan
+# JD Intake Automation Implementation Archive
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Status:** Complete as of the `feat/jd-automation` implementation branch.
 
-**Goal:** Build a reviewed JD-intake wizard before the existing resume-tailoring flow.
+**Original goal:** Build a reviewed JD-intake wizard before the existing resume-tailoring flow.
 
-**Architecture:** Add a FastAPI intake layer that normalizes manual text, job URLs, PDF URLs, PDF uploads, and pasted recruiter messages into reviewed JD text plus metadata. Store reviewed text as the canonical job content and keep screening questions/draft answers separate from tailoring keywords.
+**Completed outcome:** The Tailor flow now accepts manual JD text, public job URLs, PDF URLs/uploads, and pasted recruiter messages. Extracted text is reviewed by the user, saved as canonical `jobs.content`, and source links/questions/draft answers are stored separately in `intake_metadata`.
 
-**Tech Stack:** FastAPI, Pydantic v2, TinyDB, LiteLLM, MarkItDown, Playwright Python, Next.js 16, React 19, Tailwind CSS v4, Vitest.
+**Follow-up hardening:** The active cleanup source of truth is now `docs/superpowers/plans/2026-05-13-jd-intake-polish-hardening.md`.
 
----
+## Completed Tasks
 
-## Tasks
-
-- [ ] Add backend schemas, prompts, and service tests for JD intake.
-- [ ] Implement URL safety, HTTP/Playwright extraction, PDF parsing, and deterministic recruiter-message parsing.
-- [ ] Add intake router endpoints and TinyDB metadata persistence.
-- [ ] Add frontend intake API helpers and Tailor wizard tests.
-- [ ] Replace the Tailor textarea-only flow with the source/extract/review/tailor wizard.
-- [ ] Update i18n and agent docs.
-- [ ] Run backend and frontend verification.
+- [x] Add backend schemas, prompts, and service tests for JD intake.
+- [x] Implement URL safety, HTTP/Playwright extraction, PDF parsing, and deterministic recruiter-message parsing.
+- [x] Add intake router endpoints and TinyDB metadata persistence.
+- [x] Add frontend intake API helpers and Tailor wizard tests.
+- [x] Replace the Tailor textarea-only flow with the source/extract/review/tailor wizard.
+- [x] Update i18n and agent docs.
+- [x] Run backend and frontend verification during implementation.

@@ -10,6 +10,7 @@ from app.schemas.job_intake import JobIntakeExtractRequest
 from app.services.job_intake import (
     FetchedContent,
     JobIntakeError,
+    SafeAsyncHTTPTransport,
     _extract_remote_url,
     _fetch_url,
     _maybe_refine_with_llm,
@@ -63,7 +64,7 @@ async def test_connection_resolution_rejects_private_rebinding(
     def fake_getaddrinfo(host, port, *args, **kwargs):
         return [(None, None, None, "", ("127.0.0.1", port))]
 
-    monkeypatch.setattr("app.services.job_intake.socket.getaddrinfo", fake_getaddrinfo)
+    monkeypatch.setattr("app.services.job_intake.url_safety.socket.getaddrinfo", fake_getaddrinfo)
 
     with pytest.raises(JobIntakeError, match="public"):
         await _resolve_public_addresses("jobs.example.com", 443)
@@ -79,7 +80,7 @@ def test_extract_links_from_text_returns_unique_http_links() -> None:
     links = extract_links_from_text(text)
 
     assert [link.url for link in links] == [
-        "https://jobs.example.com/senior-backend?ref=dm",
+        "https://jobs.example.com/senior-backend",
         "https://cdn.example.com/jd.pdf",
     ]
 
@@ -108,6 +109,29 @@ def test_extract_questions_from_text_detects_labeled_questions() -> None:
     assert [question.question for question in questions] == [
         "Do you have Python experience?"
     ]
+
+
+def test_extract_questions_from_text_detects_multiple_questions_on_one_line() -> None:
+    text = (
+        "Screening: Do you have Python experience? "
+        "Are you open to relocation? Do you have Python experience?"
+    )
+
+    questions = extract_questions_from_text(text)
+
+    assert [question.question for question in questions] == [
+        "Do you have Python experience?",
+        "Are you open to relocation?",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_safe_http_transport_preserves_explicit_ssl_context() -> None:
+    transport = SafeAsyncHTTPTransport()
+    try:
+        assert getattr(transport._pool, "_ssl_context", None) is not None
+    finally:
+        await transport.aclose()
 
 
 def test_build_evidence_only_answer_uses_matching_resume_evidence() -> None:
@@ -158,10 +182,10 @@ def test_build_evidence_only_answer_rejects_substring_collisions() -> None:
 async def test_llm_refinement_formats_prompt_with_json_shape() -> None:
     source_text = "Senior Backend Engineer using Python, FastAPI, and AWS. " * 20
     with (
-        patch("app.services.job_intake.get_llm_config") as mock_config,
-        patch("app.services.job_intake.get_model_name") as mock_model_name,
-        patch("app.services.job_intake.get_safe_max_tokens") as mock_max_tokens,
-        patch("app.services.job_intake.complete_json", new_callable=AsyncMock) as mock_complete,
+        patch("app.services.job_intake.llm_cleanup.get_llm_config") as mock_config,
+        patch("app.services.job_intake.llm_cleanup.get_model_name") as mock_model_name,
+        patch("app.services.job_intake.llm_cleanup.get_safe_max_tokens") as mock_max_tokens,
+        patch("app.services.job_intake.llm_cleanup.complete_json", new_callable=AsyncMock) as mock_complete,
     ):
         mock_config.return_value = SimpleNamespace(api_key="test-key", provider="openai")
         mock_model_name.return_value = "gpt-4o-mini"
@@ -283,8 +307,8 @@ async def test_fetch_url_revalidates_redirect_targets(monkeypatch: pytest.Monkey
             timeout=kwargs.get("timeout"),
         )
 
-    monkeypatch.setattr("app.services.job_intake.validate_public_url", fake_validate)
-    monkeypatch.setattr("app.services.job_intake.httpx.AsyncClient", client_factory)
+    monkeypatch.setattr("app.services.job_intake.fetchers.validate_public_url", fake_validate)
+    monkeypatch.setattr("app.services.job_intake.fetchers.httpx.AsyncClient", client_factory)
 
     with pytest.raises(JobIntakeError, match="public"):
         await _fetch_url("https://jobs.example.com/redirect")
@@ -303,8 +327,8 @@ async def test_remote_llm_refinement_keeps_original_link_and_question_metadata()
         body=html.encode(),
     )
     with (
-        patch("app.services.job_intake._fetch_url", new_callable=AsyncMock) as mock_fetch,
-        patch("app.services.job_intake._maybe_refine_with_llm", new_callable=AsyncMock) as mock_refine,
+        patch("app.services.job_intake.service._fetch_url", new_callable=AsyncMock) as mock_fetch,
+        patch("app.services.job_intake.service._maybe_refine_with_llm", new_callable=AsyncMock) as mock_refine,
     ):
         mock_fetch.return_value = fetched
         mock_refine.return_value = {
@@ -319,6 +343,7 @@ async def test_remote_llm_refinement_keeps_original_link_and_question_metadata()
             )
         )
 
+    assert response.source_url == "https://jobs.example.com/role"
     assert [link.url for link in response.links] == ["https://jobs.example.com/apply"]
     assert [question.question for question in response.screening_questions] == [
         "Do you have Python experience?"
@@ -334,8 +359,8 @@ async def test_pdf_url_uses_pdf_suffix_for_download_urls() -> None:
         body=b"%PDF-1.4",
     )
     with (
-        patch("app.services.job_intake._fetch_url", new_callable=AsyncMock) as mock_fetch,
-        patch("app.services.job_intake.parse_document", new_callable=AsyncMock) as mock_parse,
+        patch("app.services.job_intake.service._fetch_url", new_callable=AsyncMock) as mock_fetch,
+        patch("app.services.job_intake.service.parse_document", new_callable=AsyncMock) as mock_parse,
     ):
         mock_fetch.return_value = fetched
         mock_parse.return_value = "Senior Backend Engineer using Python, FastAPI, and AWS."
@@ -351,6 +376,26 @@ async def test_pdf_url_uses_pdf_suffix_for_download_urls() -> None:
 
 
 @pytest.mark.asyncio
+async def test_remote_source_url_is_redacted_for_response_metadata() -> None:
+    fetched = FetchedContent(
+        url="https://jobs.example.com/role?token=secret#screening",
+        content_type="text/html",
+        body=b"<html><body>Senior Backend Engineer using Python and FastAPI.</body></html>",
+    )
+    with patch("app.services.job_intake.service._fetch_url", new_callable=AsyncMock) as mock_fetch:
+        mock_fetch.return_value = fetched
+
+        response = await _extract_remote_url(
+            JobIntakeExtractRequest(
+                source_type="job_url",
+                url="https://jobs.example.com/role?token=secret#screening",
+            )
+        )
+
+    assert response.source_url == "https://jobs.example.com/role"
+
+
+@pytest.mark.asyncio
 async def test_pdf_url_rejects_non_pdf_content() -> None:
     html = "<html><body>" + ("Senior Backend Engineer " * 40) + "</body></html>"
     fetched = FetchedContent(
@@ -358,7 +403,7 @@ async def test_pdf_url_rejects_non_pdf_content() -> None:
         content_type="text/html",
         body=html.encode(),
     )
-    with patch("app.services.job_intake._fetch_url", new_callable=AsyncMock) as mock_fetch:
+    with patch("app.services.job_intake.service._fetch_url", new_callable=AsyncMock) as mock_fetch:
         mock_fetch.return_value = fetched
 
         with pytest.raises(JobIntakeError, match="PDF"):
@@ -379,8 +424,8 @@ async def test_pdf_url_rejects_html_even_when_path_ends_pdf() -> None:
         body=html.encode(),
     )
     with (
-        patch("app.services.job_intake._fetch_url", new_callable=AsyncMock) as mock_fetch,
-        patch("app.services.job_intake.parse_document", new_callable=AsyncMock) as mock_parse,
+        patch("app.services.job_intake.service._fetch_url", new_callable=AsyncMock) as mock_fetch,
+        patch("app.services.job_intake.service.parse_document", new_callable=AsyncMock) as mock_parse,
     ):
         mock_fetch.return_value = fetched
 
@@ -402,7 +447,7 @@ async def test_job_url_rejects_unsupported_binary_content_type() -> None:
         content_type="application/octet-stream",
         body=b"\x00\x01\x02not-html",
     )
-    with patch("app.services.job_intake._fetch_url", new_callable=AsyncMock) as mock_fetch:
+    with patch("app.services.job_intake.service._fetch_url", new_callable=AsyncMock) as mock_fetch:
         mock_fetch.return_value = fetched
 
         with pytest.raises(JobIntakeError, match="unsupported content type"):
@@ -416,7 +461,7 @@ async def test_job_url_rejects_unsupported_binary_content_type() -> None:
 
 @pytest.mark.asyncio
 async def test_pdf_upload_uses_safe_parser_filename() -> None:
-    with patch("app.services.job_intake.parse_document", new_callable=AsyncMock) as mock_parse:
+    with patch("app.services.job_intake.service.parse_document", new_callable=AsyncMock) as mock_parse:
         mock_parse.return_value = "Senior Backend Engineer using Python and FastAPI."
 
         response = await extract_pdf_upload(b"%PDF-1.4", "job.pdf")
@@ -427,7 +472,7 @@ async def test_pdf_upload_uses_safe_parser_filename() -> None:
 
 @pytest.mark.asyncio
 async def test_pdf_upload_rejects_non_pdf_filename_before_parsing() -> None:
-    with patch("app.services.job_intake.parse_document", new_callable=AsyncMock) as mock_parse:
+    with patch("app.services.job_intake.service.parse_document", new_callable=AsyncMock) as mock_parse:
         with pytest.raises(JobIntakeError, match="valid PDF"):
             await extract_pdf_upload(b"%PDF-1.4", "job.docx")
 
@@ -436,7 +481,7 @@ async def test_pdf_upload_rejects_non_pdf_filename_before_parsing() -> None:
 
 @pytest.mark.asyncio
 async def test_pdf_upload_rejects_non_pdf_bytes_before_parsing() -> None:
-    with patch("app.services.job_intake.parse_document", new_callable=AsyncMock) as mock_parse:
+    with patch("app.services.job_intake.service.parse_document", new_callable=AsyncMock) as mock_parse:
         with pytest.raises(JobIntakeError, match="valid PDF"):
             await extract_pdf_upload(b"not a pdf", "job.pdf")
 

@@ -32,7 +32,6 @@ function extraction(overrides: Partial<JobIntakeExtractResponse> = {}): JobIntak
     links: [],
     screening_questions: [],
     draft_answers: [],
-    raw_text: 'Senior Backend Engineer using Python, FastAPI, and AWS.',
     extraction_method: 'manual',
     warnings: [],
     confidence: 1,
@@ -169,6 +168,71 @@ describe('JobIntakeWizard', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
     expect(screen.getByRole('button', { name: 'tailor.intake.extractButton' })).toBeDisabled();
+  });
+
+  it('validates job URLs before extracting', async () => {
+    render(
+      <JobIntakeWizard
+        masterResumeId="resume-123"
+        disabled={false}
+        canTailor={true}
+        onJobConfirmed={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.job_url' }));
+    fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
+      target: { value: 'ftp://company.example/jobs/backend' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.extractButton' }));
+
+    expect(extractJobIntake).not.toHaveBeenCalled();
+    expect(screen.getByText('tailor.intake.errors.invalidUrl')).toBeInTheDocument();
+  });
+
+  it('validates PDF uploads before extracting', async () => {
+    render(
+      <JobIntakeWizard
+        masterResumeId="resume-123"
+        disabled={false}
+        canTailor={true}
+        onJobConfirmed={vi.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
+    fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
+      target: {
+        files: [new File(['not a pdf'], 'job.txt', { type: 'text/plain' })],
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.extractButton' }));
+
+    expect(uploadJobIntakePdf).not.toHaveBeenCalled();
+    expect(screen.getByText('tailor.intake.errors.invalidPdf')).toBeInTheDocument();
+  });
+
+  it('allows PDFs reported with generic upload MIME types', async () => {
+    uploadJobIntakePdf.mockResolvedValue(extraction({ source_type: 'pdf_upload' }));
+
+    render(
+      <JobIntakeWizard
+        masterResumeId="resume-123"
+        disabled={false}
+        canTailor={true}
+        onJobConfirmed={vi.fn()}
+      />
+    );
+
+    const file = new File(['fake pdf'], 'job.pdf', { type: 'application/octet-stream' });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
+    fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
+      target: { files: [file] },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.extractButton' }));
+
+    await waitFor(() => expect(uploadJobIntakePdf).toHaveBeenCalledWith(file, 'resume-123'));
+    expect(screen.queryByText('tailor.intake.errors.invalidPdf')).not.toBeInTheDocument();
   });
 
   it('allows extraction but blocks tailoring confirmation when tailoring is unavailable', async () => {

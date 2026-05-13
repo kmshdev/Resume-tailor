@@ -71,7 +71,7 @@ DELETE /api/v1/resumes/{id}
 
 **Upload:** File → markitdown → Markdown → LLM parse → JSON → TinyDB
 
-**JD Intake:** URL/PDF/message/manual source → Extract reviewable JD + metadata → Store reviewed JD
+**JD Intake:** URL/PDF/message/manual source → Extract reviewable JD + metadata without raw scraped text → Store reviewed JD and redacted source metadata
 
 **Improve:** Resume + Job → Extract priority keywords (LLM) → Verify skill targets → Generate/apply diffs → Refine → Store
 

@@ -95,7 +95,6 @@ class JobIntakeExtractResponse(BaseModel):
     links: list[DetectedJobLink] = Field(default_factory=list)
     screening_questions: list[ScreeningQuestion] = Field(default_factory=list)
     draft_answers: list[DraftAnswer] = Field(default_factory=list)
-    raw_text: str = ""
     extraction_method: ExtractionMethod
     warnings: list[str] = Field(default_factory=list)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
