@@ -1,0 +1,56 @@
+version = 1
+name = "Resume Matcher"
+
+[setup]
+script = "scripts/setup-local.sh --skip-browser"
+
+[[actions]]
+name = "Check Toolchain"
+icon = "tool"
+command = "scripts/check-local-env.sh"
+
+[[actions]]
+name = "Setup Dependencies"
+icon = "tool"
+command = "scripts/setup-local.sh"
+
+[[actions]]
+name = "Backend Dev Server"
+icon = "run"
+command = "cd apps/backend && uv run uvicorn app.main:app --reload --port 8000"
+
+[[actions]]
+name = "Frontend Dev Server"
+icon = "run"
+command = "cd apps/frontend && npm run dev"
+
+[[actions]]
+name = "Backend Tests"
+icon = "test"
+command = "cd apps/backend && uv run pytest"
+
+[[actions]]
+name = "Frontend Tests"
+icon = "test"
+command = "cd apps/frontend && npm run test"
+
+[[actions]]
+name = "Frontend Lint"
+icon = "test"
+command = "cd apps/frontend && npm run lint"
+
+[[actions]]
+name = "Frontend Build"
+icon = "test"
+command = "cd apps/frontend && npm run build"
+
+[[actions]]
+name = "Full Verification"
+icon = "test"
+command = """
+scripts/check-local-env.sh
+cd apps/backend && uv run pytest
+cd ../frontend && npm run lint
+npm run test
+npm run build
+"""

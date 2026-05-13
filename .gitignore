@@ -67,7 +67,9 @@ skills-lock.json
 .github/copilot-instructions.md
 .kilocode/
 .gemini/
-.codex/
+.codex/*
+!.codex/environments/
+!.codex/environments/**
 .firecrawl/
 AGENTS.md
 GEMINI.md
