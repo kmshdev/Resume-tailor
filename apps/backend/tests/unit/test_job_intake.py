@@ -13,6 +13,8 @@ from app.services.job_intake import (
     SafeAsyncHTTPTransport,
     _extract_remote_url,
     _fetch_url,
+    _fetch_with_playwright,
+    _fulfill_with_safe_fetch,
     _maybe_refine_with_llm,
     _redact_url_for_logging,
     _resolve_public_addresses,
@@ -23,6 +25,7 @@ from app.services.job_intake import (
     extract_questions_from_text,
     validate_public_url,
 )
+from app.services.job_intake.constants import PLAYWRIGHT_TIMEOUT_MS
 
 
 @pytest.mark.asyncio
@@ -312,6 +315,138 @@ async def test_fetch_url_revalidates_redirect_targets(monkeypatch: pytest.Monkey
 
     with pytest.raises(JobIntakeError, match="public"):
         await _fetch_url("https://jobs.example.com/redirect")
+
+
+@pytest.mark.asyncio
+async def test_playwright_fetch_uses_stateless_safe_routing() -> None:
+    page = SimpleNamespace(
+        goto=AsyncMock(return_value=SimpleNamespace(url="https://jobs.example.com/final")),
+        content=AsyncMock(return_value="<html><body>Senior Backend Engineer</body></html>"),
+        title=AsyncMock(return_value="Backend role"),
+    )
+    context = SimpleNamespace(
+        route=AsyncMock(),
+        new_page=AsyncMock(return_value=page),
+        close=AsyncMock(),
+    )
+    browser = SimpleNamespace(
+        new_context=AsyncMock(return_value=context),
+        close=AsyncMock(),
+    )
+    playwright = SimpleNamespace(
+        chromium=SimpleNamespace(launch=AsyncMock(return_value=browser))
+    )
+
+    class FakePlaywrightManager:
+        async def __aenter__(self):
+            return playwright
+
+        async def __aexit__(self, exc_type, exc, traceback):
+            return None
+
+    async def fake_validate(url: str) -> str:
+        return url
+
+    with (
+        patch(
+            "app.services.job_intake.fetchers.async_playwright",
+            return_value=FakePlaywrightManager(),
+        ),
+        patch(
+            "app.services.job_intake.fetchers.validate_public_url",
+            new_callable=AsyncMock,
+            side_effect=fake_validate,
+        ) as mock_validate,
+        patch(
+            "app.services.job_intake.fetchers.html_to_text",
+            return_value=("Senior Backend Engineer", "HTML title"),
+        ),
+    ):
+        text, title = await _fetch_with_playwright("https://jobs.example.com/role")
+
+    assert text == "Senior Backend Engineer"
+    assert title == "Backend role"
+    browser.new_context.assert_awaited_once_with(
+        user_agent="ResumeMatcher-JDIntake/1.0",
+        java_script_enabled=True,
+    )
+    context.route.assert_awaited_once_with("**/*", _fulfill_with_safe_fetch)
+    page.goto.assert_awaited_once_with(
+        "https://jobs.example.com/role",
+        wait_until="domcontentloaded",
+        timeout=PLAYWRIGHT_TIMEOUT_MS,
+    )
+    assert [call.args[0] for call in mock_validate.await_args_list] == [
+        "https://jobs.example.com/role",
+        "https://jobs.example.com/final",
+    ]
+    context.close.assert_awaited_once()
+    browser.close.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_playwright_route_aborts_non_get_requests() -> None:
+    route = SimpleNamespace(
+        request=SimpleNamespace(method="POST", url="https://jobs.example.com/apply"),
+        abort=AsyncMock(),
+        fulfill=AsyncMock(),
+    )
+
+    with patch("app.services.job_intake.fetchers.fetch_url", new_callable=AsyncMock) as mock_fetch:
+        await _fulfill_with_safe_fetch(route)
+
+    mock_fetch.assert_not_awaited()
+    route.abort.assert_awaited_once()
+    route.fulfill.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_playwright_route_aborts_unsafe_get_requests() -> None:
+    route = SimpleNamespace(
+        request=SimpleNamespace(method="GET", url="http://127.0.0.1/internal"),
+        abort=AsyncMock(),
+        fulfill=AsyncMock(),
+    )
+
+    with patch(
+        "app.services.job_intake.fetchers.fetch_url",
+        new_callable=AsyncMock,
+        side_effect=JobIntakeError("Only public URLs are supported."),
+    ) as mock_fetch:
+        await _fulfill_with_safe_fetch(route)
+
+    mock_fetch.assert_awaited_once_with("http://127.0.0.1/internal")
+    route.abort.assert_awaited_once()
+    route.fulfill.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_playwright_route_fulfills_safe_get_requests() -> None:
+    route = SimpleNamespace(
+        request=SimpleNamespace(method="GET", url="https://jobs.example.com/role"),
+        abort=AsyncMock(),
+        fulfill=AsyncMock(),
+    )
+    fetched = FetchedContent(
+        url="https://jobs.example.com/role",
+        content_type="text/html",
+        body=b"<html>Role</html>",
+    )
+
+    with patch(
+        "app.services.job_intake.fetchers.fetch_url",
+        new_callable=AsyncMock,
+        return_value=fetched,
+    ) as mock_fetch:
+        await _fulfill_with_safe_fetch(route)
+
+    mock_fetch.assert_awaited_once_with("https://jobs.example.com/role")
+    route.fulfill.assert_awaited_once_with(
+        status=200,
+        headers={"content-type": "text/html"},
+        body=b"<html>Role</html>",
+    )
+    route.abort.assert_not_awaited()
 
 
 @pytest.mark.asyncio

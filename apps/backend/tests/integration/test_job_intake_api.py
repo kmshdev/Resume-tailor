@@ -129,6 +129,41 @@ class TestJobIntakeExtract:
         mock_extract.assert_awaited_once()
 
     @patch("app.routers.job_intake.extract_pdf_upload", new_callable=AsyncMock)
+    async def test_pdf_upload_allows_generic_pdf_mime_type(self, mock_extract, client):
+        mock_extract.return_value = {
+            "source_type": "pdf_upload",
+            "job_description": "Senior Backend Engineer using Python and FastAPI.",
+            "source_url": None,
+            "source_title": "job.pdf",
+            "links": [],
+            "screening_questions": [],
+            "draft_answers": [],
+            "extraction_method": "pdf",
+            "warnings": [],
+            "confidence": 0.9,
+            "requires_review": True,
+        }
+
+        resp = await client.post(
+            "/api/v1/jobs/intake/pdf-upload",
+            files={"file": ("job.pdf", b"%PDF-1.4 fake", "application/octet-stream")},
+        )
+
+        assert resp.status_code == 200
+        mock_extract.assert_awaited_once()
+
+    @patch("app.routers.job_intake.extract_pdf_upload", new_callable=AsyncMock)
+    async def test_pdf_upload_rejects_obvious_non_pdf_mime_type(self, mock_extract, client):
+        resp = await client.post(
+            "/api/v1/jobs/intake/pdf-upload",
+            files={"file": ("job.pdf", b"%PDF-1.4 fake", "text/plain")},
+        )
+
+        assert resp.status_code == 400
+        assert "PDF" in resp.json()["detail"]
+        mock_extract.assert_not_awaited()
+
+    @patch("app.routers.job_intake.extract_pdf_upload", new_callable=AsyncMock)
     async def test_pdf_upload_rejects_non_pdf_bytes(self, mock_extract, client):
         resp = await client.post(
             "/api/v1/jobs/intake/pdf-upload",
@@ -222,3 +257,41 @@ class TestJobIntakeConfirm:
         assert resp.status_code == 200
         _, kwargs = mock_db.create_job.call_args
         assert kwargs["intake_metadata"]["source_url"] == "https://jobs.example.com/backend"
+
+    @patch("app.routers.job_intake.db")
+    async def test_confirm_redacts_link_urls_before_persisting(self, mock_db, client):
+        mock_db.create_job.return_value = {
+            "job_id": "job-123",
+            "content": "Senior Backend Engineer using Python, FastAPI, and AWS.",
+            "created_at": "2026-01-01T00:00:00Z",
+        }
+
+        resp = await client.post(
+            "/api/v1/jobs/intake/confirm",
+            json={
+                "job_description": "Senior Backend Engineer using Python, FastAPI, and AWS.",
+                "intake_metadata": {
+                    "source_type": "recruiter_message",
+                    "source_url": None,
+                    "source_title": "Backend role",
+                    "links": [
+                        {
+                            "url": "https://jobs.example.com/backend?token=secret#apply",
+                            "label": "jobs.example.com",
+                        }
+                    ],
+                    "screening_questions": [],
+                    "draft_answers": [],
+                    "extraction_method": "deterministic",
+                    "warnings": [],
+                    "confidence": 0.8,
+                },
+            },
+        )
+
+        assert resp.status_code == 200
+        _, kwargs = mock_db.create_job.call_args
+        assert kwargs["intake_metadata"]["links"][0]["url"] == "https://jobs.example.com/backend"
+        assert resp.json()["request"]["intake_metadata"]["links"][0]["url"] == (
+            "https://jobs.example.com/backend"
+        )

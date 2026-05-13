@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/jobs/intake", tags=["Job Intake"])
 
-PDF_TYPES = {"application/pdf"}
+PDF_TYPES = {"", "application/octet-stream", "application/pdf", "application/x-pdf"}
 MAX_PDF_SIZE = 4 * 1024 * 1024
 
 
@@ -35,6 +35,11 @@ def _metadata_payload(request: JobIntakeConfirmRequest) -> dict[str, Any] | None
         return None
     payload = request.intake_metadata.model_dump()
     payload["source_url"] = redact_url_for_metadata(request.intake_metadata.source_url)
+    payload["links"] = [
+        {**link, "url": safe_url}
+        for link in payload.get("links", [])
+        if (safe_url := redact_url_for_metadata(link.get("url")))
+    ]
     return payload
 
 
@@ -92,7 +97,8 @@ async def upload_job_pdf(
     resume_id: str | None = Form(default=None),
 ) -> JobIntakeExtractResponse:
     """Extract reviewable JD text from an uploaded PDF."""
-    if file.content_type not in PDF_TYPES:
+    content_type = (file.content_type or "").split(";", 1)[0].strip().lower()
+    if content_type not in PDF_TYPES:
         raise HTTPException(status_code=400, detail="Only PDF uploads are supported.")
 
     content = await file.read()
@@ -124,11 +130,12 @@ async def confirm_job_intake(
     request: JobIntakeConfirmRequest,
 ) -> JobIntakeConfirmResponse:
     """Persist reviewed JD content as the canonical job record."""
+    intake_metadata = _metadata_payload(request)
     try:
         job = db.create_job(
             content=request.job_description,
             resume_id=request.resume_id,
-            intake_metadata=_metadata_payload(request),
+            intake_metadata=intake_metadata,
         )
     except Exception as exc:
         logger.error("Failed to persist JD intake job: %s", exc)
@@ -139,6 +146,6 @@ async def confirm_job_intake(
         job_id=job["job_id"],
         request={
             "resume_id": request.resume_id,
-            "intake_metadata": _metadata_payload(request),
+            "intake_metadata": intake_metadata,
         },
     )

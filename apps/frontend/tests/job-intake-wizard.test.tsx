@@ -96,6 +96,77 @@ describe('JobIntakeWizard', () => {
     });
   });
 
+  it('confirms edited review text and hands it off for tailoring', async () => {
+    extractJobIntake.mockResolvedValue(extraction());
+    confirmJobIntake.mockResolvedValue({
+      message: 'job intake saved',
+      job_id: 'job-123',
+      request: {},
+    });
+    const onJobConfirmed = vi.fn();
+
+    render(
+      <JobIntakeWizard
+        masterResumeId="resume-123"
+        disabled={false}
+        canTailor={true}
+        onJobConfirmed={onJobConfirmed}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
+      target: {
+        value: 'Senior Backend Engineer using Python, FastAPI, and AWS.',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.extractButton' }));
+
+    const reviewInput = await screen.findByLabelText('tailor.intake.reviewJdLabel');
+    fireEvent.change(reviewInput, {
+      target: {
+        value: 'Edited Senior Backend Engineer using Python, FastAPI, AWS, and Kubernetes.',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.confirmButton' }));
+
+    await waitFor(() => {
+      expect(confirmJobIntake).toHaveBeenCalledWith(
+        expect.objectContaining({
+          job_description:
+            'Edited Senior Backend Engineer using Python, FastAPI, AWS, and Kubernetes.',
+        })
+      );
+      expect(onJobConfirmed).toHaveBeenCalledWith({
+        jobId: 'job-123',
+        jobDescription:
+          'Edited Senior Backend Engineer using Python, FastAPI, AWS, and Kubernetes.',
+      });
+    });
+  });
+
+  it('shows extraction errors without entering review', async () => {
+    extractJobIntake.mockRejectedValue(new Error('Remote URL returned an error status.'));
+
+    render(
+      <JobIntakeWizard
+        masterResumeId="resume-123"
+        disabled={false}
+        canTailor={true}
+        onJobConfirmed={vi.fn()}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
+      target: {
+        value: 'Senior Backend Engineer using Python, FastAPI, and AWS.',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.extractButton' }));
+
+    expect(await screen.findByText('Remote URL returned an error status.')).toBeInTheDocument();
+    expect(screen.queryByText('tailor.intake.reviewTitle')).not.toBeInTheDocument();
+  });
+
   it('keeps screening questions visible and separate during review', async () => {
     extractJobIntake.mockResolvedValue(
       extraction({
