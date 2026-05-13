@@ -46,6 +46,10 @@
   --color-ink: #000000;
   --color-success: #15803d;
   --color-warning: #f97316;
+  --color-card-stack-coral: #eb3b10;
+  --color-card-stack-paper: #f3e7cf;
+  --color-card-stack-blue: #1484cf;
+  --color-card-stack-green: #3def7a;
 
   /* Brand-tinted neutrals (OKLCH, chroma tinted ~0.005-0.018 toward
      Hyper Blue hue 264) — replace ad-hoc Tailwind grays. */

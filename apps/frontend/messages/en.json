@@ -135,6 +135,12 @@
     "workspaceSubtitle": "Follow the checklist once, then tailor a fresh resume for each role without hunting through settings.",
     "masterResume": "Master Resume",
     "tailoredResume": "Tailored Resume",
+    "cardStack": {
+      "masterResume": "Master resume",
+      "jobIntake": "Job intake",
+      "tailorFlow": "Tailor flow",
+      "reviewLift": "Review lift"
+    },
     "initializeMasterResume": "Add Base Resume",
     "initializeSequence": "Upload once, tailor often",
     "refreshStatus": "Refresh status",
@@ -590,6 +596,28 @@
       "unexpected": "An unexpected error occurred"
     }
   },
+  "evaluation": {
+    "details": "Evaluation details",
+    "confidence": "{value}% confidence",
+    "phases": {
+      "readiness": "Readiness",
+      "pre_tailor": "Pre-tailor",
+      "post_tailor": "Post-tailor"
+    },
+    "states": {
+      "checking": "Checking...",
+      "notChecked": "Not checked",
+      "stale": "Needs refresh"
+    },
+    "actions": {
+      "check": "Check",
+      "refresh": "Refresh"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load evaluation details.",
+      "checkFailed": "Couldn't run the evaluation check."
+    }
+  },
   "tailor": {
     "title": "Tailor Resume",
     "subtitle": "Optimize your resume for a specific job",
@@ -669,6 +697,17 @@
         "confirmFailed": "Couldn't save the reviewed job description.",
         "invalidUrl": "Enter a public http or https URL.",
         "invalidPdf": "Upload a PDF file."
+      }
+    },
+    "session": {
+      "deckLabel": "Tailoring session",
+      "steps": {
+        "add_job": "Add job",
+        "review_jd": "Review JD",
+        "pre_score": "Pre-score",
+        "tailor": "Tailor",
+        "review_changes": "Review changes",
+        "post_score": "Post-score"
       }
     },
     "promptLabel": "Tailoring intensity",
