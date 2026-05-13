@@ -48,6 +48,11 @@ icon = "test"
 command = "cd apps/frontend && npm run build"
 
 [[actions]]
+name = "Deploy to Railway"
+icon = "run"
+command = "scripts/deploy-railway.sh"
+
+[[actions]]
 name = "Full Verification"
 icon = "test"
 command = """
