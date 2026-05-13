@@ -94,6 +94,21 @@ class TestResumeEvaluationsApi:
         assert mock_list.call_args.kwargs["resume_id"] == "resume-1"
         assert mock_list.call_args.kwargs["phase"] == "readiness"
 
+    @patch("app.routers.evaluations.db")
+    async def test_list_evaluations_missing_resume_returns_404(
+        self,
+        mock_db: Mock,
+        client: AsyncClient,
+    ) -> None:
+        mock_db.get_resume.return_value = None
+        mock_db.list_evaluations.return_value = []
+        mock_db.list_evaluations_for_baseline.return_value = []
+
+        resp = await client.get("/api/v1/resumes/missing-resume/evaluations")
+
+        assert resp.status_code == 404
+        assert resp.json()["detail"] == "Evaluation source not found."
+
     @patch("app.routers.evaluations.get_latest_resume_evaluations")
     async def test_latest_evaluations(
         self,
@@ -122,6 +137,21 @@ class TestResumeEvaluationsApi:
         mock_latest.assert_called_once()
         assert mock_latest.call_args.kwargs["resume_id"] == "resume-1"
         assert mock_latest.call_args.kwargs["job_id"] == "job-1"
+
+    @patch("app.routers.evaluations.db")
+    async def test_latest_evaluations_missing_resume_returns_404(
+        self,
+        mock_db: Mock,
+        client: AsyncClient,
+    ) -> None:
+        mock_db.get_resume.return_value = None
+        mock_db.get_latest_evaluation.return_value = None
+        mock_db.get_latest_evaluation_for_baseline.return_value = None
+
+        resp = await client.get("/api/v1/resumes/missing-resume/evaluations/latest")
+
+        assert resp.status_code == 404
+        assert resp.json()["detail"] == "Evaluation source not found."
 
     @patch("app.routers.evaluations.create_resume_evaluation", new_callable=AsyncMock)
     async def test_missing_llm_config_returns_400(

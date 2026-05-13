@@ -358,7 +358,7 @@ Copy should favor outcome language:
 Backend:
 
 - Missing resume: `404`.
-- Missing required job for pre/post evaluation: `400`.
+- Missing required job for pre/post evaluation: `422` request validation.
 - Missing LLM config: user-safe `400`.
 - Configured but unhealthy LLM provider: user-safe `503`.
 - Malformed LLM output: log details server-side; return a safe retryable error.

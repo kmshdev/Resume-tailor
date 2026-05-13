@@ -113,6 +113,14 @@ def _job_content(database: Database, job_id: str | None) -> str | None:
     return content if isinstance(content, str) else None
 
 
+def _require_resume(database: Database, resume_id: str) -> dict[str, Any]:
+    """Return a resume record or raise a not-found evaluation error."""
+    resume = database.get_resume(resume_id)
+    if not resume:
+        raise EvaluationError(f"Resume not found: {resume_id}")
+    return resume
+
+
 def _current_source_hash_for_record(
     *,
     database: Database,
@@ -224,6 +232,8 @@ def list_resume_evaluations(
     phase: EvaluationPhase | None = None,
 ) -> ResumeEvaluationListResponse:
     """List evaluations directly attached to a resume or anchored baseline."""
+    _require_resume(database, resume_id)
+
     records_by_id: dict[str, dict[str, Any]] = {}
     for record in database.list_evaluations(
         resume_id=resume_id,
@@ -264,6 +274,8 @@ def get_latest_resume_evaluations(
     job_id: str | None = None,
 ) -> LatestResumeEvaluationsResponse:
     """Return latest readiness, pre-tailor, and post-tailor evaluations."""
+    _require_resume(database, resume_id)
+
     readiness = database.get_latest_evaluation(
         resume_id=resume_id,
         phase="readiness",
@@ -326,9 +338,7 @@ def _load_sources(
     request: ResumeEvaluationRequest,
 ) -> tuple[dict[str, Any], Any, str | None, str | None, Any | None]:
     """Load resume, job, and optional baseline source data."""
-    resume = database.get_resume(resume_id)
-    if not resume:
-        raise EvaluationError(f"Resume not found: {resume_id}")
+    resume = _require_resume(database, resume_id)
 
     job_content = None
     if request.job_id:
