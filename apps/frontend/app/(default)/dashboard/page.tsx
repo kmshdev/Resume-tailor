@@ -662,6 +662,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <CommandCenter
+        ariaLabel={t('dashboard.workspaceEyebrow')}
         alert={configurationWarning}
         metrics={[
           <EvaluationCard

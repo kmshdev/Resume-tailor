@@ -64,10 +64,10 @@ export function TailorCardStack({
   ];
 
   return (
-    <div className="relative h-[21rem] overflow-hidden p-4">
+    <div className="relative h-[23rem] overflow-hidden p-4">
       {cards.map((card, index) => {
         const label = t(`dashboard.cardStack.${card.key}`);
-        const offset = index * 18;
+        const offset = index * 68;
         return (
           <article
             key={card.key}
@@ -76,56 +76,59 @@ export function TailorCardStack({
               'shadow-[4px_4px_0px_0px_#000000]',
               card.tone
             )}
-            style={{ top: `${offset}px`, zIndex: cards.length + index }}
+            style={{ top: `${offset}px`, zIndex: index + 1 }}
           >
-            <div className="flex items-start justify-between gap-4">
-              <span className="font-mono text-xs font-bold uppercase tracking-wide">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'flex h-8 w-8 items-center justify-center border border-current',
-                  card.active ? 'bg-white text-black' : 'bg-transparent'
-                )}
-              >
-                {card.active ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-              </span>
-            </div>
-            <h3 className="mt-auto max-w-[12rem] font-serif text-2xl font-bold uppercase leading-none">
-              {label}
-            </h3>
-            <div className="mt-3 flex justify-end">
-              {card.key === 'masterResume' && !hasMasterResume && canUploadMaster ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={onUploadMaster}
-                  aria-label={label}
-                  title={label}
-                  className="h-9 w-9 bg-white"
-                >
-                  <FileUp aria-hidden="true" className="h-4 w-4" />
-                </Button>
-              ) : card.enabled ? (
-                <Link
-                  href="/tailor"
-                  aria-label={label}
-                  title={label}
-                  className="inline-flex h-9 w-9 items-center justify-center border border-black bg-white text-black shadow-sw-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
-                >
-                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                </Link>
-              ) : (
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <span className="font-mono text-xs font-bold uppercase tracking-wide">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mt-1 line-clamp-2 max-w-[10rem] font-serif text-lg font-bold uppercase leading-tight">
+                  {label}
+                </h3>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
                 <span
                   aria-hidden="true"
-                  className="inline-flex h-9 w-9 items-center justify-center border border-current opacity-50"
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center border border-current',
+                    card.active ? 'bg-white text-black' : 'bg-transparent'
+                  )}
                 >
-                  <Lock className="h-4 w-4" />
+                  {card.active ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
                 </span>
-              )}
+                {card.key === 'masterResume' && !hasMasterResume && canUploadMaster ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={onUploadMaster}
+                    aria-label={label}
+                    title={label}
+                    className="bg-white"
+                  >
+                    <FileUp aria-hidden="true" className="h-4 w-4" />
+                  </Button>
+                ) : card.enabled ? (
+                  <Link
+                    href="/tailor"
+                    aria-label={label}
+                    title={label}
+                    className="inline-flex h-11 w-11 items-center justify-center border border-black bg-white text-black shadow-sw-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                  >
+                    <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                  </Link>
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className="inline-flex h-11 w-11 items-center justify-center border border-current opacity-50"
+                  >
+                    <Lock className="h-4 w-4" />
+                  </span>
+                )}
+              </div>
             </div>
+            <div className="mt-auto h-4 border-t border-current" aria-hidden="true" />
           </article>
         );
       })}

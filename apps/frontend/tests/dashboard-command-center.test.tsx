@@ -2,6 +2,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { CommandCenter } from '@/components/dashboard/command-center';
+import { TailorCardStack } from '@/components/dashboard/tailor-card-stack';
 import { EvaluationCard } from '@/components/evaluation/evaluation-card';
 import type { ResumeEvaluationResponse } from '@/lib/api/evaluation';
 
@@ -101,6 +102,7 @@ describe('CommandCenter', () => {
   it('renders three constrained metric columns and the lower command zones', () => {
     render(
       <CommandCenter
+        ariaLabel="Resume workspace"
         metrics={[
           <EvaluationCard key="readiness" phase="readiness" evaluation={baseEvaluation} />,
           <EvaluationCard key="pre" phase="pre_tailor" evaluation={null} />,
@@ -112,10 +114,36 @@ describe('CommandCenter', () => {
       />
     );
 
-    expect(screen.getByLabelText('Dashboard command center')).toBeInTheDocument();
+    expect(screen.getByLabelText('Resume workspace')).toBeInTheDocument();
     expect(screen.getByTestId('command-center-metrics')).toHaveClass('md:grid-cols-3');
     expect(screen.getByText('Resume context')).toBeInTheDocument();
     expect(screen.getByText('Workflow stack')).toBeInTheDocument();
     expect(screen.getByText('Recent activity')).toBeInTheDocument();
+  });
+});
+
+describe('TailorCardStack', () => {
+  it('keeps the master upload action in a visible touch-sized stagger band', () => {
+    const onUploadMaster = vi.fn();
+    const { container } = render(
+      <TailorCardStack
+        hasMasterResume={false}
+        canUploadMaster
+        canTailor={false}
+        hasTailoredResume={false}
+        onUploadMaster={onUploadMaster}
+      />
+    );
+
+    const cards = Array.from(container.querySelectorAll('article'));
+    const offsets = cards.map((card) => Number.parseInt(card.style.top, 10));
+
+    expect(offsets).toHaveLength(4);
+    expect(offsets[1] - offsets[0]).toBeGreaterThanOrEqual(64);
+
+    const uploadAction = screen.getByRole('button', {
+      name: 'dashboard.cardStack.masterResume',
+    });
+    expect(uploadAction).toHaveClass('h-11', 'w-11');
   });
 });

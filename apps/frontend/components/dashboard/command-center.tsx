@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 interface CommandCenterProps {
+  ariaLabel: string;
   metrics: ReactNode[];
   resumeContext: ReactNode;
   workflow: ReactNode;
@@ -13,6 +14,7 @@ interface CommandCenterProps {
 }
 
 export function CommandCenter({
+  ariaLabel,
   metrics,
   resumeContext,
   workflow,
@@ -22,7 +24,7 @@ export function CommandCenter({
 }: CommandCenterProps) {
   return (
     <section
-      aria-label="Dashboard command center"
+      aria-label={ariaLabel}
       className={cn('border-2 border-black bg-black shadow-[8px_8px_0px_0px_#000000]', className)}
     >
       {alert ? <div className="border-b-2 border-black bg-background p-4">{alert}</div> : null}
