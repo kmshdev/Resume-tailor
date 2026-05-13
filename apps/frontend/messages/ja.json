@@ -195,6 +195,12 @@
       "dropzoneSubtitle": "PDF、DOC、DOCX（最大 4MB）",
       "tryDifferentFile": "別のファイルを試す",
       "parsingFailedKeepOpen": "AI 解析に失敗しました。別のファイルを試すか、このダイアログを閉じてください。"
+    },
+    "cardStack": {
+      "masterResume": "Master resume",
+      "jobIntake": "Job intake",
+      "tailorFlow": "Tailor flow",
+      "reviewLift": "Review lift"
     }
   },
   "builder": {
@@ -741,6 +747,17 @@
       "timeout": "リクエストがタイムアウトしました。求人内容を短くするか、接続を確認してから再試行してください。",
       "failedToPreview": "履歴書をプレビューできませんでした。設定で API キーを確認してから、もう一度お試しください。",
       "failedToConfirm": "変更を適用できませんでした。もう一度お試しください。"
+    },
+    "session": {
+      "deckLabel": "Tailoring session",
+      "steps": {
+        "add_job": "Add job",
+        "review_jd": "Review JD",
+        "pre_score": "Pre-score",
+        "tailor": "Tailor",
+        "review_changes": "Review changes",
+        "post_score": "Post-score"
+      }
     }
   },
   "settings": {
@@ -1035,5 +1052,88 @@
     "clearApiKeysDescription": "AI機能を再び使うには、もう一度入力が必要になります。",
     "resetDatabase": "すべてリセットして最初からやり直しますか？",
     "resetDatabaseDescription": "すべての履歴書、求人内容、生成されたドキュメントが完全に削除されます。"
+  },
+  "evaluation": {
+    "details": "Evaluation details",
+    "confidence": "{value}% confidence",
+    "phases": {
+      "readiness": "Readiness",
+      "pre_tailor": "Pre-tailor",
+      "post_tailor": "Post-tailor"
+    },
+    "states": {
+      "checking": "Checking...",
+      "notChecked": "Not checked",
+      "stale": "Needs refresh"
+    },
+    "actions": {
+      "check": "Check",
+      "refresh": "Refresh"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load evaluation details.",
+      "checkFailed": "Couldn't run the evaluation check."
+    }
+  },
+  "shell": {
+    "breadcrumbs": {
+      "label": "Breadcrumbs",
+      "home": "Home"
+    },
+    "tabs": {
+      "label": "Product sections",
+      "dashboard": "Dashboard",
+      "tailor": "Tailor",
+      "builder": "Builder",
+      "settings": "Settings"
+    },
+    "pages": {
+      "dashboard": "Dashboard",
+      "tailor": "Tailor",
+      "builder": "Builder",
+      "settings": "Settings",
+      "resumes": "Resume"
+    },
+    "status": {
+      "title": "Model status",
+      "checking": "Checking",
+      "ready": "Ready",
+      "setupRequired": "Setup required",
+      "readyDetail": "Your configured model is ready for tailoring and evaluation.",
+      "setupDetail": "Configure or test your model before running AI actions.",
+      "lastChecked": "Last checked",
+      "refresh": "Refresh"
+    },
+    "settings": {
+      "open": "Settings",
+      "title": "Model and app settings",
+      "description": "Check model health and jump to the full settings page.",
+      "modelStatus": "Model status",
+      "provider": "Provider",
+      "model": "Model",
+      "fullSettings": "Full settings"
+    },
+    "help": {
+      "open": "Help",
+      "title": "How Resume Matcher uses your data",
+      "topics": {
+        "score": {
+          "title": "How scores are calculated",
+          "body": "Scores are generated from the reviewed resume, job description, and configured model response. They are guidance, not guarantees."
+        },
+        "data": {
+          "title": "What data is used",
+          "body": "Evaluation uses the resume text, reviewed job description, optional baseline resume, model/provider metadata, and bounded evidence snippets."
+        },
+        "recommendation": {
+          "title": "Why this recommendation appeared",
+          "body": "Recommendations must point to resume evidence, job-description evidence, or an explicit absence of evidence."
+        },
+        "tailor": {
+          "title": "What happens when I tailor",
+          "body": "The app previews changes first, asks for confirmation, stores the tailored resume, and then records a post-tailor score when evaluation succeeds."
+        }
+      }
+    }
   }
 }

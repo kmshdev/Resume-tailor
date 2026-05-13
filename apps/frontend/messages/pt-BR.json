@@ -195,6 +195,12 @@
       "dropzoneSubtitle": "PDF, DOC, DOCX (Máximo 4MB)",
       "tryDifferentFile": "Tentar outro arquivo",
       "parsingFailedKeepOpen": "A análise de IA falhou. Tente outro arquivo ou feche este diálogo."
+    },
+    "cardStack": {
+      "masterResume": "Master resume",
+      "jobIntake": "Job intake",
+      "tailorFlow": "Tailor flow",
+      "reviewLift": "Review lift"
     }
   },
   "builder": {
@@ -741,6 +747,17 @@
       "timeout": "A solicitação expirou. Tente usar uma descrição da vaga mais curta ou verifique sua conexão.",
       "failedToPreview": "Não foi possível pré-visualizar o currículo. Verifique sua chave de API em Configurações e tente novamente.",
       "failedToConfirm": "Não foi possível aplicar as alterações. Tente novamente."
+    },
+    "session": {
+      "deckLabel": "Tailoring session",
+      "steps": {
+        "add_job": "Add job",
+        "review_jd": "Review JD",
+        "pre_score": "Pre-score",
+        "tailor": "Tailor",
+        "review_changes": "Review changes",
+        "post_score": "Post-score"
+      }
     }
   },
   "settings": {
@@ -1035,5 +1052,88 @@
     "clearApiKeysDescription": "Você precisará inseri-las novamente antes de usar os recursos de IA.",
     "resetDatabase": "Redefinir tudo e começar de novo?",
     "resetDatabaseDescription": "Isso excluirá permanentemente cada currículo, descrição de vaga e documento gerado."
+  },
+  "evaluation": {
+    "details": "Evaluation details",
+    "confidence": "{value}% confidence",
+    "phases": {
+      "readiness": "Readiness",
+      "pre_tailor": "Pre-tailor",
+      "post_tailor": "Post-tailor"
+    },
+    "states": {
+      "checking": "Checking...",
+      "notChecked": "Not checked",
+      "stale": "Needs refresh"
+    },
+    "actions": {
+      "check": "Check",
+      "refresh": "Refresh"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load evaluation details.",
+      "checkFailed": "Couldn't run the evaluation check."
+    }
+  },
+  "shell": {
+    "breadcrumbs": {
+      "label": "Breadcrumbs",
+      "home": "Home"
+    },
+    "tabs": {
+      "label": "Product sections",
+      "dashboard": "Dashboard",
+      "tailor": "Tailor",
+      "builder": "Builder",
+      "settings": "Settings"
+    },
+    "pages": {
+      "dashboard": "Dashboard",
+      "tailor": "Tailor",
+      "builder": "Builder",
+      "settings": "Settings",
+      "resumes": "Resume"
+    },
+    "status": {
+      "title": "Model status",
+      "checking": "Checking",
+      "ready": "Ready",
+      "setupRequired": "Setup required",
+      "readyDetail": "Your configured model is ready for tailoring and evaluation.",
+      "setupDetail": "Configure or test your model before running AI actions.",
+      "lastChecked": "Last checked",
+      "refresh": "Refresh"
+    },
+    "settings": {
+      "open": "Settings",
+      "title": "Model and app settings",
+      "description": "Check model health and jump to the full settings page.",
+      "modelStatus": "Model status",
+      "provider": "Provider",
+      "model": "Model",
+      "fullSettings": "Full settings"
+    },
+    "help": {
+      "open": "Help",
+      "title": "How Resume Matcher uses your data",
+      "topics": {
+        "score": {
+          "title": "How scores are calculated",
+          "body": "Scores are generated from the reviewed resume, job description, and configured model response. They are guidance, not guarantees."
+        },
+        "data": {
+          "title": "What data is used",
+          "body": "Evaluation uses the resume text, reviewed job description, optional baseline resume, model/provider metadata, and bounded evidence snippets."
+        },
+        "recommendation": {
+          "title": "Why this recommendation appeared",
+          "body": "Recommendations must point to resume evidence, job-description evidence, or an explicit absence of evidence."
+        },
+        "tailor": {
+          "title": "What happens when I tailor",
+          "body": "The app previews changes first, asks for confirmation, stores the tailored resume, and then records a post-tailor score when evaluation succeeds."
+        }
+      }
+    }
   }
 }
