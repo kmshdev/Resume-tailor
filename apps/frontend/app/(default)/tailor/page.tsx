@@ -29,6 +29,7 @@ export default function TailorPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [masterResumeId, setMasterResumeId] = useState<string | null>(null);
+  const [hasCheckedMasterResume, setHasCheckedMasterResume] = useState(false);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
   const [promptOptions, setPromptOptions] = useState<PromptOption[]>([]);
   const [selectedPromptId, setSelectedPromptId] = useState('tailored_resume_generator');
@@ -105,12 +106,13 @@ export default function TailorPage() {
 
   useEffect(() => {
     const storedId = localStorage.getItem('master_resume_id');
-    if (!storedId) {
-      router.push('/dashboard');
-    } else {
+    if (storedId) {
       setMasterResumeId(storedId);
+    } else {
+      setMasterResumeId(null);
     }
-  }, [router]);
+    setHasCheckedMasterResume(true);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -565,6 +567,35 @@ export default function TailorPage() {
                 canTailor={Boolean(isLlmConfigured)}
                 onJobConfirmed={handleJobConfirmed}
               />
+            )}
+
+            {hasCheckedMasterResume && !masterResumeId && (
+              <section
+                aria-label={t('dashboard.initializeMasterResume')}
+                data-state="needs-master-resume"
+                className="border-2 border-orange-500 bg-orange-50 p-6 shadow-sw-default"
+              >
+                <div className="grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)]">
+                  <div className="h-4 w-4 bg-orange-500" aria-hidden="true" />
+                  <div className="min-w-0">
+                    <p className="font-mono text-sm font-bold uppercase tracking-wider text-orange-700">
+                      {t('dashboard.initializeSequence')}
+                    </p>
+                    <h2 className="mt-2 font-serif text-3xl font-bold uppercase text-black">
+                      {t('dashboard.initializeMasterResume')}
+                    </h2>
+                    <p className="mt-3 max-w-2xl font-sans text-base text-black">
+                      {t('dashboard.guided.resume.description')}
+                    </p>
+                    <Link
+                      href="/dashboard"
+                      className="mt-5 inline-flex border-2 border-black bg-white px-4 py-2 font-mono text-sm font-bold uppercase tracking-wider text-black shadow-sw-default hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+                    >
+                      {t('dashboard.guided.resume.action')}
+                    </Link>
+                  </div>
+                </div>
+              </section>
             )}
 
             {isLoading && (
