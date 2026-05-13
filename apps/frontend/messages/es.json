@@ -201,7 +201,8 @@
       "jobIntake": "Job intake",
       "tailorFlow": "Tailor flow",
       "reviewLift": "Review lift"
-    }
+    },
+    "tailorCta": "Personalizar para un rol"
   },
   "builder": {
     "title": "Constructor de CV",

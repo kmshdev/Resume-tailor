@@ -201,7 +201,8 @@
       "jobIntake": "Job intake",
       "tailorFlow": "Tailor flow",
       "reviewLift": "Review lift"
-    }
+    },
+    "tailorCta": "为职位定制"
   },
   "builder": {
     "title": "简历生成器",

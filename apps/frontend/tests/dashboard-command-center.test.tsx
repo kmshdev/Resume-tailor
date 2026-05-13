@@ -6,16 +6,34 @@ import { TailorCardStack } from '@/components/dashboard/tailor-card-stack';
 import { EvaluationCard } from '@/components/evaluation/evaluation-card';
 import type { ResumeEvaluationResponse } from '@/lib/api/evaluation';
 
-vi.mock('@/lib/i18n', () => ({
-  useTranslations: () => ({
-    t: (key: string, params?: Record<string, unknown>) => {
-      if (key === 'evaluation.confidence') {
-        return `${key}:${String(params?.value)}`;
+vi.mock('@/lib/i18n', async () => {
+  const messages = ((await import('@/messages/en.json')) as { default: Record<string, unknown> })
+    .default;
+  const getNestedValue = (key: string): string => {
+    const value = key.split('.').reduce<unknown>((current, part) => {
+      if (current && typeof current === 'object' && part in current) {
+        return (current as Record<string, unknown>)[part];
       }
-      return key;
-    },
-  }),
-}));
+      return undefined;
+    }, messages);
+
+    return typeof value === 'string' ? value : key;
+  };
+
+  return {
+    useTranslations: () => ({
+      t: (key: string, params?: Record<string, unknown>) => {
+        if (key === 'evaluation.confidence') {
+          return `${key}:${String(params?.value)}`;
+        }
+        if (key === 'dashboard.tailorCta') {
+          return getNestedValue(key);
+        }
+        return key;
+      },
+    }),
+  };
+});
 
 const baseEvaluation: ResumeEvaluationResponse = {
   evaluation_id: 'eval-1',
@@ -167,5 +185,23 @@ describe('TailorCardStack', () => {
 
     fireEvent.click(uploadAction);
     expect(onUploadMaster).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders translated dashboard CTA copy when tailoring is available', () => {
+    render(
+      <TailorCardStack
+        hasMasterResume
+        canUploadMaster={false}
+        canTailor
+        hasTailoredResume={false}
+        onUploadMaster={vi.fn()}
+      />
+    );
+
+    expect(screen.getByRole('link', { name: 'Tailor for a role' })).toHaveAttribute(
+      'href',
+      '/tailor'
+    );
+    expect(screen.queryByText('dashboard.tailorCta')).not.toBeInTheDocument();
   });
 });

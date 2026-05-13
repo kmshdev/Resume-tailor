@@ -201,7 +201,8 @@
       "jobIntake": "Job intake",
       "tailorFlow": "Tailor flow",
       "reviewLift": "Review lift"
-    }
+    },
+    "tailorCta": "求人向けに調整"
   },
   "builder": {
     "title": "履歴書ビルダー",
