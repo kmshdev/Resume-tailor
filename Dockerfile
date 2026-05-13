@@ -43,6 +43,7 @@ ENV PYTHONUNBUFFERED=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
+    gosu \
     # Playwright dependencies
     libnss3 \
     libnspr4 \
@@ -109,6 +110,8 @@ USER appuser
 
 # Install Playwright Chromium as appuser (so browsers are in correct location)
 RUN python -m playwright install chromium
+
+USER root
 
 # Expose the public port (backend remains internal on 8000)
 EXPOSE 3000

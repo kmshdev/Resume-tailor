@@ -41,7 +41,7 @@ def extract_questions_from_text(text: str) -> list[ScreeningQuestion]:
         if "?" not in candidate:
             continue
         for question_match in QUESTION_CLAUSE_RE.finditer(candidate):
-            question = question_match.group(0).strip()
+            question = question_match.group("question").strip()
             if len(question) < 8 or not QUESTION_PREFIX_RE.search(question):
                 continue
             if question in seen:
@@ -159,13 +159,24 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 
+def _remove_screening_question_text(candidate: str, question_values: set[str]) -> str:
+    """Remove embedded screening questions while preserving JD prose."""
+    cleaned = candidate
+    for question in sorted(question_values, key=len, reverse=True):
+        cleaned = cleaned.replace(question, " ")
+    cleaned = QUESTION_CLAUSE_RE.sub(" ", cleaned)
+    cleaned = re.sub(r"\b(?:screening|questions?)\s*:\s*", " ", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\bplease reply\b.*$", " ", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"^(?:hi|hello|hey)[,\s]+", "", cleaned, flags=re.IGNORECASE)
+    return clean_text(cleaned)
+
+
 def strip_non_jd_lines(text: str, questions: list[ScreeningQuestion]) -> str:
     """Remove recruiter chatter, URLs, and questions from JD text."""
     question_values = {question.question for question in questions}
     kept: list[str] = []
     for line in text.splitlines():
         candidate = line.strip()
-        lowered = candidate.lower()
         if not candidate:
             kept.append("")
             continue
@@ -174,7 +185,10 @@ def strip_non_jd_lines(text: str, questions: list[ScreeningQuestion]) -> str:
             or any(question in candidate for question in question_values)
             or QUESTION_CLAUSE_RE.search(candidate)
         ):
-            continue
+            candidate = _remove_screening_question_text(candidate, question_values)
+            if not candidate:
+                continue
+        lowered = candidate.lower()
         if URL_RE.search(candidate):
             continue
         if lowered.startswith(("hi ", "hello ", "hey ", "thanks", "thank you", "best,")):

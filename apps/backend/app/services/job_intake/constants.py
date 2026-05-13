@@ -21,7 +21,11 @@ QUESTION_PREFIX_RE = re.compile(
     re.IGNORECASE,
 )
 QUESTION_CLAUSE_RE = re.compile(
-    r"\b(?:are|can|could|did|do|does|have|would|will|what|when|where|why|how|is)\b[^?]*\?",
+    r"(?:^|(?<=[.!?:;])\s+)"
+    r"(?P<question>"
+    r"(?:are|can|could|did|do|does|have|would|will|what|when|where|why|how|is)"
+    r"\b[^?]*\?"
+    r")",
     re.IGNORECASE,
 )
 

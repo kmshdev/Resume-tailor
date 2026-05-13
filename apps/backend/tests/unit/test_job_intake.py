@@ -129,6 +129,21 @@ def test_extract_questions_from_text_detects_multiple_questions_on_one_line() ->
     ]
 
 
+def test_extract_questions_from_text_does_not_start_inside_jd_prose() -> None:
+    text = (
+        "Hi, this role is for a Senior Python Platform Engineer. "
+        "Screening: Do you have Python and React experience? "
+        "Are you comfortable with cloud deployments?"
+    )
+
+    questions = extract_questions_from_text(text)
+
+    assert [question.question for question in questions] == [
+        "Do you have Python and React experience?",
+        "Are you comfortable with cloud deployments?",
+    ]
+
+
 @pytest.mark.asyncio
 async def test_safe_http_transport_preserves_explicit_ssl_context() -> None:
     transport = SafeAsyncHTTPTransport()
@@ -286,6 +301,32 @@ async def test_manual_text_strips_embedded_screening_question_lines() -> None:
     assert "Please reply today." not in response.job_description
     assert [question.question for question in response.screening_questions] == [
         "Do you have Python experience?"
+    ]
+
+
+@pytest.mark.asyncio
+async def test_recruiter_message_preserves_jd_before_embedded_questions() -> None:
+    response = await extract_job_intake(
+        JobIntakeExtractRequest(
+            source_type="recruiter_message",
+            source_text=(
+                "Hi, this role is for a Senior Python Platform Engineer. "
+                "The team builds FastAPI services, React dashboards, CI automation, "
+                "and secure integrations for customer data workflows. "
+                "Responsibilities include owning APIs, improving reliability, writing tests, "
+                "and collaborating with product and design. "
+                "Screening: Do you have Python and React experience? "
+                "Are you comfortable with cloud deployments? Please reply today."
+            ),
+        )
+    )
+
+    assert "Senior Python Platform Engineer" in response.job_description
+    assert "Do you have Python and React experience?" not in response.job_description
+    assert "Please reply today" not in response.job_description
+    assert [question.question for question in response.screening_questions] == [
+        "Do you have Python and React experience?",
+        "Are you comfortable with cloud deployments?",
     ]
 
 
