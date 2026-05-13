@@ -21,6 +21,7 @@ from app.pdf import close_pdf_renderer, init_pdf_renderer
 from app.routers import (
     config_router,
     enrichment_router,
+    evaluations_router,
     health_router,
     job_intake_router,
     jobs_router,
@@ -79,6 +80,7 @@ app.include_router(config_router, prefix="/api/v1")
 app.include_router(resumes_router, prefix="/api/v1")
 app.include_router(job_intake_router, prefix="/api/v1")
 app.include_router(jobs_router, prefix="/api/v1")
+app.include_router(evaluations_router, prefix="/api/v1")
 app.include_router(enrichment_router, prefix="/api/v1")
 
 
