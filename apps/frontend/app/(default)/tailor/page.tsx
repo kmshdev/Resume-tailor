@@ -3,19 +3,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { useResumePreview } from '@/components/common/resume_previewer_context';
 import type { ImprovedResult } from '@/components/common/resume_previewer_context';
 import type { ResumeData } from '@/components/dashboard/resume-component';
 import { previewImproveResume, confirmImproveResume } from '@/lib/api/resume';
+import { createResumeEvaluation } from '@/lib/api/evaluation';
 import { fetchPromptConfig, type PromptOption } from '@/lib/api/config';
 import { Dropdown } from '@/components/ui/dropdown';
 import { useStatusCache } from '@/lib/context/status-cache';
-import { Loader2, ArrowLeft, AlertTriangle, Settings } from 'lucide-react';
+import { Loader2, AlertTriangle, Settings } from 'lucide-react';
 import { useTranslations } from '@/lib/i18n';
 import { DiffPreviewModal } from '@/components/tailor/diff-preview-modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { JobIntakeWizard } from '@/components/tailor/job-intake-wizard';
+import {
+  TailorSessionCards,
+  type TailorSessionStep,
+} from '@/components/tailor/tailor-session-cards';
+
+type EvaluationSessionStep = Extract<TailorSessionStep, 'pre_score' | 'post_score'>;
 
 export default function TailorPage() {
   const { t } = useTranslations();
@@ -39,6 +45,14 @@ export default function TailorPage() {
   const [showMissingDiffDialog, setShowMissingDiffDialog] = useState(false);
   const [missingDiffResult, setMissingDiffResult] = useState<ImprovedResult | null>(null);
   const [missingDiffError, setMissingDiffError] = useState<string | null>(null);
+  const [activeSessionStep, setActiveSessionStep] = useState<TailorSessionStep>('add_job');
+  const [completedSessionSteps, setCompletedSessionSteps] = useState<TailorSessionStep[]>([]);
+  const [evaluationScores, setEvaluationScores] = useState<
+    Partial<Record<EvaluationSessionStep, number>>
+  >({});
+  const [evaluationWarnings, setEvaluationWarnings] = useState<
+    Partial<Record<EvaluationSessionStep, string | null>>
+  >({});
 
   // Elapsed timer for long operations
   const [elapsed, setElapsed] = useState(0);
@@ -54,6 +68,20 @@ export default function TailorPage() {
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = null;
     setElapsed(0);
+  }, []);
+
+  const completeSessionSteps = useCallback((steps: TailorSessionStep[]) => {
+    setCompletedSessionSteps((previousSteps) => {
+      const nextSteps = new Set(previousSteps);
+      steps.forEach((step) => nextSteps.add(step));
+      return Array.from(nextSteps);
+    });
+  }, []);
+
+  const removeCompletedSessionSteps = useCallback((steps: TailorSessionStep[]) => {
+    setCompletedSessionSteps((previousSteps) =>
+      previousSteps.filter((step) => !steps.includes(step))
+    );
   }, []);
 
   useEffect(() => {
@@ -140,6 +168,54 @@ export default function TailorPage() {
     };
   };
 
+  const runTailorEvaluation = async ({
+    resumeId,
+    step,
+    jobId,
+    baselineResumeId,
+  }: {
+    resumeId: string;
+    step: EvaluationSessionStep;
+    jobId: string;
+    baselineResumeId?: string;
+  }) => {
+    try {
+      const evaluation =
+        step === 'pre_score'
+          ? await createResumeEvaluation(resumeId, {
+              phase: 'pre_tailor',
+              job_id: jobId,
+            })
+          : await createResumeEvaluation(resumeId, {
+              phase: 'post_tailor',
+              job_id: jobId,
+              baseline_resume_id: baselineResumeId,
+            });
+
+      setEvaluationScores((previousScores) => ({
+        ...previousScores,
+        [step]: evaluation.overall_score,
+      }));
+      setEvaluationWarnings((previousWarnings) => ({
+        ...previousWarnings,
+        [step]: null,
+      }));
+    } catch (err) {
+      console.error(`Failed to run ${step} evaluation`, err);
+      setEvaluationScores((previousScores) => {
+        const nextScores = { ...previousScores };
+        delete nextScores[step];
+        return nextScores;
+      });
+      setEvaluationWarnings((previousWarnings) => ({
+        ...previousWarnings,
+        [step]: t('evaluation.errors.checkFailed'),
+      }));
+    } finally {
+      completeSessionSteps([step]);
+    }
+  };
+
   const confirmAndNavigate = async (result: ImprovedResult) => {
     const confirmed = await confirmImproveResume(buildConfirmPayload(result));
     incrementImprovements();
@@ -148,6 +224,12 @@ export default function TailorPage() {
 
     const newResumeId = confirmed?.data?.resume_id;
     if (newResumeId) {
+      await runTailorEvaluation({
+        resumeId: newResumeId,
+        step: 'post_score',
+        jobId: confirmed.data.job_id,
+        baselineResumeId: masterResumeId ?? undefined,
+      });
       router.push(`/resumes/${newResumeId}`);
     } else {
       router.push('/builder');
@@ -163,8 +245,11 @@ export default function TailorPage() {
   };
 
   const runPreviewForJob = async (resumeId: string, jobId: string) => {
+    setActiveSessionStep('tailor');
     try {
       const result = await previewImproveResume(resumeId, jobId, selectedPromptId);
+      completeSessionSteps(['tailor']);
+      setActiveSessionStep('review_changes');
 
       if (!result?.data?.diff_summary || !result?.data?.detailed_changes) {
         console.warn('Diff data missing for tailor preview; requesting user confirmation.');
@@ -183,6 +268,8 @@ export default function TailorPage() {
       setShowDiffModal(true);
     } catch (err) {
       console.error(err);
+      setActiveSessionStep('tailor');
+      removeCompletedSessionSteps(['tailor', 'review_changes', 'post_score']);
       // Check for common error patterns
       const errorMessage = err instanceof Error ? err.message : '';
       if (
@@ -225,11 +312,20 @@ export default function TailorPage() {
     const resumeId = masterResumeId;
     setCurrentJobId(jobId);
     setJobDescription(trimmedDescription);
+    setCompletedSessionSteps(['add_job', 'review_jd']);
+    setActiveSessionStep('pre_score');
+    setEvaluationScores({});
+    setEvaluationWarnings({});
     incrementJobs();
     setIsLoading(true);
     setError(null);
     startTimer();
     try {
+      await runTailorEvaluation({
+        resumeId,
+        step: 'pre_score',
+        jobId,
+      });
       await runPreviewForJob(resumeId, jobId);
     } finally {
       setIsLoading(false);
@@ -244,6 +340,13 @@ export default function TailorPage() {
     setIsConfirming(true);
     setError(null);
     setDiffConfirmError(null);
+    setActiveSessionStep('post_score');
+    completeSessionSteps(['review_changes']);
+    removeCompletedSessionSteps(['post_score']);
+    setEvaluationWarnings((previousWarnings) => ({
+      ...previousWarnings,
+      post_score: null,
+    }));
 
     try {
       await confirmAndNavigate(pendingResult);
@@ -251,6 +354,8 @@ export default function TailorPage() {
       setPendingResult(null);
     } catch (err) {
       console.error(err);
+      setActiveSessionStep('review_changes');
+      removeCompletedSessionSteps(['post_score']);
       const errorMessage = t('tailor.errors.failedToConfirm');
       setError(errorMessage);
       setDiffConfirmError(errorMessage);
@@ -265,6 +370,8 @@ export default function TailorPage() {
     setPendingResult(null);
     setDiffConfirmError(null);
     setShowRegenerateDialog(true);
+    setActiveSessionStep('tailor');
+    removeCompletedSessionSteps(['review_changes', 'post_score']);
   };
 
   const handleCloseDiffModal = () => {
@@ -286,11 +393,20 @@ export default function TailorPage() {
     setIsLoading(true);
     setError(null);
     setMissingDiffError(null);
+    setActiveSessionStep('post_score');
+    completeSessionSteps(['review_changes']);
+    removeCompletedSessionSteps(['post_score']);
+    setEvaluationWarnings((previousWarnings) => ({
+      ...previousWarnings,
+      post_score: null,
+    }));
     try {
       await confirmAndNavigate(missingDiffResult);
       handleCloseMissingDiffDialog();
     } catch (err) {
       console.error(err);
+      setActiveSessionStep('review_changes');
+      removeCompletedSessionSteps(['post_score']);
       const errorMessage = t('tailor.errors.failedToConfirm');
       setError(errorMessage);
       setMissingDiffError(errorMessage);
@@ -312,6 +428,17 @@ export default function TailorPage() {
     const resumeId = masterResumeId;
     setIsLoading(true);
     setError(null);
+    setActiveSessionStep('tailor');
+    removeCompletedSessionSteps(['tailor', 'review_changes', 'post_score']);
+    setEvaluationScores((previousScores) => {
+      const nextScores = { ...previousScores };
+      delete nextScores.post_score;
+      return nextScores;
+    });
+    setEvaluationWarnings((previousWarnings) => ({
+      ...previousWarnings,
+      post_score: null,
+    }));
     startTimer();
     try {
       await runPreviewForJob(resumeId, currentJobId);
@@ -321,123 +448,147 @@ export default function TailorPage() {
     }
   };
 
+  const evaluationWarningMessages = [
+    evaluationWarnings.pre_score
+      ? `${t('tailor.session.steps.pre_score')}: ${evaluationWarnings.pre_score}`
+      : null,
+    evaluationWarnings.post_score
+      ? `${t('tailor.session.steps.post_score')}: ${evaluationWarnings.post_score}`
+      : null,
+  ].filter((message): message is string => Boolean(message));
+
   return (
-    <div className="min-h-screen w-full bg-[#F6F5EE] flex flex-col items-center justify-center p-4 md:p-8 font-sans">
-      <div className="w-full max-w-4xl bg-white border border-black shadow-sw-lg p-8 md:p-12 lg:p-14 relative">
-        {/* Back Button */}
-        <Button variant="link" className="absolute top-4 left-4" onClick={() => router.back()}>
-          <ArrowLeft className="w-4 h-4" />
-          {t('common.back')}
-        </Button>
+    <div className="w-full font-sans">
+      <div className="grid gap-6 xl:grid-cols-[minmax(240px,320px)_minmax(0,1fr)] xl:items-start">
+        <aside className="xl:sticky xl:top-6">
+          <TailorSessionCards
+            activeStep={activeSessionStep}
+            completedSteps={completedSessionSteps}
+            scores={evaluationScores}
+            warnings={evaluationWarnings}
+          />
+        </aside>
 
-        <div className="mb-8 mt-4 text-center">
-          <h1 className="font-serif text-4xl font-bold uppercase tracking-tight mb-2">
-            {t('tailor.heroTitle')}
-          </h1>
-          <p className="font-mono text-sm text-blue-700 font-bold uppercase">
-            {'// '}
-            {t('tailor.intake.subtitle')}
-          </p>
-        </div>
+        <section className="min-w-0 border border-black bg-white p-4 shadow-sw-lg sm:p-6 lg:p-8">
+          <div className="mb-6 border-b border-black pb-4">
+            <h1 className="font-serif text-3xl font-bold uppercase tracking-tight md:text-4xl">
+              {t('tailor.heroTitle')}
+            </h1>
+            <p className="mt-2 font-mono text-sm font-bold uppercase text-blue-700">
+              {'// '}
+              {t('tailor.intake.subtitle')}
+            </p>
+          </div>
 
-        {/* LLM Not Configured Warning */}
-        {!statusLoading && !isLlmConfigured && (
-          <div className="mb-6 border-2 border-amber-500 bg-amber-50 p-4 shadow-sw-default">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-mono text-sm font-bold uppercase tracking-wider text-amber-800">
-                  {t('tailor.setupRequiredTitle')}
-                </p>
-                <p className="font-mono text-xs text-amber-700 mt-1">
-                  {t('tailor.noApiKeyMessage')}
-                </p>
-                <Link
-                  href="/settings"
-                  className="inline-flex items-center gap-2 mt-3 text-amber-700 hover:text-amber-900 transition-colors"
-                >
-                  <Settings className="w-4 h-4" />
-                  <span className="font-mono text-xs font-bold uppercase underline">
-                    {t('tailor.configureApiKey')}
-                  </span>
-                </Link>
+          {/* LLM Not Configured Warning */}
+          {!statusLoading && !isLlmConfigured && (
+            <div className="mb-6 border-2 border-amber-500 bg-amber-50 p-4 shadow-sw-default">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                <div className="flex-1">
+                  <p className="font-mono text-sm font-bold uppercase tracking-wider text-amber-800">
+                    {t('tailor.setupRequiredTitle')}
+                  </p>
+                  <p className="mt-1 font-mono text-xs text-amber-700">
+                    {t('tailor.noApiKeyMessage')}
+                  </p>
+                  <Link
+                    href="/settings"
+                    className="mt-3 inline-flex items-center gap-2 text-amber-700 hover:text-amber-900"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span className="font-mono text-xs font-bold uppercase underline">
+                      {t('tailor.configureApiKey')}
+                    </span>
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="space-y-6">
-          <Dropdown
-            options={
-              promptOptions.length > 0
-                ? promptOptions.map((opt) => ({
-                    id: opt.id,
-                    label: t(`tailor.promptOptions.${opt.id}.label`),
-                    description: t(`tailor.promptOptions.${opt.id}.description`),
-                  }))
-                : [
-                    {
-                      id: 'tailored_resume_generator',
-                      label: t('tailor.promptOptions.tailored_resume_generator.label'),
-                      description: t('tailor.promptOptions.tailored_resume_generator.description'),
-                    },
-                    {
-                      id: 'nudge',
-                      label: t('tailor.promptOptions.nudge.label'),
-                      description: t('tailor.promptOptions.nudge.description'),
-                    },
-                    {
-                      id: 'keywords',
-                      label: t('tailor.promptOptions.keywords.label'),
-                      description: t('tailor.promptOptions.keywords.description'),
-                    },
-                    {
-                      id: 'full',
-                      label: t('tailor.promptOptions.full.label'),
-                      description: t('tailor.promptOptions.full.description'),
-                    },
-                  ]
-            }
-            value={selectedPromptId}
-            onChange={(value) => {
-              hasUserSelectedPrompt.current = true;
-              setSelectedPromptId(value);
-            }}
-            label={t('tailor.promptLabel')}
-            description={t('tailor.promptDescription')}
-            disabled={isLoading || promptLoading}
-          />
-
-          {masterResumeId && (
-            <JobIntakeWizard
-              masterResumeId={masterResumeId}
-              disabled={isLoading || statusLoading}
-              canTailor={Boolean(isLlmConfigured)}
-              onJobConfirmed={handleJobConfirmed}
+          <div className="space-y-6">
+            <Dropdown
+              options={
+                promptOptions.length > 0
+                  ? promptOptions.map((opt) => ({
+                      id: opt.id,
+                      label: t(`tailor.promptOptions.${opt.id}.label`),
+                      description: t(`tailor.promptOptions.${opt.id}.description`),
+                    }))
+                  : [
+                      {
+                        id: 'tailored_resume_generator',
+                        label: t('tailor.promptOptions.tailored_resume_generator.label'),
+                        description: t(
+                          'tailor.promptOptions.tailored_resume_generator.description'
+                        ),
+                      },
+                      {
+                        id: 'nudge',
+                        label: t('tailor.promptOptions.nudge.label'),
+                        description: t('tailor.promptOptions.nudge.description'),
+                      },
+                      {
+                        id: 'keywords',
+                        label: t('tailor.promptOptions.keywords.label'),
+                        description: t('tailor.promptOptions.keywords.description'),
+                      },
+                      {
+                        id: 'full',
+                        label: t('tailor.promptOptions.full.label'),
+                        description: t('tailor.promptOptions.full.description'),
+                      },
+                    ]
+              }
+              value={selectedPromptId}
+              onChange={(value) => {
+                hasUserSelectedPrompt.current = true;
+                setSelectedPromptId(value);
+              }}
+              label={t('tailor.promptLabel')}
+              description={t('tailor.promptDescription')}
+              disabled={isLoading || promptLoading}
             />
-          )}
 
-          {isLoading && (
-            <div className="border-2 border-black bg-white p-4 font-mono text-sm flex items-center justify-center gap-2">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              {t('common.processing')}
-              {elapsed > 0 && <span className="text-xs opacity-70">{elapsed}s</span>}
-            </div>
-          )}
+            {masterResumeId && (
+              <JobIntakeWizard
+                masterResumeId={masterResumeId}
+                disabled={isLoading || statusLoading}
+                canTailor={Boolean(isLlmConfigured)}
+                onJobConfirmed={handleJobConfirmed}
+              />
+            )}
 
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm font-mono flex items-center gap-2">
-              <span>!</span> {error}
-            </div>
-          )}
+            {isLoading && (
+              <div className="flex items-center justify-center gap-2 border-2 border-black bg-white p-4 font-mono text-sm">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                {t('common.processing')}
+                {elapsed > 0 && <span className="text-xs opacity-70">{elapsed}s</span>}
+              </div>
+            )}
 
-          {statusLoading && (
-            <div className="border-2 border-black bg-white p-4 font-mono text-sm flex items-center justify-center gap-2">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              {t('common.checking')}
-            </div>
-          )}
-        </div>
+            {evaluationWarningMessages.length > 0 && (
+              <div className="border-2 border-orange-500 bg-orange-50 p-4 font-mono text-sm text-orange-700">
+                {evaluationWarningMessages.map((message) => (
+                  <p key={message}>{message}</p>
+                ))}
+              </div>
+            )}
+
+            {error && (
+              <div className="flex items-center gap-2 border border-red-600 bg-red-50 p-4 font-mono text-sm text-red-700">
+                <span>!</span> {error}
+              </div>
+            )}
+
+            {statusLoading && (
+              <div className="flex items-center justify-center gap-2 border-2 border-black bg-white p-4 font-mono text-sm">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                {t('common.checking')}
+              </div>
+            )}
+          </div>
+        </section>
       </div>
 
       {/* Diff preview modal */}
