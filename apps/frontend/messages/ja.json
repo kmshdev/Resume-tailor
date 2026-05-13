@@ -1061,6 +1061,14 @@
       "pre_tailor": "Pre-tailor",
       "post_tailor": "Post-tailor"
     },
+    "dimensions": {
+      "clarity": "明確さ",
+      "impact": "インパクト",
+      "ats_readability": "ATS読みやすさ",
+      "keyword_alignment": "キーワード適合度",
+      "role_fit": "職務適合度",
+      "evidence_strength": "根拠の強さ"
+    },
     "states": {
       "checking": "Checking...",
       "notChecked": "Not checked",

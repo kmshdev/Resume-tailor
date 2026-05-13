@@ -1061,6 +1061,14 @@
       "pre_tailor": "Pre-tailor",
       "post_tailor": "Post-tailor"
     },
+    "dimensions": {
+      "clarity": "Clareza",
+      "impact": "Impacto",
+      "ats_readability": "Legibilidade ATS",
+      "keyword_alignment": "Alinhamento de palavras-chave",
+      "role_fit": "Adequação ao cargo",
+      "evidence_strength": "Força das evidências"
+    },
     "states": {
       "checking": "Checking...",
       "notChecked": "Not checked",

@@ -24,10 +24,6 @@ const dimensionOrder: Array<keyof EvaluationDimensionScores> = [
   'evidence_strength',
 ];
 
-function dimensionLabel(key: keyof EvaluationDimensionScores): string {
-  return key.replace(/_/g, ' ');
-}
-
 function formatScore(value: number): string {
   return Number.isFinite(value) ? String(Math.round(value)) : '-';
 }
@@ -89,7 +85,7 @@ export function EvaluationPopover({ phase, evaluation, error }: EvaluationPopove
                 className="grid grid-cols-[1fr_auto] gap-4 border-t border-white/30 pt-2"
               >
                 <span className="font-mono text-xs uppercase tracking-wide text-white/70">
-                  {dimensionLabel(key)}
+                  {t(`evaluation.dimensions.${key}`)}
                 </span>
                 <span className="font-mono text-xs font-bold text-white">
                   {formatScore(evaluation.dimensions[key])}

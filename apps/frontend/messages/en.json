@@ -604,6 +604,14 @@
       "pre_tailor": "Pre-tailor",
       "post_tailor": "Post-tailor"
     },
+    "dimensions": {
+      "clarity": "Clarity",
+      "impact": "Impact",
+      "ats_readability": "ATS readability",
+      "keyword_alignment": "Keyword alignment",
+      "role_fit": "Role fit",
+      "evidence_strength": "Evidence strength"
+    },
     "states": {
       "checking": "Checking...",
       "notChecked": "Not checked",

@@ -1061,6 +1061,14 @@
       "pre_tailor": "Pre-tailor",
       "post_tailor": "Post-tailor"
     },
+    "dimensions": {
+      "clarity": "清晰度",
+      "impact": "影响力",
+      "ats_readability": "ATS 可读性",
+      "keyword_alignment": "关键词匹配",
+      "role_fit": "角色匹配度",
+      "evidence_strength": "证据强度"
+    },
     "states": {
       "checking": "Checking...",
       "notChecked": "Not checked",
