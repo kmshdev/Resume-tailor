@@ -103,6 +103,14 @@ normalize_log_level() {
     esac
 }
 
+run_as_appuser() {
+    if [ "$(id -u)" = "0" ]; then
+        gosu appuser "$@"
+    else
+        "$@"
+    fi
+}
+
 # Exit code to propagate from failed child processes
 EXIT_CODE=0
 
@@ -187,6 +195,10 @@ if [ ! -d "$DATA_DIR" ]; then
 else
     status "Data directory exists: $DATA_DIR"
 fi
+if [ "$(id -u)" = "0" ]; then
+    chown -R appuser:appuser "$DATA_DIR"
+    status "Data directory ownership is ready"
+fi
 
 # Check for Playwright browsers
 info "Checking Playwright browsers..."
@@ -205,7 +217,7 @@ echo ""
 info "Starting backend server on internal port ${BACKEND_PORT}..."
 cd /app/backend
 trap '' SIGTERM SIGINT SIGQUIT
-python -m uvicorn app.main:app --host 0.0.0.0 --port "${BACKEND_PORT}" --log-level "${UVICORN_LOG_LEVEL}" &
+run_as_appuser python -m uvicorn app.main:app --host 0.0.0.0 --port "${BACKEND_PORT}" --log-level "${UVICORN_LOG_LEVEL}" &
 BACKEND_PID=$!
 trap cleanup SIGTERM SIGINT SIGQUIT
 
@@ -241,7 +253,7 @@ if [ ! -f "server.js" ]; then
 fi
 
 trap '' SIGTERM SIGINT SIGQUIT
-node server.js "$@" &
+run_as_appuser node server.js "$@" &
 FRONTEND_PID=$!
 trap cleanup SIGTERM SIGINT SIGQUIT
 status "Frontend is running (PID: $FRONTEND_PID)"

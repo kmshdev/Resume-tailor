@@ -77,6 +77,27 @@ POST /api/v1/jobs/upload
 └── Return {job_id[]}
 ```
 
+## Job Intake
+
+```text
+POST /api/v1/jobs/intake/extract
+├── Validate source type (manual text, job URL, PDF URL, recruiter message)
+├── For URLs: validate public http/https URL, fetch with httpx, optionally fall back to Playwright
+├── For PDFs: parse with existing parse_document()
+├── Extract JD text, links, screening questions, warnings, and evidence-only draft answers
+└── Return reviewable intake payload with redacted source URL and no raw scraped text
+
+POST /api/v1/jobs/intake/pdf-upload
+├── Validate PDF upload
+├── parse_document() → Markdown
+└── Return reviewable intake payload
+
+POST /api/v1/jobs/intake/confirm
+├── Store reviewed JD as jobs.content
+├── Store source links/questions/answers/warnings as intake_metadata with redacted source URL
+└── Return {job_id}
+```
+
 ## Resume Operations
 
 | Endpoint | Flow |

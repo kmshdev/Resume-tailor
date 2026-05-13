@@ -501,6 +501,50 @@
     "pasteJobDescription": "粘贴职位描述",
     "pasteJobDescriptionBelow": "在下方粘贴职位描述",
     "jobDescriptionPlaceholder": "在此粘贴职位描述...",
+    "intake": {
+      "subtitle": "添加职位 URL、PDF、招聘方消息或手动 JD",
+      "stepLabel": "步骤 {step}",
+      "sources": {
+        "manual_text": "手动粘贴",
+        "job_url": "职位 URL",
+        "pdf_url": "PDF URL",
+        "pdf_upload": "上传 PDF",
+        "recruiter_message": "招聘方消息"
+      },
+      "inputLabel": "职位来源",
+      "placeholders": {
+        "manual_text": "在此粘贴职位描述...",
+        "job_url": "https://company.com/jobs/role",
+        "pdf_url": "https://company.com/job-description.pdf",
+        "recruiter_message": "粘贴招聘方消息、职位链接和问题..."
+      },
+      "extractButton": "提取 JD",
+      "extracting": "正在提取",
+      "reviewTitle": "检查提取的 JD",
+      "changeSource": "更改来源",
+      "reviewJdLabel": "用于定制的职位描述",
+      "methods": {
+        "manual": "手动",
+        "deterministic": "已解析",
+        "http": "HTTP",
+        "playwright": "浏览器",
+        "pdf": "PDF",
+        "llm": "AI 清理"
+      },
+      "confidence": "{value}% 置信度",
+      "linksTitle": "检测到的链接",
+      "questionsTitle": "筛选问题",
+      "needsInput": "发送前需要你补充信息。",
+      "warningsTitle": "检查说明",
+      "confirmButton": "使用此 JD",
+      "confirming": "正在保存 JD",
+      "errors": {
+        "extractFailed": "无法提取职位描述。",
+        "confirmFailed": "无法保存已检查的职位描述。",
+        "invalidUrl": "请输入公开的 http 或 https URL。",
+        "invalidPdf": "请上传 PDF 文件。"
+      }
+    },
     "promptLabel": "匹配强度",
     "promptDescription": "选择与职位描述对齐的程度。",
     "promptOptions": {

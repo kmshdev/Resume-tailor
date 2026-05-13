@@ -201,7 +201,12 @@ class Database:
         return len(updated) > 0
 
     # Job operations
-    def create_job(self, content: str, resume_id: str | None = None) -> dict[str, Any]:
+    def create_job(
+        self,
+        content: str,
+        resume_id: str | None = None,
+        intake_metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Create a new job description entry."""
         job_id = str(uuid4())
         now = datetime.now(timezone.utc).isoformat()
@@ -212,6 +217,8 @@ class Database:
             "resume_id": resume_id,
             "created_at": now,
         }
+        if intake_metadata is not None:
+            doc["intake_metadata"] = intake_metadata
         self.jobs.insert(doc)
         return doc
 

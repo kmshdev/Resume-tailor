@@ -30,6 +30,22 @@ export {
   type ResumeListItem,
 } from './resume';
 
+export {
+  extractJobIntake,
+  uploadJobIntakePdf,
+  confirmJobIntake,
+  type JobSourceType,
+  type ExtractionMethod,
+  type DetectedJobLink,
+  type ScreeningQuestion,
+  type DraftAnswer,
+  type JobIntakeMetadata,
+  type JobIntakeExtractRequest,
+  type JobIntakeExtractResponse,
+  type JobIntakeConfirmRequest,
+  type JobIntakeConfirmResponse,
+} from './job-intake';
+
 // Config operations
 export {
   fetchLlmConfig,

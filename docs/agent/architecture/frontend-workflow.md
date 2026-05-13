@@ -22,8 +22,9 @@ Dashboard → Upload Master Resume → Tailor for Job → View/Edit → Download
 - Delete shows confirmation + success dialogs
 
 ### 3. Tailor (`/tailor`)
-- Job description textarea (min 50 chars)
-- Process: Upload JD → Improve → Redirect to viewer
+- JD intake wizard for manual paste, job URL, PDF URL/upload, or pasted recruiter message
+- Process: Extract JD → Review/edit JD and questions → Confirm job → Preview Improvements → Diff review → Save tailored resume
+- Screening questions and draft answers are shown in review but kept out of the JD text used for tailoring keywords
 
 ### 4. Builder (`/builder`)
 - **Left panel:** Editor (forms + formatting)

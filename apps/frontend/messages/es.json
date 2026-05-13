@@ -501,6 +501,50 @@
     "pasteJobDescription": "Pegar Descripción del Trabajo",
     "pasteJobDescriptionBelow": "Pega la descripción del trabajo abajo",
     "jobDescriptionPlaceholder": "Pega la descripción del trabajo aquí...",
+    "intake": {
+      "subtitle": "Agrega una URL de empleo, PDF, mensaje de reclutador o JD manual",
+      "stepLabel": "Paso {step}",
+      "sources": {
+        "manual_text": "Pegar manualmente",
+        "job_url": "URL de empleo",
+        "pdf_url": "URL de PDF",
+        "pdf_upload": "Subir PDF",
+        "recruiter_message": "Mensaje del reclutador"
+      },
+      "inputLabel": "Fuente del empleo",
+      "placeholders": {
+        "manual_text": "Pega la descripción del puesto aquí...",
+        "job_url": "https://company.com/jobs/role",
+        "pdf_url": "https://company.com/job-description.pdf",
+        "recruiter_message": "Pega el mensaje del reclutador, enlace del empleo y preguntas..."
+      },
+      "extractButton": "Extraer JD",
+      "extracting": "Extrayendo",
+      "reviewTitle": "Revisar JD extraída",
+      "changeSource": "Cambiar fuente",
+      "reviewJdLabel": "Descripción del puesto usada para ajustar",
+      "methods": {
+        "manual": "Manual",
+        "deterministic": "Analizado",
+        "http": "HTTP",
+        "playwright": "Navegador",
+        "pdf": "PDF",
+        "llm": "Limpiado por IA"
+      },
+      "confidence": "{value}% de confianza",
+      "linksTitle": "Enlaces detectados",
+      "questionsTitle": "Preguntas de filtro",
+      "needsInput": "Necesita tu aporte antes de enviarlo.",
+      "warningsTitle": "Notas de revisión",
+      "confirmButton": "Usar esta JD",
+      "confirming": "Guardando JD",
+      "errors": {
+        "extractFailed": "No se pudo extraer la descripción del puesto.",
+        "confirmFailed": "No se pudo guardar la descripción revisada.",
+        "invalidUrl": "Ingresa una URL pública http o https.",
+        "invalidPdf": "Sube un archivo PDF."
+      }
+    },
     "promptLabel": "Intensidad de ajuste",
     "promptDescription": "Elige qué tanto alinear tu currículum con la descripción del puesto.",
     "promptOptions": {
@@ -568,6 +612,7 @@
       "apiKeyError": "Tu clave API no funciona. Revísala en Configuración.",
       "rateLimit": "Se alcanzó el límite de tasa. Espera aproximadamente un minuto e inténtalo de nuevo.",
       "failedToGenerate": "No se pudo generar el currículum. Revisa tu clave API en Configuración e inténtalo de nuevo.",
+      "timeout": "La solicitud agotó el tiempo de espera. Prueba con una descripción más corta o revisa tu conexión.",
       "failedToPreview": "No se pudo previsualizar el currículum. Revisa tu clave API en Configuración e inténtalo de nuevo.",
       "failedToConfirm": "No se pudieron aplicar los cambios. Inténtalo de nuevo."
     }

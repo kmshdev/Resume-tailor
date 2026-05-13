@@ -501,6 +501,50 @@
     "pasteJobDescription": "Colar Descrição da Vaga",
     "pasteJobDescriptionBelow": "Cole a Descrição da Vaga Abaixo",
     "jobDescriptionPlaceholder": "Cole a descrição da vaga aqui...",
+    "intake": {
+      "subtitle": "Adicione uma URL de vaga, PDF, mensagem do recrutador ou JD manual",
+      "stepLabel": "Etapa {step}",
+      "sources": {
+        "manual_text": "Colar manualmente",
+        "job_url": "URL da vaga",
+        "pdf_url": "URL do PDF",
+        "pdf_upload": "Enviar PDF",
+        "recruiter_message": "Mensagem do recrutador"
+      },
+      "inputLabel": "Fonte da vaga",
+      "placeholders": {
+        "manual_text": "Cole a descrição da vaga aqui...",
+        "job_url": "https://company.com/jobs/role",
+        "pdf_url": "https://company.com/job-description.pdf",
+        "recruiter_message": "Cole a mensagem do recrutador, o link da vaga e as perguntas..."
+      },
+      "extractButton": "Extrair JD",
+      "extracting": "Extraindo",
+      "reviewTitle": "Revisar JD extraída",
+      "changeSource": "Alterar fonte",
+      "reviewJdLabel": "Descrição da vaga usada na personalização",
+      "methods": {
+        "manual": "Manual",
+        "deterministic": "Analisado",
+        "http": "HTTP",
+        "playwright": "Navegador",
+        "pdf": "PDF",
+        "llm": "Limpo por IA"
+      },
+      "confidence": "{value}% de confiança",
+      "linksTitle": "Links detectados",
+      "questionsTitle": "Perguntas de triagem",
+      "needsInput": "Precisa da sua resposta antes de enviar.",
+      "warningsTitle": "Notas de revisão",
+      "confirmButton": "Usar esta JD",
+      "confirming": "Salvando JD",
+      "errors": {
+        "extractFailed": "Não foi possível extrair a descrição da vaga.",
+        "confirmFailed": "Não foi possível salvar a descrição revisada.",
+        "invalidUrl": "Informe uma URL pública http ou https.",
+        "invalidPdf": "Envie um arquivo PDF."
+      }
+    },
     "promptLabel": "Intensidade de personalização",
     "promptDescription": "Escolha o quanto alinhar seu currículo à descrição da vaga.",
     "promptOptions": {
@@ -568,6 +612,7 @@
       "apiKeyError": "Sua chave de API não está funcionando. Verifique em Configurações.",
       "rateLimit": "Limite de requisições atingido. Aguarde cerca de um minuto e tente novamente.",
       "failedToGenerate": "Não foi possível gerar o currículo. Verifique sua chave de API em Configurações e tente novamente.",
+      "timeout": "A solicitação expirou. Tente usar uma descrição da vaga mais curta ou verifique sua conexão.",
       "failedToPreview": "Não foi possível pré-visualizar o currículo. Verifique sua chave de API em Configurações e tente novamente.",
       "failedToConfirm": "Não foi possível aplicar as alterações. Tente novamente."
     }
