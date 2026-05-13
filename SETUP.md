@@ -64,17 +64,29 @@ If you're familiar with development tools and want to get running quickly:
 git clone https://github.com/srbhr/Resume-Matcher.git
 cd Resume-Matcher
 
-# 2. Start the backend (Terminal 1)
+# 2. Bootstrap both apps
+scripts/setup-local.sh
+```
+
+Or set up each app manually:
+
+```bash
+# Backend
 cd apps/backend
 cp .env.example .env        # Create config from template
 uv sync                      # Install Python dependencies
 uv run app
 
-# 3. Start the frontend (Terminal 2)
+# Frontend
 cd apps/frontend
 npm install                  # Install Node.js dependencies
 npm run dev                  # Start the dev server
 ```
+
+`scripts/setup-local.sh` never overwrites an existing `.env` or `.env.local`.
+It also installs the Chromium browser used by Playwright for PDF generation.
+Use `scripts/setup-local.sh --skip-browser` when you only need dependency
+installation.
 
 Open your browser to **<http://localhost:3000>** and you're ready to go!
 
@@ -200,6 +212,11 @@ Open **<http://localhost:3000>** in your browser. You should see the Resume Matc
 ## Configuring Your AI Provider
 
 Resume Matcher supports multiple AI providers. You can configure your provider through the Settings page in the app, or by editing the backend `.env` file.
+
+OpenAI's API documentation and cookbooks use `OPENAI_API_KEY` for many local
+examples. Resume Matcher uses `LLM_API_KEY` in `apps/backend/.env` so the same
+configuration path works for OpenAI, OpenRouter, Anthropic, Gemini, DeepSeek,
+Ollama, and OpenAI-compatible local servers.
 
 ### Option A: Cloud Providers
 
