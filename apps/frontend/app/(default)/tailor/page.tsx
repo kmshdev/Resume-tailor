@@ -11,7 +11,7 @@ import { createResumeEvaluation } from '@/lib/api/evaluation';
 import { fetchPromptConfig, type PromptOption } from '@/lib/api/config';
 import { Dropdown } from '@/components/ui/dropdown';
 import { useStatusCache } from '@/lib/context/status-cache';
-import { Loader2, AlertTriangle, Settings } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Settings } from 'lucide-react';
 import { useTranslations } from '@/lib/i18n';
 import { DiffPreviewModal } from '@/components/tailor/diff-preview-modal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -224,7 +224,7 @@ export default function TailorPage() {
 
     const newResumeId = confirmed?.data?.resume_id;
     if (newResumeId) {
-      await runTailorEvaluation({
+      void runTailorEvaluation({
         resumeId: newResumeId,
         step: 'post_score',
         jobId: confirmed.data.job_id,
@@ -321,7 +321,7 @@ export default function TailorPage() {
     setError(null);
     startTimer();
     try {
-      await runTailorEvaluation({
+      void runTailorEvaluation({
         resumeId,
         step: 'pre_score',
         jobId,
@@ -471,6 +471,14 @@ export default function TailorPage() {
 
         <section className="min-w-0 border border-black bg-white p-4 shadow-sw-lg sm:p-6 lg:p-8">
           <div className="mb-6 border-b border-black pb-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="mb-4 inline-flex items-center gap-2 border-2 border-black bg-white px-3 py-2 font-mono text-xs font-bold uppercase tracking-wider text-black shadow-sw-default hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none"
+            >
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              {t('common.back')}
+            </button>
             <h1 className="font-serif text-3xl font-bold uppercase tracking-tight md:text-4xl">
               {t('tailor.heroTitle')}
             </h1>
