@@ -367,7 +367,7 @@ def test_clean_evaluation_result_drops_untrusted_items() -> None:
         {
             "overall_score": 92,
             "confidence": 0.8,
-            "dimensions": {"clarity": 91},
+            "dimensions": {"clarity": "91"},
             "strengths": [
                 {
                     "title": "Grounded",
@@ -383,8 +383,28 @@ def test_clean_evaluation_result_drops_untrusted_items() -> None:
         }
     )
     assert cleaned["overall_score"] == 92
+    assert cleaned["dimensions"]["clarity"] == 91
     assert len(cleaned["strengths"]) == 1
     assert warnings == ["Dropped 1 malformed evaluation item(s)."]
+
+
+@pytest.mark.parametrize("dimensions", ["bad", ["bad"]])
+def test_clean_evaluation_result_drops_malformed_dimensions(
+    dimensions: object,
+) -> None:
+    cleaned, warnings = clean_evaluation_result(
+        {
+            "overall_score": 92,
+            "confidence": 0.8,
+            "dimensions": dimensions,
+            "strengths": [],
+            "gaps": [],
+            "next_actions": [],
+        }
+    )
+
+    assert cleaned["dimensions"] == EvaluationDimensionScores().model_dump()
+    assert warnings == ["Dropped malformed dimension scores."]
 
 
 @pytest.mark.asyncio

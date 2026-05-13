@@ -175,6 +175,18 @@ def _clean_items(items: Any) -> tuple[list[dict[str, Any]], int]:
     return cleaned, dropped
 
 
+def _clean_dimensions(dimensions: Any) -> tuple[dict[str, Any], bool]:
+    """Validate dimension scores, falling back for malformed containers."""
+    if dimensions is None:
+        return EvaluationDimensionScores().model_dump(), False
+    if not isinstance(dimensions, dict):
+        return EvaluationDimensionScores().model_dump(), True
+    try:
+        return EvaluationDimensionScores.model_validate(dimensions).model_dump(), False
+    except ValidationError:
+        return EvaluationDimensionScores().model_dump(), True
+
+
 def clean_evaluation_result(
     raw_result: dict[str, Any],
 ) -> tuple[dict[str, Any], list[str]]:
@@ -182,12 +194,11 @@ def clean_evaluation_result(
     if not isinstance(raw_result, dict):
         raise EvaluationProviderError("Evaluation provider returned invalid JSON.")
 
+    dimensions, dropped_dimensions = _clean_dimensions(raw_result.get("dimensions"))
     cleaned: dict[str, Any] = {
         "overall_score": raw_result.get("overall_score", 0),
         "confidence": raw_result.get("confidence", 0),
-        "dimensions": EvaluationDimensionScores.model_validate(
-            raw_result.get("dimensions") or {}
-        ).model_dump(),
+        "dimensions": dimensions,
     }
 
     dropped_total = 0
@@ -197,6 +208,8 @@ def clean_evaluation_result(
         dropped_total += dropped
 
     warnings: list[str] = []
+    if dropped_dimensions:
+        warnings.append("Dropped malformed dimension scores.")
     if dropped_total:
         warnings.append(f"Dropped {dropped_total} malformed evaluation item(s).")
 
