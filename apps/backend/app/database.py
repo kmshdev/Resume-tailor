@@ -284,11 +284,35 @@ class Database:
         self.evaluations.insert(payload)
         return payload
 
-    def get_evaluation_by_source_hash(self, source_hash: str) -> dict[str, Any] | None:
-        """Return an evaluation with a matching source hash."""
+    def get_evaluation_by_source_hash(
+        self,
+        source_hash: str,
+        *,
+        resume_id: str,
+        baseline_resume_id: str | None,
+        job_id: str | None,
+        phase: str,
+    ) -> dict[str, Any] | None:
+        """Return the newest evaluation matching a scoped source hash."""
         Evaluation = Query()
-        result = self.evaluations.search(Evaluation.source_hash == source_hash)
-        return result[0] if result else None
+        candidates = self.evaluations.search(
+            (Evaluation.source_hash == source_hash)
+            & (Evaluation.resume_id == resume_id)
+            & (Evaluation.phase == phase)
+        )
+        matches = [
+            item
+            for item in candidates
+            if item.get("baseline_resume_id") == baseline_resume_id
+            and item.get("job_id") == job_id
+        ]
+        if not matches:
+            return None
+        return sorted(
+            matches,
+            key=lambda item: item.get("created_at", ""),
+            reverse=True,
+        )[0]
 
     def list_evaluations(
         self,

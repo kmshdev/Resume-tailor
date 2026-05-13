@@ -1,5 +1,6 @@
 """Pydantic models for resume evaluation scores."""
 
+from math import isfinite
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -9,14 +10,29 @@ EvaluationEvidenceSource = Literal["resume", "job_description", "absence"]
 EvaluationSeverity = Literal["low", "medium", "high"]
 
 
-def _clamp_score(value: int | float) -> int:
+def _coerce_number(value: object) -> float | None:
+    """Coerce untrusted numeric model output into a finite float."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if isfinite(number) else None
+
+
+def _clamp_score(value: object) -> int:
     """Clamp a model-provided score to the public 0-100 scale."""
-    return max(0, min(100, int(round(value))))
+    number = _coerce_number(value)
+    if number is None:
+        return 0
+    return max(0, min(100, int(round(number))))
 
 
-def _clamp_confidence(value: int | float) -> float:
+def _clamp_confidence(value: object) -> float:
     """Clamp model confidence to 0.0-1.0."""
-    return max(0.0, min(1.0, float(value)))
+    number = _coerce_number(value)
+    if number is None:
+        return 0.0
+    return max(0.0, min(1.0, number))
 
 
 class EvaluationDimensionScores(BaseModel):
@@ -31,8 +47,8 @@ class EvaluationDimensionScores(BaseModel):
 
     @field_validator("*", mode="before")
     @classmethod
-    def clamp_dimension_score(cls, value: int | float | None) -> int:
-        return _clamp_score(value or 0)
+    def clamp_dimension_score(cls, value: object) -> int:
+        return _clamp_score(value)
 
 
 class EvaluationEvidenceItem(BaseModel):
@@ -95,13 +111,13 @@ class ResumeEvaluationResponse(BaseModel):
 
     @field_validator("overall_score", mode="before")
     @classmethod
-    def clamp_overall_score(cls, value: int | float | None) -> int:
-        return _clamp_score(value or 0)
+    def clamp_overall_score(cls, value: object) -> int:
+        return _clamp_score(value)
 
     @field_validator("confidence", mode="before")
     @classmethod
-    def clamp_confidence(cls, value: int | float | None) -> float:
-        return _clamp_confidence(value or 0)
+    def clamp_confidence(cls, value: object) -> float:
+        return _clamp_confidence(value)
 
 
 class ResumeEvaluationListResponse(BaseModel):

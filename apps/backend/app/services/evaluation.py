@@ -208,13 +208,19 @@ def list_resume_evaluations(
     database: Database,
     resume_id: str,
     job_id: str | None = None,
+    phase: EvaluationPhase | None = None,
 ) -> ResumeEvaluationListResponse:
     """List evaluations directly attached to a resume or anchored baseline."""
     records_by_id: dict[str, dict[str, Any]] = {}
-    for record in database.list_evaluations(resume_id=resume_id, job_id=job_id):
+    for record in database.list_evaluations(
+        resume_id=resume_id,
+        phase=phase,
+        job_id=job_id,
+    ):
         records_by_id[str(record["evaluation_id"])] = record
     for record in database.list_evaluations_for_baseline(
         baseline_resume_id=resume_id,
+        phase=phase,
         job_id=job_id,
     ):
         records_by_id[str(record["evaluation_id"])] = record
@@ -362,7 +368,13 @@ async def create_resume_evaluation(
         prompt_version=PROMPT_VERSION,
     )
     if not request.force_refresh:
-        cached = database.get_evaluation_by_source_hash(source_hash)
+        cached = database.get_evaluation_by_source_hash(
+            source_hash,
+            resume_id=str(resume["resume_id"]),
+            baseline_resume_id=baseline_resume_id,
+            job_id=request.job_id,
+            phase=request.phase,
+        )
         if cached:
             return ResumeEvaluationResponse.model_validate({**cached, "stale": False})
 

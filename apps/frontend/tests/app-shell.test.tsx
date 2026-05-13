@@ -1,9 +1,14 @@
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { AppShell } from '@/components/shell/app-shell';
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/dashboard' }));
+const routerPushMock = vi.hoisted(() => vi.fn());
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/dashboard',
+  useRouter: () => ({ push: routerPushMock }),
+}));
 vi.mock('@/lib/i18n', () => ({ useTranslations: () => ({ t: (key: string) => key }) }));
 vi.mock('@/lib/context/status-cache', () => ({
   useStatusCache: () => ({
@@ -32,6 +37,10 @@ vi.mock('@/lib/api/config', () => ({
 }));
 
 describe('AppShell', () => {
+  beforeEach(() => {
+    routerPushMock.mockClear();
+  });
+
   it('renders breadcrumbs, route tabs, and settings modal trigger', () => {
     render(
       <AppShell>
@@ -70,5 +79,48 @@ describe('AppShell', () => {
     expect(screen.getByText('shell.help.topics.data.title')).toBeInTheDocument();
     expect(screen.getByText('shell.help.topics.recommendation.title')).toBeInTheDocument();
     expect(screen.getByText('shell.help.topics.tailor.title')).toBeInTheDocument();
+  });
+
+  it('closes the model status popover with Escape', () => {
+    render(
+      <AppShell>
+        <div>Dashboard content</div>
+      </AppShell>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'shell.status.ready' }));
+    expect(screen.getByRole('dialog', { name: 'Popover' })).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: 'Popover' })).not.toBeInTheDocument();
+  });
+
+  it('closes the model status popover on outside mouse down', () => {
+    render(
+      <AppShell>
+        <div>Dashboard content</div>
+      </AppShell>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'shell.status.ready' }));
+    expect(screen.getByRole('dialog', { name: 'Popover' })).toBeInTheDocument();
+
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByRole('dialog', { name: 'Popover' })).not.toBeInTheDocument();
+  });
+
+  it('navigates to full settings with the Next router', () => {
+    render(
+      <AppShell>
+        <div>Dashboard content</div>
+      </AppShell>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'shell.settings.open' }));
+    expect(screen.getByRole('dialog', { name: 'shell.settings.title' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'shell.settings.fullSettings' }));
+    expect(routerPushMock).toHaveBeenCalledWith('/settings');
+    expect(screen.queryByRole('dialog', { name: 'shell.settings.title' })).not.toBeInTheDocument();
   });
 });

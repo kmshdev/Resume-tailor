@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -19,6 +20,7 @@ interface CompactSettingsModalProps {
 }
 
 export function CompactSettingsModal({ trigger }: CompactSettingsModalProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [config, setConfig] = useState<LLMConfig | null>(null);
   const [isConfigLoading, setIsConfigLoading] = useState(false);
@@ -123,7 +125,8 @@ export function CompactSettingsModal({ trigger }: CompactSettingsModalProps) {
             <Button
               type="button"
               onClick={() => {
-                window.location.href = '/settings';
+                setOpen(false);
+                router.push('/settings');
               }}
               className="flex-1"
             >

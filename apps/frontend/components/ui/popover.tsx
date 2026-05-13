@@ -1,17 +1,21 @@
 'use client';
 
-import React, { useId, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface PopoverProps {
   trigger: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  label?: string;
+  ariaLabel?: string;
 }
 
-export function Popover({ trigger, children, className }: PopoverProps) {
+export function Popover({ trigger, children, className, label, ariaLabel }: PopoverProps) {
   const [open, setOpen] = useState(false);
   const contentId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const dialogLabel = ariaLabel ?? label ?? 'Popover';
 
   const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
     const nextFocus = event.relatedTarget as Node | null;
@@ -19,8 +23,34 @@ export function Popover({ trigger, children, className }: PopoverProps) {
     setOpen(false);
   };
 
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false);
+      }
+    };
+
+    const handleOutsidePress = (event: Event) => {
+      const target = event.target as Node | null;
+      if (target && rootRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('pointerdown', handleOutsidePress);
+    document.addEventListener('mousedown', handleOutsidePress);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('pointerdown', handleOutsidePress);
+      document.removeEventListener('mousedown', handleOutsidePress);
+    };
+  }, [open]);
+
   return (
-    <div className="relative inline-block" onBlur={handleBlur}>
+    <div ref={rootRef} className="relative inline-block" onBlur={handleBlur}>
       <button
         type="button"
         aria-expanded={open}
@@ -41,6 +71,7 @@ export function Popover({ trigger, children, className }: PopoverProps) {
         <div
           id={contentId}
           role="dialog"
+          aria-label={dialogLabel}
           className={cn(
             'absolute right-0 top-full z-40 mt-2 w-80 border border-black bg-[#10131A] p-4 text-white shadow-sw-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
             className
