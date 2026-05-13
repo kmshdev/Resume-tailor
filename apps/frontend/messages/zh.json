@@ -33,10 +33,77 @@
     "popupBlocked": "弹窗被阻止。请允许弹窗或手动打开此链接：{url}"
   },
   "home": {
+    "brandName": "Resume Matcher",
     "brandLine1": "简历",
     "brandLine2": "匹配器",
     "docs": "使用文档",
-    "launchApp": "启动应用"
+    "launchApp": "启动应用",
+    "navHowItWorks": "工作方式",
+    "navPrivacy": "隐私",
+    "navOpenApp": "打开应用",
+    "heroEyebrow": "从职位发布到面试就绪简历",
+    "heroTitle": "不用猜，也能定制简历。",
+    "heroSubtitle": "粘贴职位链接、PDF 或招聘方消息。先检查职位摘要，再预览 AI 修改，最后保存匹配该职位的简历。",
+    "primaryCta": "从我的简历开始",
+    "secondaryCta": "查看流程",
+    "previewLabel": "引导式定制流程",
+    "previewTime": "约 3 分钟",
+    "previewResumeTitle": "你的简历",
+    "previewJobTitle": "目标职位",
+    "previewMatch": "可匹配申请",
+    "trust": {
+      "review": {
+        "title": "AI 前先审核",
+        "description": "保存前，你会确认职位信息和每一处简历修改。"
+      },
+      "private": {
+        "title": "不抓取收件箱",
+        "description": "使用公开链接、PDF 或粘贴的招聘说明，无需连接私人账号。"
+      },
+      "plain": {
+        "title": "为忙碌求职者设计",
+        "description": "流程用清晰语言说明下一步，而不是让你管理复杂模块。"
+      }
+    },
+    "howItWorksEyebrow": "工作方式",
+    "howItWorksTitle": "更从容地定制简历。",
+    "howItWorksSubtitle": "Resume Matcher 将强大的 AI 能力放在可审核、适合新手的流程之后。",
+    "steps": {
+      "upload": {
+        "title": "添加简历",
+        "description": "只需上传一次基础简历，并将其作为可信来源。"
+      },
+      "addJob": {
+        "title": "加入职位",
+        "description": "使用职位 URL、PDF、招聘方消息或粘贴的描述。"
+      },
+      "review": {
+        "title": "确认修改",
+        "description": "检查提取的职位摘要，并在保存前预览定制修改。"
+      }
+    },
+    "features": {
+      "links": {
+        "title": "职位链接",
+        "description": "粘贴公开职位 URL，应用会提取描述供你审核。"
+      },
+      "pdfs": {
+        "title": "PDF 职位",
+        "description": "公司提供文件时，可使用 PDF 链接或上传本地职位描述。"
+      },
+      "messages": {
+        "title": "招聘消息",
+        "description": "把消息、职位链接和筛选问题粘贴到同一个地方。"
+      },
+      "diffs": {
+        "title": "清晰修改",
+        "description": "在生成最终定制简历前，先查看具体改动。"
+      }
+    },
+    "privacyEyebrow": "隐私优先的输入",
+    "privacyTitle": "只使用你粘贴的内容。无需连接收件箱。",
+    "privacyBody": "JD 输入支持公开链接、PDF 和粘贴消息。用户始终控制哪些内容进入应用、哪些内容被保存。",
+    "privacyCta": "打开应用"
   },
   "nav": {
     "dashboard": "仪表板",
@@ -63,10 +130,13 @@
     "downloadPdf": "下载PDF",
     "tailorResume": "为职位定制",
     "selectModule": "选择模块",
+    "workspaceEyebrow": "简历工作区",
+    "workspaceTitle": "下一次申请从这里开始",
+    "workspaceSubtitle": "完成一次清单设置后，就能为每个职位轻松定制新简历。",
     "masterResume": "主简历",
     "tailoredResume": "定制简历",
-    "initializeMasterResume": "初始化主简历",
-    "initializeSequence": "初始化流程",
+    "initializeMasterResume": "添加基础简历",
+    "initializeSequence": "上传一次，反复定制",
     "refreshStatus": "刷新状态",
     "retryProcessing": "重试处理",
     "retryingProcessing": "正在重试...",
@@ -85,9 +155,36 @@
       "pending": "等待中"
     },
     "llmNotConfiguredTitle": "[ 未配置 LLM ]",
-    "llmNotConfiguredMessage": "> 缺少 API 密钥。配置前将禁用简历定制功能。",
-    "setupRequiredTitle": "[ 需要配置 ]",
-    "setupRequiredMessage": "> 请在设置中配置 API 密钥以启用简历定制。",
+    "llmNotConfiguredMessage": "> 连接一次 AI 提供商，即可启用定制和简历解析。",
+    "setupRequiredTitle": "连接 AI 提供商",
+    "setupRequiredMessage": "添加提供商密钥以解锁引导式定制。",
+    "tailorFirstRole": "为职位定制",
+    "guided": {
+      "eyebrow": "从这里开始",
+      "title": "三个简单步骤",
+      "subtitle": "当 AI 提供商、基础简历和第一个目标职位都准备好时，应用效果最好。",
+      "status": {
+        "done": "完成",
+        "next": "下一步",
+        "locked": "锁定"
+      },
+      "doneAction": "已就绪",
+      "ai": {
+        "title": "连接 AI",
+        "description": "添加一次 API 密钥，让 Resume Matcher 安全地读取、比较并改写。",
+        "action": "打开设置"
+      },
+      "resume": {
+        "title": "添加简历",
+        "description": "上传你最信任的简历。它会成为可重复使用的基础版本。",
+        "action": "上传简历"
+      },
+      "job": {
+        "title": "定制第一个职位",
+        "description": "粘贴职位链接、PDF 或招聘消息，并审核定制结果。",
+        "action": "开始定制"
+      }
+    },
     "uploadDialog": {
       "success": "简历上传成功。",
       "successMaster": "简历已上传并设为主简历。",
@@ -502,25 +599,54 @@
     "pasteJobDescriptionBelow": "在下方粘贴职位描述",
     "jobDescriptionPlaceholder": "在此粘贴职位描述...",
     "intake": {
-      "subtitle": "添加职位 URL、PDF、招聘方消息或手动 JD",
+      "subtitle": "选择最简单的方式加入职位",
       "stepLabel": "步骤 {step}",
       "sources": {
-        "manual_text": "手动粘贴",
-        "job_url": "职位 URL",
-        "pdf_url": "PDF URL",
+        "manual_text": "粘贴职位文本",
+        "job_url": "粘贴职位链接",
+        "pdf_url": "使用 PDF 链接",
         "pdf_upload": "上传 PDF",
         "recruiter_message": "招聘方消息"
       },
-      "inputLabel": "职位来源",
+      "sourceDescriptions": {
+        "manual_text": "适合你已经复制了完整职位描述的情况。",
+        "job_url": "使用公司网站或招聘平台上的公开职位发布。",
+        "pdf_url": "粘贴职位描述 PDF 的直接链接。",
+        "pdf_upload": "从设备中选择本地 PDF 职位描述。",
+        "recruiter_message": "粘贴包含链接和筛选问题的私信或邮件。"
+      },
+      "inputLabel": "添加职位来源",
+      "inputHelp": {
+        "manual_text": {
+          "title": "已经复制了职位发布？",
+          "description": "在这里粘贴描述。开始定制前，你可以在下一屏清理内容。"
+        },
+        "job_url": {
+          "title": "有职位链接？",
+          "description": "使用公开的 http 或 https URL。私有后台和需要登录的页面会被有意跳过。"
+        },
+        "pdf_url": {
+          "title": "有 PDF 链接？",
+          "description": "粘贴直接 PDF URL，Resume Matcher 会提取职位详情供你审核。"
+        },
+        "pdf_upload": {
+          "title": "有本地 PDF？",
+          "description": "从设备上传 PDF。提取出的文本仍需要你确认。"
+        },
+        "recruiter_message": {
+          "title": "有招聘方消息？",
+          "description": "粘贴整条消息。职位链接、角色细节和筛选问题会被分开供你审核。"
+        }
+      },
       "placeholders": {
         "manual_text": "在此粘贴职位描述...",
         "job_url": "https://company.com/jobs/role",
         "pdf_url": "https://company.com/job-description.pdf",
         "recruiter_message": "粘贴招聘方消息、职位链接和问题..."
       },
-      "extractButton": "提取 JD",
+      "extractButton": "审核职位详情",
       "extracting": "正在提取",
-      "reviewTitle": "检查提取的 JD",
+      "reviewTitle": "审核找到的内容",
       "changeSource": "更改来源",
       "reviewJdLabel": "用于定制的职位描述",
       "methods": {
@@ -536,7 +662,7 @@
       "questionsTitle": "筛选问题",
       "needsInput": "发送前需要你补充信息。",
       "warningsTitle": "检查说明",
-      "confirmButton": "使用此 JD",
+      "confirmButton": "用这些内容定制简历",
       "confirming": "正在保存 JD",
       "errors": {
         "extractFailed": "无法提取职位描述。",

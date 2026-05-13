@@ -31,7 +31,7 @@ export function SourceSelector({ sourceType, disabled, onSourceChange }: SourceS
       <p className="font-mono text-xs font-bold uppercase text-blue-700 mb-3">
         {t('tailor.intake.stepLabel', { step: 1 })}
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {SOURCES.map((source) => {
           const Icon = source.icon;
           const selected = source.id === sourceType;
@@ -40,13 +40,24 @@ export function SourceSelector({ sourceType, disabled, onSourceChange }: SourceS
               key={source.id}
               type="button"
               variant={selected ? 'default' : 'outline'}
-              className="h-auto min-h-16 flex-col whitespace-normal px-3 py-3 text-center"
+              className="h-full min-h-28 items-start justify-start whitespace-normal px-4 py-4 text-left"
               aria-pressed={selected}
+              aria-label={t(`tailor.intake.sources.${source.id}`)}
               disabled={disabled}
               onClick={() => onSourceChange(source.id)}
             >
-              <Icon className="w-4 h-4" />
-              {t(`tailor.intake.sources.${source.id}`)}
+              <Icon className="mt-0.5 h-4 w-4" />
+              <span className="flex min-w-0 flex-col gap-2">
+                <span className="font-mono text-xs font-bold uppercase leading-tight">
+                  {t(`tailor.intake.sources.${source.id}`)}
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="whitespace-normal font-sans text-xs normal-case leading-5 opacity-80"
+                >
+                  {t(`tailor.intake.sourceDescriptions.${source.id}`)}
+                </span>
+              </span>
             </Button>
           );
         })}

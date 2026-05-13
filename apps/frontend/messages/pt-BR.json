@@ -33,10 +33,77 @@
     "popupBlocked": "Popup bloqueado. Por favor, permita popups ou abra esta URL manualmente: {url}"
   },
   "home": {
+    "brandName": "Resume Matcher",
     "brandLine1": "Resume",
     "brandLine2": "Matcher",
     "docs": "Documentação",
-    "launchApp": "Abrir App"
+    "launchApp": "Abrir App",
+    "navHowItWorks": "Como funciona",
+    "navPrivacy": "Privacidade",
+    "navOpenApp": "Abrir app",
+    "heroEyebrow": "Da vaga ao currículo pronto para entrevista",
+    "heroTitle": "Personalize seu currículo sem adivinhação.",
+    "heroSubtitle": "Cole um link de vaga, PDF ou mensagem do recrutador. Revise o resumo da vaga, visualize as edições de IA e salve um currículo ajustado ao cargo.",
+    "primaryCta": "Começar com meu currículo",
+    "secondaryCta": "Ver como funciona",
+    "previewLabel": "Fluxo guiado de personalização",
+    "previewTime": "Cerca de 3 minutos",
+    "previewResumeTitle": "Seu currículo",
+    "previewJobTitle": "Cargo alvo",
+    "previewMatch": "Pronto para aplicar",
+    "trust": {
+      "review": {
+        "title": "Revise antes da IA",
+        "description": "Você aprova os detalhes da vaga e cada mudança no currículo antes de salvar."
+      },
+      "private": {
+        "title": "Sem varrer caixa de entrada",
+        "description": "Use link público, PDF ou nota colada sem conectar contas privadas."
+      },
+      "plain": {
+        "title": "Feito para candidatos ocupados",
+        "description": "O fluxo explica o próximo passo em linguagem simples, sem gerenciar módulos."
+      }
+    },
+    "howItWorksEyebrow": "Como funciona",
+    "howItWorksTitle": "Uma forma mais tranquila de personalizar.",
+    "howItWorksSubtitle": "Resume Matcher mantém a IA poderosa dentro de um fluxo revisado e amigável para iniciantes.",
+    "steps": {
+      "upload": {
+        "title": "Adicione seu currículo",
+        "description": "Envie seu currículo base uma vez e mantenha-o como fonte principal."
+      },
+      "addJob": {
+        "title": "Traga a vaga",
+        "description": "Use URL da vaga, PDF, mensagem do recrutador ou descrição colada."
+      },
+      "review": {
+        "title": "Aprove mudanças",
+        "description": "Confira o resumo extraído e visualize os ajustes antes de salvar."
+      }
+    },
+    "features": {
+      "links": {
+        "title": "Links de vagas",
+        "description": "Cole uma URL pública e deixe o app levar a descrição para revisão."
+      },
+      "pdfs": {
+        "title": "Vagas em PDF",
+        "description": "Use um link PDF ou envie um arquivo local quando empresas compartilham documentos."
+      },
+      "messages": {
+        "title": "Notas de recrutador",
+        "description": "Cole mensagem, link da vaga e perguntas de triagem em um só lugar."
+      },
+      "diffs": {
+        "title": "Edições claras",
+        "description": "Veja o que mudou antes de criar o currículo personalizado final."
+      }
+    },
+    "privacyEyebrow": "Entrada com privacidade",
+    "privacyTitle": "Use o que você cola. Sem caixas de entrada conectadas.",
+    "privacyBody": "A entrada de JD funciona com links públicos, PDFs e mensagens coladas. Usuários controlam o que entra no app e o que é salvo.",
+    "privacyCta": "Abrir o app"
   },
   "nav": {
     "dashboard": "Painel",
@@ -63,10 +130,13 @@
     "downloadPdf": "Baixar PDF",
     "tailorResume": "Personalizar para Vaga",
     "selectModule": "Selecionar Módulo",
+    "workspaceEyebrow": "Espaço de currículos",
+    "workspaceTitle": "Sua próxima candidatura começa aqui",
+    "workspaceSubtitle": "Siga a lista uma vez e personalize um currículo novo para cada vaga sem procurar configurações.",
     "masterResume": "Currículo Principal",
     "tailoredResume": "Currículo Personalizado",
-    "initializeMasterResume": "Inicializar Currículo Principal",
-    "initializeSequence": "Iniciar Sequência",
+    "initializeMasterResume": "Adicionar currículo base",
+    "initializeSequence": "Envie uma vez, personalize sempre",
     "refreshStatus": "Atualizar status",
     "retryProcessing": "Tentar novamente",
     "retryingProcessing": "Tentando novamente...",
@@ -85,9 +155,36 @@
       "pending": "Pendente"
     },
     "llmNotConfiguredTitle": "[ LLM NÃO CONFIGURADO ]",
-    "llmNotConfiguredMessage": "> Chaves de API ausentes. A personalização de currículo está desativada até ser configurada.",
-    "setupRequiredTitle": "[ CONFIGURAÇÃO NECESSÁRIA ]",
-    "setupRequiredMessage": "> Configure a chave de API nas configurações para habilitar a personalização de currículo.",
+    "llmNotConfiguredMessage": "> Conecte um provedor de IA uma vez para liberar personalização e leitura de currículo.",
+    "setupRequiredTitle": "Conecte um provedor de IA",
+    "setupRequiredMessage": "Adicione sua chave de provedor para liberar a personalização guiada.",
+    "tailorFirstRole": "Personalizar para uma vaga",
+    "guided": {
+      "eyebrow": "Comece aqui",
+      "title": "Três passos simples",
+      "subtitle": "O app funciona melhor quando seu provedor de IA, currículo base e primeira vaga alvo estão prontos.",
+      "status": {
+        "done": "Pronto",
+        "next": "Próximo",
+        "locked": "Bloqueado"
+      },
+      "doneAction": "Pronto",
+      "ai": {
+        "title": "Conectar IA",
+        "description": "Adicione uma chave de API uma vez para o Resume Matcher ler, comparar e reescrever com segurança.",
+        "action": "Abrir configurações"
+      },
+      "resume": {
+        "title": "Adicione seu currículo",
+        "description": "Envie o currículo em que você mais confia. Ele vira sua base reutilizável.",
+        "action": "Enviar currículo"
+      },
+      "job": {
+        "title": "Personalize a primeira vaga",
+        "description": "Cole link da vaga, PDF ou mensagem do recrutador e revise o resultado.",
+        "action": "Começar"
+      }
+    },
     "uploadDialog": {
       "success": "Currículo enviado com sucesso.",
       "successMaster": "Currículo enviado e definido como principal.",
@@ -502,25 +599,54 @@
     "pasteJobDescriptionBelow": "Cole a Descrição da Vaga Abaixo",
     "jobDescriptionPlaceholder": "Cole a descrição da vaga aqui...",
     "intake": {
-      "subtitle": "Adicione uma URL de vaga, PDF, mensagem do recrutador ou JD manual",
+      "subtitle": "Escolha a forma mais fácil de trazer a vaga",
       "stepLabel": "Etapa {step}",
       "sources": {
-        "manual_text": "Colar manualmente",
-        "job_url": "URL da vaga",
-        "pdf_url": "URL do PDF",
+        "manual_text": "Colar texto",
+        "job_url": "Colar link",
+        "pdf_url": "Usar link PDF",
         "pdf_upload": "Enviar PDF",
         "recruiter_message": "Mensagem do recrutador"
       },
-      "inputLabel": "Fonte da vaga",
+      "sourceDescriptions": {
+        "manual_text": "Melhor quando você já copiou a descrição completa.",
+        "job_url": "Use uma vaga pública de empresa ou portal de empregos.",
+        "pdf_url": "Cole um link direto para uma descrição em PDF.",
+        "pdf_upload": "Escolha um PDF local do seu dispositivo.",
+        "recruiter_message": "Cole o DM ou email com links e perguntas de triagem."
+      },
+      "inputLabel": "Adicione a fonte da vaga",
+      "inputHelp": {
+        "manual_text": {
+          "title": "Já copiou a vaga?",
+          "description": "Cole a descrição aqui. Você poderá ajustar o texto na próxima tela antes da personalização."
+        },
+        "job_url": {
+          "title": "Tem um link da vaga?",
+          "description": "Use uma URL pública http ou https. Painéis privados e páginas logadas são ignorados de propósito."
+        },
+        "pdf_url": {
+          "title": "Tem um link PDF?",
+          "description": "Cole a URL direta do PDF e o Resume Matcher extrairá os detalhes para revisão."
+        },
+        "pdf_upload": {
+          "title": "Tem um PDF local?",
+          "description": "Envie o PDF do seu dispositivo. O texto extraído ainda precisará da sua aprovação."
+        },
+        "recruiter_message": {
+          "title": "Tem mensagem do recrutador?",
+          "description": "Cole a nota completa. Links da vaga, detalhes do cargo e perguntas serão separados para revisão."
+        }
+      },
       "placeholders": {
         "manual_text": "Cole a descrição da vaga aqui...",
         "job_url": "https://company.com/jobs/role",
         "pdf_url": "https://company.com/job-description.pdf",
         "recruiter_message": "Cole a mensagem do recrutador, o link da vaga e as perguntas..."
       },
-      "extractButton": "Extrair JD",
+      "extractButton": "Revisar detalhes",
       "extracting": "Extraindo",
-      "reviewTitle": "Revisar JD extraída",
+      "reviewTitle": "Revise o que encontramos",
       "changeSource": "Alterar fonte",
       "reviewJdLabel": "Descrição da vaga usada na personalização",
       "methods": {
@@ -536,7 +662,7 @@
       "questionsTitle": "Perguntas de triagem",
       "needsInput": "Precisa da sua resposta antes de enviar.",
       "warningsTitle": "Notas de revisão",
-      "confirmButton": "Usar esta JD",
+      "confirmButton": "Personalizar com isto",
       "confirming": "Salvando JD",
       "errors": {
         "extractFailed": "Não foi possível extrair a descrição da vaga.",

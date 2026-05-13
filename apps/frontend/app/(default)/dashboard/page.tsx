@@ -17,6 +17,8 @@ import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import Plus from 'lucide-react/dist/esm/icons/plus';
 import Settings from 'lucide-react/dist/esm/icons/settings';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
+import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
+import CheckCircle2 from 'lucide-react/dist/esm/icons/check-circle-2';
 
 import {
   fetchResume,
@@ -29,6 +31,18 @@ import {
 import { useStatusCache } from '@/lib/context/status-cache';
 
 type ProcessingStatus = 'pending' | 'processing' | 'ready' | 'failed' | 'loading';
+type GuidedStepStatus = 'done' | 'next' | 'locked';
+type GuidedStep = {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  status: GuidedStepStatus;
+  action: string;
+  href?: string;
+  onClick?: () => void;
+  disabled: boolean;
+};
 
 export default function DashboardPage() {
   const { t, locale } = useTranslations();
@@ -292,6 +306,116 @@ export default function DashboardPage() {
   // Use Tailwind classes for fillers now that we have them in config or use specific hex if needed
   // Using the hex values from before to maintain exact look, or we could map them to variants
   const fillerPalette = ['bg-secondary', 'bg-[#D8D8D2]', 'bg-[#CFCFC7]', 'bg-[#E0E0D8]'];
+  const hasTailoredResume = tailoredResumes.length > 0;
+  const guidedSteps: GuidedStep[] = [
+    {
+      id: 'ai',
+      number: '01',
+      title: t('dashboard.guided.ai.title'),
+      description: t('dashboard.guided.ai.description'),
+      status: isLlmConfigured ? 'done' : 'next',
+      action: t('dashboard.guided.ai.action'),
+      href: '/settings',
+      disabled: false,
+    },
+    {
+      id: 'resume',
+      number: '02',
+      title: t('dashboard.guided.resume.title'),
+      description: t('dashboard.guided.resume.description'),
+      status: masterResumeId ? 'done' : isLlmConfigured ? 'next' : 'locked',
+      action: t('dashboard.guided.resume.action'),
+      onClick: () => setIsUploadDialogOpen(true),
+      disabled: !isLlmConfigured || statusLoading,
+    },
+    {
+      id: 'job',
+      number: '03',
+      title: t('dashboard.guided.job.title'),
+      description: t('dashboard.guided.job.description'),
+      status: hasTailoredResume ? 'done' : isTailorEnabled ? 'next' : 'locked',
+      action: t('dashboard.guided.job.action'),
+      href: '/tailor',
+      disabled: !isTailorEnabled,
+    },
+  ];
+
+  const getGuideStatusLabel = (status: GuidedStepStatus) => {
+    if (status === 'done') return t('dashboard.guided.status.done');
+    if (status === 'next') return t('dashboard.guided.status.next');
+    return t('dashboard.guided.status.locked');
+  };
+
+  const getGuideStatusClass = (status: GuidedStepStatus) => {
+    if (status === 'done') return 'border-green-700 bg-green-700 text-white';
+    if (status === 'next') return 'border-blue-700 bg-blue-700 text-white';
+    return 'border-black bg-secondary text-black';
+  };
+
+  const guideIntro = (
+    <section className="grid grid-cols-1 border-b border-black bg-white lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="border-b border-black p-6 md:p-8 lg:border-b-0 lg:border-r">
+        <p className="font-mono text-xs font-bold uppercase text-blue-700">
+          {t('dashboard.guided.eyebrow')}
+        </p>
+        <h2 className="mt-4 font-serif text-4xl font-bold uppercase leading-none md:text-5xl">
+          {t('dashboard.guided.title')}
+        </h2>
+        <p className="mt-4 text-base leading-7 text-ink-soft">{t('dashboard.guided.subtitle')}</p>
+      </div>
+      <div className="grid grid-cols-1 gap-[1px] bg-black md:grid-cols-3">
+        {guidedSteps.map((step) => (
+          <article key={step.id} className="flex min-h-64 flex-col bg-background p-5 md:p-6">
+            <div className="flex items-center justify-between gap-4">
+              <span className="font-mono text-sm font-bold uppercase text-blue-700">
+                {step.number}
+              </span>
+              <span
+                className={`border px-2 py-1 font-mono text-[11px] font-bold uppercase ${getGuideStatusClass(step.status)}`}
+              >
+                {getGuideStatusLabel(step.status)}
+              </span>
+            </div>
+            <h3 className="mt-8 font-serif text-2xl font-bold uppercase leading-none">
+              {step.title}
+            </h3>
+            <p className="mt-3 text-sm leading-6 text-ink-soft">{step.description}</p>
+            <div className="mt-auto pt-5">
+              {step.status === 'done' ? (
+                <div className="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase text-green-700">
+                  <CheckCircle2 className="h-4 w-4" />
+                  {t('dashboard.guided.doneAction')}
+                </div>
+              ) : step.href && !step.disabled ? (
+                <Link href={step.href}>
+                  <Button type="button" size="sm">
+                    {step.action}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              ) : step.href ? (
+                <Button type="button" size="sm" variant="secondary" disabled>
+                  {step.action}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={step.disabled ? 'secondary' : 'default'}
+                  disabled={step.disabled}
+                  onClick={step.onClick}
+                >
+                  {step.action}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
 
   return (
     <div className="space-y-6">
@@ -318,7 +442,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <SwissGrid>
+      <SwissGrid intro={guideIntro}>
         {/* 1. Master Resume Logic */}
         {!masterResumeId ? (
           // LLM Not Configured or Upload State
@@ -501,7 +625,7 @@ export default function DashboardPage() {
               <Plus className="w-8 h-8" />
             </Button>
             <p className="text-xs font-mono mt-4 uppercase text-green-700">
-              {t('dashboard.createResume')}
+              {t('dashboard.tailorFirstRole')}
             </p>
           </div>
         </Card>

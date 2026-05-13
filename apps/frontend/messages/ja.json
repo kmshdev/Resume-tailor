@@ -33,10 +33,77 @@
     "popupBlocked": "ポップアップがブロックされました。ポップアップを許可するか、次のURLを手動で開いてください: {url}"
   },
   "home": {
+    "brandName": "Resume Matcher",
     "brandLine1": "履歴書",
     "brandLine2": "マッチャー",
     "docs": "利用ドキュメント",
-    "launchApp": "アプリを起動"
+    "launchApp": "アプリを起動",
+    "navHowItWorks": "使い方",
+    "navPrivacy": "プライバシー",
+    "navOpenApp": "アプリを開く",
+    "heroEyebrow": "求人情報から面接向けの履歴書へ",
+    "heroTitle": "迷わず履歴書を調整。",
+    "heroSubtitle": "求人リンク、PDF、採用担当者メッセージを貼り付けます。求人要約を確認し、AI の編集をプレビューして、その職種に合う履歴書を保存できます。",
+    "primaryCta": "自分の履歴書で始める",
+    "secondaryCta": "流れを見る",
+    "previewLabel": "ガイド付き調整フロー",
+    "previewTime": "約3分",
+    "previewResumeTitle": "あなたの履歴書",
+    "previewJobTitle": "対象職種",
+    "previewMatch": "応募準備完了",
+    "trust": {
+      "review": {
+        "title": "AI 前に確認",
+        "description": "保存前に、求人内容と履歴書の変更点をすべて確認できます。"
+      },
+      "private": {
+        "title": "受信箱は読みません",
+        "description": "公開リンク、PDF、貼り付けたメモだけを使い、個人アカウント接続は不要です。"
+      },
+      "plain": {
+        "title": "忙しい応募者向け",
+        "description": "モジュール管理ではなく、次に何をすればよいかをわかりやすく示します。"
+      }
+    },
+    "howItWorksEyebrow": "使い方",
+    "howItWorksTitle": "もっと落ち着いて調整。",
+    "howItWorksSubtitle": "Resume Matcher は強力な AI 機能を、確認しやすく初心者にもわかりやすい流れにまとめます。",
+    "steps": {
+      "upload": {
+        "title": "履歴書を追加",
+        "description": "ベース履歴書を一度アップロードし、信頼できる元データとして使います。"
+      },
+      "addJob": {
+        "title": "求人を追加",
+        "description": "求人URL、PDF、採用担当者メッセージ、貼り付けた求人内容を使えます。"
+      },
+      "review": {
+        "title": "変更を確認",
+        "description": "抽出された求人要約と調整案を、保存前に確認できます。"
+      }
+    },
+    "features": {
+      "links": {
+        "title": "求人リンク",
+        "description": "公開求人URLを貼ると、説明文を確認画面へ取り込みます。"
+      },
+      "pdfs": {
+        "title": "PDF求人",
+        "description": "企業がファイルで共有する場合は、PDFリンクやローカルPDFを使えます。"
+      },
+      "messages": {
+        "title": "採用担当メモ",
+        "description": "メッセージ、求人リンク、スクリーニング質問を一か所に貼り付けられます。"
+      },
+      "diffs": {
+        "title": "明確な編集",
+        "description": "最終的な調整済み履歴書を作る前に、変更点を確認できます。"
+      }
+    },
+    "privacyEyebrow": "プライバシー優先の入力",
+    "privacyTitle": "貼り付けた内容だけを使用。受信箱接続は不要。",
+    "privacyBody": "JD入力は公開リンク、PDF、貼り付けたメッセージで動作します。アプリに入る内容と保存内容はユーザーが管理できます。",
+    "privacyCta": "アプリを開く"
   },
   "nav": {
     "dashboard": "ダッシュボード",
@@ -63,10 +130,13 @@
     "downloadPdf": "PDFをダウンロード",
     "tailorResume": "求人に合わせてカスタマイズ",
     "selectModule": "モジュールを選択",
+    "workspaceEyebrow": "履歴書ワークスペース",
+    "workspaceTitle": "次の応募はここから始まります",
+    "workspaceSubtitle": "一度チェックリストを終えれば、各求人向けに新しい履歴書を迷わず作れます。",
     "masterResume": "マスター履歴書",
     "tailoredResume": "カスタマイズ履歴書",
-    "initializeMasterResume": "マスター履歴書を初期化",
-    "initializeSequence": "初期化シーケンス",
+    "initializeMasterResume": "ベース履歴書を追加",
+    "initializeSequence": "一度アップロードして何度も調整",
     "refreshStatus": "ステータスを更新",
     "retryProcessing": "再処理",
     "retryingProcessing": "再処理中...",
@@ -85,9 +155,36 @@
       "pending": "保留中"
     },
     "llmNotConfiguredTitle": "[ LLM 未設定 ]",
-    "llmNotConfiguredMessage": "> API キーがありません。設定するまで履歴書のカスタマイズは無効です。",
-    "setupRequiredTitle": "[ 設定が必要 ]",
-    "setupRequiredMessage": "> 履歴書のカスタマイズを有効にするには、設定で API キーを構成してください。",
+    "llmNotConfiguredMessage": "> AI プロバイダーを一度接続すると、調整と履歴書解析が使えます。",
+    "setupRequiredTitle": "AIプロバイダーを接続",
+    "setupRequiredMessage": "プロバイダーキーを追加して、ガイド付き調整を有効にします。",
+    "tailorFirstRole": "求人向けに調整",
+    "guided": {
+      "eyebrow": "ここから開始",
+      "title": "3つの簡単な手順",
+      "subtitle": "AIプロバイダー、ベース履歴書、最初の対象求人がそろうと最も使いやすくなります。",
+      "status": {
+        "done": "完了",
+        "next": "次",
+        "locked": "ロック中"
+      },
+      "doneAction": "準備完了",
+      "ai": {
+        "title": "AIを接続",
+        "description": "APIキーを一度追加すると、Resume Matcher が安全に読み取り、比較し、書き換えます。",
+        "action": "設定を開く"
+      },
+      "resume": {
+        "title": "履歴書を追加",
+        "description": "信頼している履歴書をアップロードします。再利用できるベースになります。",
+        "action": "履歴書をアップロード"
+      },
+      "job": {
+        "title": "最初の求人に調整",
+        "description": "求人リンク、PDF、採用担当メッセージを貼り付け、結果を確認します。",
+        "action": "調整を開始"
+      }
+    },
     "uploadDialog": {
       "success": "履歴書のアップロードに成功しました。",
       "successMaster": "履歴書がアップロードされ、マスターとして設定されました。",
@@ -502,25 +599,54 @@
     "pasteJobDescriptionBelow": "下に求人内容を貼り付け",
     "jobDescriptionPlaceholder": "求人内容をここに貼り付けてください...",
     "intake": {
-      "subtitle": "求人URL、PDF、採用担当者メッセージ、または手動JDを追加",
+      "subtitle": "一番簡単な方法で求人を追加",
       "stepLabel": "ステップ {step}",
       "sources": {
-        "manual_text": "手動貼り付け",
-        "job_url": "求人URL",
-        "pdf_url": "PDF URL",
+        "manual_text": "求人本文を貼り付け",
+        "job_url": "求人リンクを貼り付け",
+        "pdf_url": "PDFリンクを使用",
         "pdf_upload": "PDFアップロード",
         "recruiter_message": "採用担当者メッセージ"
       },
-      "inputLabel": "求人ソース",
+      "sourceDescriptions": {
+        "manual_text": "すでに求人内容をコピーしている場合に最適です。",
+        "job_url": "企業サイトや求人サイトの公開求人を使います。",
+        "pdf_url": "求人内容PDFへの直接リンクを貼り付けます。",
+        "pdf_upload": "端末内のPDF求人内容を選びます。",
+        "recruiter_message": "リンクや質問を含むDMまたはメールを貼り付けます。"
+      },
+      "inputLabel": "求人ソースを追加",
+      "inputHelp": {
+        "manual_text": {
+          "title": "求人内容をコピー済みですか？",
+          "description": "ここに説明文を貼り付けます。調整開始前に次の画面で整えられます。"
+        },
+        "job_url": {
+          "title": "求人リンクがありますか？",
+          "description": "公開 http または https URL を使います。非公開画面やログイン済みページは意図的に対象外です。"
+        },
+        "pdf_url": {
+          "title": "PDFリンクがありますか？",
+          "description": "直接PDF URLを貼り付けると、Resume Matcher が求人詳細を抽出して確認に進みます。"
+        },
+        "pdf_upload": {
+          "title": "ローカルPDFがありますか？",
+          "description": "端末からPDFをアップロードします。抽出テキストは必ず確認できます。"
+        },
+        "recruiter_message": {
+          "title": "採用担当者メッセージがありますか？",
+          "description": "メモ全体を貼り付けます。求人リンク、職種詳細、質問が分けて表示されます。"
+        }
+      },
       "placeholders": {
         "manual_text": "求人内容をここに貼り付けてください...",
         "job_url": "https://company.com/jobs/role",
         "pdf_url": "https://company.com/job-description.pdf",
         "recruiter_message": "採用担当者のメッセージ、求人リンク、質問を貼り付けてください..."
       },
-      "extractButton": "JDを抽出",
+      "extractButton": "求人詳細を確認",
       "extracting": "抽出中",
-      "reviewTitle": "抽出したJDを確認",
+      "reviewTitle": "見つかった内容を確認",
       "changeSource": "ソースを変更",
       "reviewJdLabel": "調整に使う求人内容",
       "methods": {
@@ -536,7 +662,7 @@
       "questionsTitle": "スクリーニング質問",
       "needsInput": "送信前にあなたの入力が必要です。",
       "warningsTitle": "確認メモ",
-      "confirmButton": "このJDを使用",
+      "confirmButton": "この内容で履歴書を調整",
       "confirming": "JDを保存中",
       "errors": {
         "extractFailed": "求人内容を抽出できませんでした。",

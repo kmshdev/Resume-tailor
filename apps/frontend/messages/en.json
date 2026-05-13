@@ -33,10 +33,77 @@
     "popupBlocked": "Popup blocked. Please allow popups or open this URL manually: {url}"
   },
   "home": {
+    "brandName": "Resume Matcher",
     "brandLine1": "Resume",
     "brandLine2": "Matcher",
     "docs": "Docs",
-    "launchApp": "Launch App"
+    "launchApp": "Launch App",
+    "navHowItWorks": "How it works",
+    "navPrivacy": "Privacy",
+    "navOpenApp": "Open app",
+    "heroEyebrow": "From job post to interview-ready resume",
+    "heroTitle": "Tailor your resume without the guesswork.",
+    "heroSubtitle": "Paste a job link, PDF, or recruiter message. Review the job brief, preview the AI edits, and save a resume that fits the role.",
+    "primaryCta": "Start with my resume",
+    "secondaryCta": "See how it works",
+    "previewLabel": "Guided tailoring flow",
+    "previewTime": "About 3 minutes",
+    "previewResumeTitle": "Your resume",
+    "previewJobTitle": "Target role",
+    "previewMatch": "Match-ready",
+    "trust": {
+      "review": {
+        "title": "Review before AI",
+        "description": "You approve the job details and every resume change before anything is saved."
+      },
+      "private": {
+        "title": "No inbox scraping",
+        "description": "Bring a public job link, PDF, or pasted recruiter note without connecting private accounts."
+      },
+      "plain": {
+        "title": "Built for busy applicants",
+        "description": "The flow explains the next step in plain language instead of making you manage modules."
+      }
+    },
+    "howItWorksEyebrow": "How it works",
+    "howItWorksTitle": "A calmer way to tailor.",
+    "howItWorksSubtitle": "Resume Matcher keeps the powerful AI parts behind a reviewed, beginner-friendly flow.",
+    "steps": {
+      "upload": {
+        "title": "Add your resume",
+        "description": "Upload your base resume once and keep it as the source of truth."
+      },
+      "addJob": {
+        "title": "Bring the job",
+        "description": "Use a job post URL, PDF, recruiter message, or pasted description."
+      },
+      "review": {
+        "title": "Approve changes",
+        "description": "Check the extracted job brief and preview tailored edits before saving."
+      }
+    },
+    "features": {
+      "links": {
+        "title": "Job links",
+        "description": "Paste a public job URL and let the app pull the description into review."
+      },
+      "pdfs": {
+        "title": "PDF posts",
+        "description": "Use a PDF link or upload a local job description when companies share files."
+      },
+      "messages": {
+        "title": "Recruiter notes",
+        "description": "Paste the message, job link, and screening questions in one place."
+      },
+      "diffs": {
+        "title": "Clear edits",
+        "description": "See what changed before creating the final tailored resume."
+      }
+    },
+    "privacyEyebrow": "Privacy-first intake",
+    "privacyTitle": "Use what you paste. Skip connected inboxes.",
+    "privacyBody": "JD intake works with public links, PDFs, and pasted messages. Users stay in control of what enters the app and what gets saved.",
+    "privacyCta": "Open the app"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -63,10 +130,13 @@
     "downloadPdf": "Download PDF",
     "tailorResume": "Tailor for Job",
     "selectModule": "Select Module",
+    "workspaceEyebrow": "Resume workspace",
+    "workspaceTitle": "Your next application starts here",
+    "workspaceSubtitle": "Follow the checklist once, then tailor a fresh resume for each role without hunting through settings.",
     "masterResume": "Master Resume",
     "tailoredResume": "Tailored Resume",
-    "initializeMasterResume": "Initialize Master Resume",
-    "initializeSequence": "Initialize Sequence",
+    "initializeMasterResume": "Add Base Resume",
+    "initializeSequence": "Upload once, tailor often",
     "refreshStatus": "Refresh status",
     "retryProcessing": "Retry Processing",
     "retryingProcessing": "Retrying...",
@@ -85,9 +155,36 @@
       "pending": "Pending"
     },
     "llmNotConfiguredTitle": "[ LLM NOT CONFIGURED ]",
-    "llmNotConfiguredMessage": "> API keys are missing. Resume tailoring is disabled until configured in settings.",
-    "setupRequiredTitle": "[ SETUP REQUIRED ]",
-    "setupRequiredMessage": "> Configure API key in settings to enable resume tailoring.",
+    "llmNotConfiguredMessage": "> Connect an AI provider once to unlock tailoring and resume parsing.",
+    "setupRequiredTitle": "Connect AI Provider",
+    "setupRequiredMessage": "Add your provider key to unlock guided tailoring.",
+    "tailorFirstRole": "Tailor for a role",
+    "guided": {
+      "eyebrow": "Start here",
+      "title": "Three simple steps",
+      "subtitle": "The app is strongest when your AI provider, base resume, and first job target are all in place.",
+      "status": {
+        "done": "Done",
+        "next": "Next",
+        "locked": "Locked"
+      },
+      "doneAction": "Ready",
+      "ai": {
+        "title": "Connect AI",
+        "description": "Add an API key once so Resume Matcher can read, compare, and rewrite safely.",
+        "action": "Open settings"
+      },
+      "resume": {
+        "title": "Add your resume",
+        "description": "Upload the resume you trust most. This becomes your reusable base.",
+        "action": "Upload resume"
+      },
+      "job": {
+        "title": "Tailor first role",
+        "description": "Paste a job link, PDF, or recruiter message and review the tailored result.",
+        "action": "Start tailoring"
+      }
+    },
     "uploadDialog": {
       "success": "Resume uploaded successfully.",
       "successMaster": "Resume uploaded and set as master.",
@@ -502,25 +599,54 @@
     "pasteJobDescriptionBelow": "Paste Job Description Below",
     "jobDescriptionPlaceholder": "Paste the job description here...",
     "intake": {
-      "subtitle": "Add a job URL, PDF, recruiter message, or manual JD",
+      "subtitle": "Choose the easiest way to bring in the job",
       "stepLabel": "Step {step}",
       "sources": {
-        "manual_text": "Manual Paste",
-        "job_url": "Job URL",
-        "pdf_url": "PDF URL",
-        "pdf_upload": "PDF Upload",
-        "recruiter_message": "Recruiter Message"
+        "manual_text": "Paste job text",
+        "job_url": "Paste job link",
+        "pdf_url": "Use PDF link",
+        "pdf_upload": "Upload PDF",
+        "recruiter_message": "Recruiter message"
       },
-      "inputLabel": "Job Source",
+      "sourceDescriptions": {
+        "manual_text": "Best when you already copied the full description.",
+        "job_url": "Use a public job post from a company or job board.",
+        "pdf_url": "Paste a direct link to a PDF job description.",
+        "pdf_upload": "Choose a local PDF job description from your device.",
+        "recruiter_message": "Paste the DM or email with links and screening questions."
+      },
+      "inputLabel": "Add your job source",
+      "inputHelp": {
+        "manual_text": {
+          "title": "Already copied the posting?",
+          "description": "Paste the description here. You can clean it up on the next screen before tailoring starts."
+        },
+        "job_url": {
+          "title": "Have a job post link?",
+          "description": "Use a public http or https URL. Private dashboards and logged-in pages are intentionally skipped."
+        },
+        "pdf_url": {
+          "title": "Have a PDF link?",
+          "description": "Paste the direct PDF URL and Resume Matcher will extract the job details for review."
+        },
+        "pdf_upload": {
+          "title": "Have a local PDF?",
+          "description": "Upload the PDF from your device. The extracted text will still need your approval."
+        },
+        "recruiter_message": {
+          "title": "Have a recruiter message?",
+          "description": "Paste the whole note. Job links, role details, and screening questions will be separated for review."
+        }
+      },
       "placeholders": {
         "manual_text": "Paste the job description here...",
         "job_url": "https://company.com/jobs/role",
         "pdf_url": "https://company.com/job-description.pdf",
         "recruiter_message": "Paste the recruiter message, job link, and questions..."
       },
-      "extractButton": "Extract JD",
+      "extractButton": "Review job details",
       "extracting": "Extracting",
-      "reviewTitle": "Review Extracted JD",
+      "reviewTitle": "Review what we found",
       "changeSource": "Change Source",
       "reviewJdLabel": "Job Description Used for Tailoring",
       "methods": {
@@ -536,7 +662,7 @@
       "questionsTitle": "Screening Questions",
       "needsInput": "Needs your input before sending.",
       "warningsTitle": "Review Notes",
-      "confirmButton": "Use This JD",
+      "confirmButton": "Tailor my resume with this",
       "confirming": "Saving JD",
       "errors": {
         "extractFailed": "Couldn't extract the job description.",
