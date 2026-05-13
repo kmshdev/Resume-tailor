@@ -238,6 +238,25 @@ async def test_manual_text_preserves_labeled_questions_in_metadata() -> None:
 
 
 @pytest.mark.asyncio
+async def test_manual_text_strips_embedded_screening_question_lines() -> None:
+    response = await extract_job_intake(
+        JobIntakeExtractRequest(
+            source_type="manual_text",
+            source_text=(
+                "Senior Backend Engineer using Python and FastAPI.\n"
+                "Screening: Do you have Python experience? Please reply today."
+            ),
+        )
+    )
+
+    assert "Screening:" not in response.job_description
+    assert "Please reply today." not in response.job_description
+    assert [question.question for question in response.screening_questions] == [
+        "Do you have Python experience?"
+    ]
+
+
+@pytest.mark.asyncio
 async def test_fetch_url_revalidates_redirect_targets(monkeypatch: pytest.MonkeyPatch) -> None:
     async def fake_validate(url: str) -> str:
         if "127.0.0.1" in url:
@@ -374,6 +393,25 @@ async def test_pdf_url_rejects_html_even_when_path_ends_pdf() -> None:
             )
 
     mock_parse.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_job_url_rejects_unsupported_binary_content_type() -> None:
+    fetched = FetchedContent(
+        url="https://jobs.example.com/role",
+        content_type="application/octet-stream",
+        body=b"\x00\x01\x02not-html",
+    )
+    with patch("app.services.job_intake._fetch_url", new_callable=AsyncMock) as mock_fetch:
+        mock_fetch.return_value = fetched
+
+        with pytest.raises(JobIntakeError, match="unsupported content type"):
+            await _extract_remote_url(
+                JobIntakeExtractRequest(
+                    source_type="job_url",
+                    url="https://jobs.example.com/role",
+                )
+            )
 
 
 @pytest.mark.asyncio

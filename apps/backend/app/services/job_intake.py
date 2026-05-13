@@ -414,7 +414,11 @@ def _strip_non_jd_lines(text: str, questions: list[ScreeningQuestion]) -> str:
         if not candidate:
             kept.append("")
             continue
-        if candidate in question_values or candidate.endswith("?"):
+        if (
+            candidate in question_values
+            or any(question in candidate for question in question_values)
+            or _QUESTION_CLAUSE_RE.search(candidate)
+        ):
             continue
         if _URL_RE.search(candidate):
             continue
@@ -548,6 +552,12 @@ def _content_looks_like_pdf(content_type: str, body: bytes) -> bool:
     return "application/pdf" in content_type.lower() or body_looks_like_pdf(body)
 
 
+def _content_looks_like_html(content_type: str) -> bool:
+    """Return whether fetched content should be parsed as HTML."""
+    normalized = content_type.split(";", 1)[0].strip().lower()
+    return normalized in {"text/html", "application/xhtml+xml"}
+
+
 def _pdf_filename_from_url(url: str) -> str:
     """Return a safe PDF filename for parser suffix detection."""
     filename = Path(urlparse(url).path).name
@@ -665,6 +675,10 @@ async def _extract_remote_url(
         method: ExtractionMethod = "pdf"
     elif request.source_type == "pdf_url":
         raise JobIntakeError("The provided PDF URL did not return PDF content.")
+    elif not _content_looks_like_html(fetched.content_type):
+        raise JobIntakeError(
+            "Remote URL returned an unsupported content type. Please paste the job description manually."
+        )
     else:
         html = fetched.body.decode("utf-8", errors="replace")
         raw_text, source_title = _html_to_text(html)
