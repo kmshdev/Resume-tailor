@@ -31,7 +31,7 @@ export function CommandCenter({
 
       <div
         data-testid="command-center-metrics"
-        className="grid grid-cols-1 gap-[1px] bg-black md:grid-cols-3"
+        className="grid grid-cols-1 gap-[1px] bg-black md:grid-cols-3 lg:grid-cols-3"
       >
         {metrics.map((metric, index) => (
           <div key={index} className="min-h-full bg-[#10131A]">
@@ -40,11 +40,9 @@ export function CommandCenter({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-[1px] bg-black lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
-        <div className="grid grid-cols-1 gap-[1px] bg-black xl:grid-cols-[minmax(0,0.92fr)_minmax(18rem,0.78fr)]">
-          <div className="min-w-0 bg-background text-black">{resumeContext}</div>
-          <div className="min-w-0 bg-white text-black">{workflow}</div>
-        </div>
+      <div className="grid grid-cols-1 gap-[1px] bg-black lg:grid-cols-3">
+        <div className="min-w-0 bg-background text-black">{resumeContext}</div>
+        <div className="min-w-0 bg-white text-black">{workflow}</div>
         <aside className="min-w-0 bg-background text-black">{activity}</aside>
       </div>
     </section>

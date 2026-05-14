@@ -160,6 +160,34 @@ describe('CommandCenter', () => {
     expect(screen.getByText('Workflow stack')).toBeInTheDocument();
     expect(screen.getByText('Recent activity')).toBeInTheDocument();
   });
+
+  it('uses one shared three-column desktop grid contract across metrics and body regions', () => {
+    render(
+      <CommandCenter
+        ariaLabel="Resume workspace"
+        metrics={[
+          <EvaluationCard key="readiness" phase="readiness" evaluation={baseEvaluation} />,
+          <EvaluationCard key="pre" phase="pre_tailor" evaluation={null} />,
+          <EvaluationCard key="post" phase="post_tailor" evaluation={null} />,
+        ]}
+        resumeContext={<div>Resume context</div>}
+        workflow={<div>Workflow stack</div>}
+        activity={<div>Recent activity</div>}
+      />
+    );
+
+    const workspace = screen.getByLabelText('Resume workspace');
+    const metricsGrid = screen.getByTestId('command-center-metrics');
+    const bodyGrid = Array.from(workspace.children).find(
+      (child) =>
+        child !== metricsGrid && child instanceof HTMLElement && child.className.includes('grid')
+    );
+
+    expect(metricsGrid).toHaveClass('lg:grid-cols-3');
+    expect(bodyGrid).toBeInstanceOf(HTMLElement);
+    expect(bodyGrid).toHaveClass('lg:grid-cols-3');
+    expect((bodyGrid as HTMLElement).className).not.toContain('lg:grid-cols-[minmax');
+  });
 });
 
 describe('TailorCardStack', () => {

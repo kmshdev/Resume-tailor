@@ -44,8 +44,8 @@ export function AppShell({ children }: AppShellProps) {
     pageKey === 'dashboard' ? [] : [{ label: t(`shell.pages.${pageKey}`) }];
 
   return (
-    <div className="min-h-screen bg-[#10131A] text-white">
-      <header className="border-b border-black bg-[#10131A]">
+    <div className="min-h-screen bg-background text-black">
+      <header className="border-b border-black bg-[#10131A] text-white">
         <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <Breadcrumbs items={breadcrumbs} />

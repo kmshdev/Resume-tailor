@@ -56,6 +56,18 @@ describe('AppShell', () => {
     expect(screen.getByText('Dashboard content')).toBeInTheDocument();
   });
 
+  it('keeps the global app shell on the shared Swiss canvas instead of a detached dark frame', () => {
+    render(
+      <AppShell>
+        <div>Dashboard content</div>
+      </AppShell>
+    );
+
+    const shellRoot = screen.getByText('Dashboard content').closest('.min-h-screen');
+    expect(shellRoot).toHaveClass('bg-background');
+    expect(shellRoot).not.toHaveClass('bg-[#10131A]');
+  });
+
   it('opens compact settings modal', async () => {
     render(
       <AppShell>
