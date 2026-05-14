@@ -4,6 +4,10 @@
 
 Generic, reusable guides (Swiss design system, Next.js performance) live in [`../portable/`](../portable/README.md) as standalone packs that can be lifted out of this repo and dropped into any project. This index covers only the docs that are tied to Resume Matcher itself.
 
+## Agent Entrypoint
+
+Root [`AGENTS.md`](../../AGENTS.md) is the canonical Codex-first instruction surface for this repository. Provider-specific local folders such as `.claude/` are intentionally ignored so local assistant setup does not become project policy.
+
 ## Quick Navigation
 
 ### Core docs
