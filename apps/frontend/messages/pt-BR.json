@@ -656,6 +656,8 @@
       "reviewTitle": "Revise o que encontramos",
       "changeSource": "Alterar fonte",
       "reviewJdLabel": "Descrição da vaga usada na personalização",
+      "screeningQuestionLabel": "Pergunta de triagem",
+      "draftAnswerLabel": "Resposta em rascunho",
       "methods": {
         "manual": "Manual",
         "deterministic": "Analisado",

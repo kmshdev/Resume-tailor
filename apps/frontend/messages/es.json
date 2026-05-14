@@ -656,6 +656,8 @@
       "reviewTitle": "Revisa lo encontrado",
       "changeSource": "Cambiar fuente",
       "reviewJdLabel": "Descripción del puesto usada para ajustar",
+      "screeningQuestionLabel": "Pregunta de filtro",
+      "draftAnswerLabel": "Respuesta borrador",
       "methods": {
         "manual": "Manual",
         "deterministic": "Analizado",

@@ -656,6 +656,8 @@
       "reviewTitle": "見つかった内容を確認",
       "changeSource": "ソースを変更",
       "reviewJdLabel": "調整に使う求人内容",
+      "screeningQuestionLabel": "スクリーニング質問",
+      "draftAnswerLabel": "回答案",
       "methods": {
         "manual": "手動",
         "deterministic": "解析済み",

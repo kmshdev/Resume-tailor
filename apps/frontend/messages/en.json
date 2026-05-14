@@ -686,6 +686,8 @@
       "reviewTitle": "Review what we found",
       "changeSource": "Change Source",
       "reviewJdLabel": "Job Description Used for Tailoring",
+      "screeningQuestionLabel": "Screening Question",
+      "draftAnswerLabel": "Draft Answer",
       "methods": {
         "manual": "Manual",
         "deterministic": "Parsed",

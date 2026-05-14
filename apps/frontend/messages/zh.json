@@ -656,6 +656,8 @@
       "reviewTitle": "审核找到的内容",
       "changeSource": "更改来源",
       "reviewJdLabel": "用于定制的职位描述",
+      "screeningQuestionLabel": "筛选问题",
+      "draftAnswerLabel": "草稿答案",
       "methods": {
         "manual": "手动",
         "deterministic": "已解析",

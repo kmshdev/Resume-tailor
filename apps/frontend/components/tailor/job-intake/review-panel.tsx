@@ -5,14 +5,22 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslations } from '@/lib/i18n';
-import type { JobIntakeExtractResponse } from '@/lib/api/job-intake';
+import type {
+  DraftAnswer,
+  JobIntakeExtractResponse,
+  ScreeningQuestion,
+} from '@/lib/api/job-intake';
 
 interface ReviewPanelProps {
   extraction: JobIntakeExtractResponse;
   reviewText: string;
+  screeningQuestions: ScreeningQuestion[];
+  draftAnswers: DraftAnswer[];
   isConfirming: boolean;
   canTailor: boolean;
   onReviewTextChange: (value: string) => void;
+  onScreeningQuestionChange: (questionId: string, value: string) => void;
+  onDraftAnswerChange: (questionId: string, value: string) => void;
   onTextareaKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onChangeSource: () => void;
   onConfirm: () => void;
@@ -21,9 +29,13 @@ interface ReviewPanelProps {
 export function ReviewPanel({
   extraction,
   reviewText,
+  screeningQuestions,
+  draftAnswers,
   isConfirming,
   canTailor,
   onReviewTextChange,
+  onScreeningQuestionChange,
+  onDraftAnswerChange,
   onTextareaKeyDown,
   onChangeSource,
   onConfirm,
@@ -85,26 +97,51 @@ export function ReviewPanel({
         </div>
       )}
 
-      {extraction.screening_questions.length > 0 && (
+      {screeningQuestions.length > 0 && (
         <div className="border-2 border-black bg-white p-4">
           <h3 className="font-mono text-sm font-bold uppercase mb-3">
             {t('tailor.intake.questionsTitle')}
           </h3>
           <div className="space-y-3">
-            {extraction.screening_questions.map((question) => {
-              const answer = extraction.draft_answers.find(
+            {screeningQuestions.map((question) => {
+              const answer = draftAnswers.find(
                 (candidate) => candidate.question_id === question.id
               );
+              const questionInputId = `job-intake-question-${question.id}`;
+              const answerInputId = `job-intake-answer-${question.id}`;
               return (
                 <div key={question.id} className="border border-black bg-background p-3">
-                  <p className="font-mono text-sm font-bold">{question.question}</p>
+                  <label htmlFor={questionInputId} className="sr-only">
+                    {t('tailor.intake.screeningQuestionLabel')}
+                  </label>
+                  <Textarea
+                    id={questionInputId}
+                    value={question.question}
+                    onKeyDown={onTextareaKeyDown}
+                    onChange={(event) => onScreeningQuestionChange(question.id, event.target.value)}
+                    disabled={isConfirming}
+                    className="mt-2 min-h-[76px] font-mono text-sm bg-white border border-black rounded-none"
+                  />
                   {answer?.needs_user_input ? (
                     <p className="mt-2 font-mono text-xs text-orange-700">
                       {answer.prompt || t('tailor.intake.needsInput')}
                     </p>
-                  ) : answer?.answer ? (
-                    <p className="mt-2 font-sans text-sm">{answer.answer}</p>
                   ) : null}
+                  {answer && (
+                    <>
+                      <label htmlFor={answerInputId} className="sr-only">
+                        {t('tailor.intake.draftAnswerLabel')}
+                      </label>
+                      <Textarea
+                        id={answerInputId}
+                        value={answer.answer}
+                        onKeyDown={onTextareaKeyDown}
+                        onChange={(event) => onDraftAnswerChange(question.id, event.target.value)}
+                        disabled={isConfirming}
+                        className="mt-2 min-h-[92px] font-sans text-sm bg-white border border-black rounded-none"
+                      />
+                    </>
+                  )}
                 </div>
               );
             })}

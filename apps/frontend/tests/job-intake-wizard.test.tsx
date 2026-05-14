@@ -230,6 +230,82 @@ describe('JobIntakeWizard', () => {
     );
   });
 
+  it('persists reviewed screening questions and draft answers instead of immutable extraction metadata', async () => {
+    extractJobIntake.mockResolvedValue(
+      extraction({
+        source_type: 'recruiter_message',
+        screening_questions: [{ id: 'q1', question: 'Are you open to relocation?' }],
+        draft_answers: [
+          {
+            question_id: 'q1',
+            answer: '',
+            evidence: [],
+            needs_user_input: true,
+            prompt: 'Confirm relocation before answering.',
+          },
+        ],
+      })
+    );
+    confirmJobIntake.mockResolvedValue({
+      message: 'job intake saved',
+      job_id: 'job-123',
+      request: {},
+    });
+
+    render(
+      <JobIntakeWizard
+        masterResumeId="resume-123"
+        disabled={false}
+        canTailor={true}
+        onJobConfirmed={vi.fn()}
+      />
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'tailor.intake.sources.recruiter_message' })
+    );
+    fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
+      target: {
+        value:
+          'Senior Backend Engineer using Python, FastAPI, and AWS.\nAre you open to relocation?',
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.extractButton' }));
+
+    await screen.findByText('tailor.intake.reviewTitle');
+    const questionInput = screen.getByLabelText('tailor.intake.screeningQuestionLabel');
+    const answerInput = screen.getByLabelText('tailor.intake.draftAnswerLabel');
+
+    fireEvent.change(questionInput, {
+      target: { value: 'Are you legally authorized to work in the US?' },
+    });
+    fireEvent.change(answerInput, {
+      target: { value: 'Yes, I am authorized to work in the US.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.confirmButton' }));
+
+    await waitFor(() => {
+      expect(confirmJobIntake).toHaveBeenCalledWith(
+        expect.objectContaining({
+          intake_metadata: expect.objectContaining({
+            screening_questions: [
+              {
+                id: 'q1',
+                question: 'Are you legally authorized to work in the US?',
+              },
+            ],
+            draft_answers: [
+              expect.objectContaining({
+                question_id: 'q1',
+                answer: 'Yes, I am authorized to work in the US.',
+              }),
+            ],
+          }),
+        })
+      );
+    });
+  });
+
   it('clears source-specific values when switching intake sources', async () => {
     render(
       <JobIntakeWizard

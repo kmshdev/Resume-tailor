@@ -6,8 +6,10 @@ import {
   confirmJobIntake,
   extractJobIntake,
   uploadJobIntakePdf,
+  type DraftAnswer,
   type JobIntakeExtractResponse,
   type JobIntakeMetadata,
+  type ScreeningQuestion,
 } from '@/lib/api/job-intake';
 import { ReviewPanel } from '@/components/tailor/job-intake/review-panel';
 import { SourceInput } from '@/components/tailor/job-intake/source-input';
@@ -38,14 +40,18 @@ function isPdfFile(file: File): boolean {
   return hasPdfName && hasPdfType;
 }
 
-function toMetadata(extraction: JobIntakeExtractResponse): JobIntakeMetadata {
+function toMetadata(
+  extraction: JobIntakeExtractResponse,
+  screeningQuestions: ScreeningQuestion[],
+  draftAnswers: DraftAnswer[]
+): JobIntakeMetadata {
   return {
     source_type: extraction.source_type,
     source_url: extraction.source_url ?? null,
     source_title: extraction.source_title ?? null,
     links: extraction.links,
-    screening_questions: extraction.screening_questions,
-    draft_answers: extraction.draft_answers,
+    screening_questions: screeningQuestions,
+    draft_answers: draftAnswers,
     extraction_method: extraction.extraction_method,
     warnings: extraction.warnings,
     confidence: extraction.confidence,
@@ -64,6 +70,10 @@ export function JobIntakeWizard({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [extraction, setExtraction] = useState<JobIntakeExtractResponse | null>(null);
   const [reviewText, setReviewText] = useState('');
+  const [reviewedScreeningQuestions, setReviewedScreeningQuestions] = useState<ScreeningQuestion[]>(
+    []
+  );
+  const [reviewedDraftAnswers, setReviewedDraftAnswers] = useState<DraftAnswer[]>([]);
   const [isExtracting, setIsExtracting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,6 +120,8 @@ export function JobIntakeWizard({
             });
       setExtraction(result);
       setReviewText(result.job_description);
+      setReviewedScreeningQuestions(result.screening_questions);
+      setReviewedDraftAnswers(result.draft_answers);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('tailor.intake.errors.extractFailed'));
     } finally {
@@ -125,7 +137,7 @@ export function JobIntakeWizard({
       const confirmed = await confirmJobIntake({
         job_description: reviewText.trim(),
         resume_id: masterResumeId,
-        intake_metadata: toMetadata(extraction),
+        intake_metadata: toMetadata(extraction, reviewedScreeningQuestions, reviewedDraftAnswers),
       });
       await onJobConfirmed({
         jobId: confirmed.job_id,
@@ -141,7 +153,44 @@ export function JobIntakeWizard({
   const resetReview = () => {
     setExtraction(null);
     setReviewText('');
+    setReviewedScreeningQuestions([]);
+    setReviewedDraftAnswers([]);
     setError(null);
+  };
+
+  const handleScreeningQuestionChange = (questionId: string, questionText: string) => {
+    setReviewedScreeningQuestions((questions) =>
+      questions.map((question) =>
+        question.id === questionId ? { ...question, question: questionText } : question
+      )
+    );
+  };
+
+  const handleDraftAnswerChange = (questionId: string, answerText: string) => {
+    setReviewedDraftAnswers((answers) => {
+      const existingAnswer = answers.find((answer) => answer.question_id === questionId);
+      if (!existingAnswer) {
+        return [
+          ...answers,
+          {
+            question_id: questionId,
+            answer: answerText,
+            evidence: [],
+            needs_user_input: answerText.trim().length === 0,
+            prompt: '',
+          },
+        ];
+      }
+      return answers.map((answer) =>
+        answer.question_id === questionId
+          ? {
+              ...answer,
+              answer: answerText,
+              needs_user_input: answerText.trim().length === 0,
+            }
+          : answer
+      );
+    });
   };
 
   const handleSourceChange = (nextSourceType: IntakeSource) => {
@@ -178,9 +227,13 @@ export function JobIntakeWizard({
         <ReviewPanel
           extraction={extraction}
           reviewText={reviewText}
+          screeningQuestions={reviewedScreeningQuestions}
+          draftAnswers={reviewedDraftAnswers}
           isConfirming={isConfirming}
           canTailor={canTailor}
           onReviewTextChange={setReviewText}
+          onScreeningQuestionChange={handleScreeningQuestionChange}
+          onDraftAnswerChange={handleDraftAnswerChange}
           onTextareaKeyDown={handleTextareaKeyDown}
           onChangeSource={resetReview}
           onConfirm={handleConfirm}
