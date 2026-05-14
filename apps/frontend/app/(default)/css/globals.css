@@ -137,6 +137,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    position: relative;
+  }
   body {
     @apply bg-background text-foreground;
   }
