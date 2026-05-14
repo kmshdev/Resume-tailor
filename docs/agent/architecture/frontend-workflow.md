@@ -11,9 +11,9 @@ Dashboard → Upload Master Resume → Tailor for Job → View/Edit → Download
 ## Pages
 
 ### 1. Dashboard (`/dashboard`)
-- **No master:** "Initialize Master Resume" card
-- **Has master:** "Master Resume" card + tailored tiles
-- **Create:** "+" card opens `/tailor`
+- **No master:** "Initialize Master Resume" card plus disabled Tailor/evaluation states
+- **Has master:** CommandCenter with readiness/pre/post evaluation cards, resume context, Tailor card stack, and activity
+- **Create:** Tailor card stack or CTA opens `/tailor`
 - Auto-refreshes on window focus
 
 ### 2. Resume Viewer (`/resumes/[id]`)
@@ -22,9 +22,11 @@ Dashboard → Upload Master Resume → Tailor for Job → View/Edit → Download
 - Delete shows confirmation + success dialogs
 
 ### 3. Tailor (`/tailor`)
+- Fancy stacking-card session deck tracks `add_job`, `review_jd`, `pre_score`, `tailor`, `review_changes`, `post_score`
 - JD intake wizard for manual paste, job URL, PDF URL/upload, or pasted recruiter message
 - Process: Extract JD → Review/edit JD and questions → Confirm job → Preview Improvements → Diff review → Save tailored resume
-- Screening questions and draft answers are shown in review but kept out of the JD text used for tailoring keywords
+- Screening questions and draft answers are editable during review, persisted as metadata, and kept out of the JD text used for tailoring keywords
+- Pre-tailor and post-tailor evaluations are nonblocking; provider/config failures show warnings rather than blocking resume tailoring
 
 ### 4. Builder (`/builder`)
 - **Left panel:** Editor (forms + formatting)
@@ -84,6 +86,12 @@ import { fetchResume, API_BASE } from '@/lib/api';
 fetchResume, fetchResumeList, updateResume, deleteResume
 uploadJobDescriptions, improveResume, downloadResumePdf
 
-// Config operations  
+// Job intake operations
+extractJobIntake, uploadJobIntakePdf, confirmJobIntake
+
+// Evaluation operations
+createResumeEvaluation, fetchResumeEvaluations, fetchLatestResumeEvaluations
+
+// Config operations
 fetchLlmConfig, updateLlmConfig, testLlmConnection
 ```

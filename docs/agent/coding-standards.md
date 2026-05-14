@@ -38,12 +38,12 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 
 ### General Rules
 
-- Python 3.11+
+- Python 3.13+
 - 4-space indents
 - Type hints on ALL functions
 - Async functions for I/O operations (database, LLM calls)
 - Pydantic models for all request/response schemas
-- Prompts go in `app/prompts/templates.py`
+- Prompts go in `app/prompts/`
 
 ### Error Handling
 

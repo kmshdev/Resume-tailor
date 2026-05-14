@@ -1,67 +1,23 @@
-# CLAUDE.md - Resume Matcher
+# CLAUDE.md
 
-> **Context file for Claude Code.** Full documentation at [docs/agent/README.md](../docs/agent/README.md).
+Resume Matcher is an AI-powered resume tailoring app with a FastAPI/Python backend and a Next.js/React frontend.
 
----
+Full project orientation starts at [docs/agent/README.md](../docs/agent/README.md).
 
-## Project Overview
-
-Resume Matcher is an AI-powered application for tailoring resumes to job descriptions.
+## Tech Stack
 
 | Layer | Stack |
-|-------|-------|
-| **Backend** | FastAPI + Python 3.13+, LiteLLM (multi-provider AI) |
-| **Frontend** | Next.js 16 + React 19, Tailwind CSS v4 |
-| **Database** | TinyDB (JSON file storage) |
-| **PDF** | Headless Chromium via Playwright |
+| --- | --- |
+| Backend | FastAPI, Python 3.13+, LiteLLM |
+| Frontend | Next.js 16, React 19, Tailwind CSS v4 |
+| Database | TinyDB JSON storage |
+| PDF | Headless Chromium via Playwright |
 
----
+## Project Map
 
-## First Steps
-
-Before exploring code, read [docs/agent/README.md](../docs/agent/README.md) for project orientation.
-
----
-
-## Non-Negotiable Rules
-
-1. **All frontend UI changes** MUST follow [Swiss International Style](../docs/portable/swiss-design-system/README.md) — see [tokens](../docs/portable/swiss-design-system/tokens.md), [components](../docs/portable/swiss-design-system/components.md), [anti-patterns](../docs/portable/swiss-design-system/anti-patterns.md)
-2. **All Python functions** MUST have type hints
-3. **Run `npm run lint`** before committing frontend changes
-4. **Run `npm run format`** (Prettier) before committing
-5. **Log detailed errors server-side**, return generic messages to clients
-6. **Do NOT modify** `.github/workflows/` files without explicit request
-
----
-
-## Essential Commands
-
-```bash
-# Backend (from repo root)
-cd apps/backend
-uv sync                                              # Install Python dependencies
-uv run uvicorn app.main:app --reload --port 8000     # FastAPI on :8000
-
-# Frontend (from repo root, in a separate terminal)
-cd apps/frontend
-npm install                                          # Install Node.js dependencies
-npm run dev                                          # Next.js on :3000
-
-# Quality checks (from apps/frontend)
-npm run lint          # Lint frontend
-npm run format        # Format with Prettier
-
-# Build (from apps/frontend)
-npm run build
-```
-
----
-
-## Project Structure
-
-```
+```text
 apps/
-├── backend/                 # FastAPI + Python
+├── backend/                 # FastAPI API
 │   ├── app/
 │   │   ├── main.py          # Entry point
 │   │   ├── config.py        # Environment settings
@@ -72,110 +28,183 @@ apps/
 │   │   ├── schemas/         # Pydantic models
 │   │   └── prompts/         # LLM prompt templates
 │   └── data/                # Database storage
-│
-└── frontend/                # Next.js + React
-    ├── app/                 # Pages (dashboard, builder, tailor, print)
-    ├── components/          # UI components
-    ├── lib/                 # Utilities, API client
-    ├── hooks/               # Custom React hooks
-    └── messages/            # i18n translations (en, es, zh, ja)
+└── frontend/                # Next.js UI
+    ├── app/                 # Pages: dashboard, builder, tailor, print
+    ├── components/          # UI components, app shell, dashboard, Tailor, evaluation
+    ├── components/fancy/    # shadcn-installed Fancy components
+    ├── lib/                 # Utilities and API clients
+    ├── hooks/               # React hooks
+    └── messages/            # i18n messages: en, es, zh, ja, pt-BR
 ```
 
----
+<important if="you are starting work in this repository">
 
-## Documentation by Task
+- Read [docs/agent/README.md](../docs/agent/README.md) before exploring code.
+- Use that index to choose task-specific docs instead of loading every document.
+- Inspect existing code patterns before adding new abstractions.
 
-### For Backend Changes
-1. [Backend guide](../docs/agent/architecture/backend-guide.md) - Architecture, modules, services
-2. [API contracts](../docs/agent/apis/front-end-apis.md) - API specifications
-3. [LLM integration](../docs/agent/llm-integration.md) - Multi-provider AI support
+</important>
 
-### For Frontend Changes
-1. [Frontend workflow](../docs/agent/architecture/frontend-workflow.md) - User flow, components
-2. [Swiss design system pack](../docs/portable/swiss-design-system/README.md) - **REQUIRED** Swiss International Style (portable pack)
-3. [Next.js performance pack](../docs/portable/nextjs-performance/README.md) - **REQUIRED** Next.js 15 perf patterns (portable pack)
-4. [Coding standards](../docs/agent/coding-standards.md) - Frontend conventions
+<important if="you need to install, run, build, lint, test, or format">
 
-### For Template/PDF Changes
-1. [PDF template guide](../docs/agent/design/pdf-template-guide.md) - PDF rendering
-2. [Template system](../docs/agent/design/template-system.md) - Resume templates
-3. [Resume templates](../docs/agent/features/resume-templates.md) - Template types & controls
+Run package commands from the app directory shown in the table.
 
-### For Features
-| Feature | Documentation |
-|---------|---------------|
-| Custom sections | [custom-sections.md](../docs/agent/features/custom-sections.md) |
-| Resume templates | [resume-templates.md](../docs/agent/features/resume-templates.md) |
-| i18n | [i18n.md](../docs/agent/features/i18n.md) |
-| AI enrichment | [enrichment.md](../docs/agent/features/enrichment.md) |
-| JD matching | [jd-match.md](../docs/agent/features/jd-match.md) |
+| Purpose | Directory | Command |
+| --- | --- | --- |
+| Install backend deps | `apps/backend` | `uv sync` |
+| Start backend dev server | `apps/backend` | `uv run uvicorn app.main:app --reload --port 8000` |
+| Run backend tests | `apps/backend` | `uv run pytest` |
+| Copy backend env sample | repo root | `cp apps/backend/.env.example apps/backend/.env` |
+| Install frontend deps | `apps/frontend` | `npm install` |
+| Start frontend dev server | `apps/frontend` | `npm run dev` |
+| Build frontend | `apps/frontend` | `npm run build` |
+| Start built frontend | `apps/frontend` | `npm run start` |
+| Lint frontend | `apps/frontend` | `npm run lint` |
+| Format frontend | `apps/frontend` | `npm run format` |
+| Test frontend | `apps/frontend` | `npm run test` |
+| Copy frontend env sample | repo root | `cp apps/frontend/.env.sample apps/frontend/.env.local` |
 
----
+</important>
 
-## Code Patterns
+<important if="you are changing backend code">
 
-### Backend Error Handling
-```python
-except Exception as e:
-    logger.error(f"Operation failed: {e}")
-    raise HTTPException(status_code=500, detail="Operation failed. Please try again.")
-```
+- Read [backend guide](../docs/agent/architecture/backend-guide.md).
+- Check API expectations in [front-end APIs](../docs/agent/apis/front-end-apis.md).
+- For LLM provider work, read [LLM integration](../docs/agent/llm-integration.md).
+- Add type hints to every Python function you create or modify.
 
-### Frontend Textarea Fix
-All textareas need Enter key handling:
-```tsx
-const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-  if (e.key === 'Enter') e.stopPropagation();
-};
-```
+</important>
 
-### Mutable Defaults (Python)
-Always use `copy.deepcopy()` for mutable defaults:
-```python
-import copy
-data = copy.deepcopy(DEFAULT_DATA)  # Correct
-# data = DEFAULT_DATA  # Wrong - shared state bug
-```
+<important if="you are changing backend error handling">
 
----
+- Log detailed errors server-side.
+- Return generic, user-safe messages to clients.
 
-## Design System Quick Reference
+</important>
+
+<important if="you are using mutable default data in Python">
+
+- Use `copy.deepcopy()` for mutable defaults; do not share module-level mutable defaults between requests or records.
+
+</important>
+
+<important if="you are changing frontend UI or components">
+
+- Read [frontend workflow](../docs/agent/architecture/frontend-workflow.md).
+- Follow the required Swiss International Style pack:
+  [README](../docs/portable/swiss-design-system/README.md),
+  [tokens](../docs/portable/swiss-design-system/tokens.md),
+  [components](../docs/portable/swiss-design-system/components.md),
+  [anti-patterns](../docs/portable/swiss-design-system/anti-patterns.md).
+- Read [Next.js performance](../docs/portable/nextjs-performance/README.md) for performance-sensitive changes.
+- Run `npm run lint` and `npm run format` from `apps/frontend` before committing frontend changes.
+
+</important>
+
+<important if="you are changing app shell, dashboard command center, or Tailor card decks">
+
+- The shared shell lives in `apps/frontend/components/shell/`; default routes are wrapped by `apps/frontend/app/(default)/layout.tsx`.
+- Dashboard uses `CommandCenter`, `EvaluationCard`, and `TailorCardStack`.
+- Tailor uses `TailorSessionCards`, `TailorStepCard`, and `JobIntakeWizard`.
+- Fancy stacking cards are installed in `apps/frontend/components/fancy/stacking-cards.tsx`; keep the `@fancy` registry in `apps/frontend/components.json`.
+- Stable Tailor deck contracts include `data-layout="fancy-stacking-cards"`, `role="list"`, `role="listitem"`, and `aria-current="step"`.
+
+</important>
+
+<important if="you are changing JD intake, job scraping, recruiter-message intake, or job metadata">
+
+- Read [job intake](../docs/agent/features/job-intake.md) and [front-end APIs](../docs/agent/apis/front-end-apis.md).
+- Backend files: `app/routers/job_intake.py`, `app/schemas/job_intake.py`, `app/services/job_intake/`, `app/prompts/job_intake.py`.
+- Frontend files: `lib/api/job-intake.ts`, `components/tailor/job-intake-wizard.tsx`, and `components/tailor/job-intake/`.
+- Users must review extracted JD text before `confirm`; `content` remains the canonical JD.
+- `intake_metadata` stores reviewed source metadata, detected links, screening questions, and draft answers. Do not append screening questions to the JD used for tailoring.
+- Do not log, persist, or display raw remote URLs with credentials, query strings, or fragments.
+
+</important>
+
+<important if="you are changing resume readiness, pre-tailor, post-tailor, or evaluation scoring">
+
+- Read [resume evaluation](../docs/agent/features/resume-evaluation.md), [LLM integration](../docs/agent/llm-integration.md), and [front-end APIs](../docs/agent/apis/front-end-apis.md).
+- Backend files: `app/routers/evaluations.py`, `app/schemas/evaluation.py`, `app/services/evaluation.py`, `app/prompts/evaluation.py`.
+- Frontend files: `lib/api/evaluation.ts`, `components/evaluation/`, dashboard page, and Tailor page.
+- Evaluation phases are `readiness`, `pre_tailor`, and `post_tailor`.
+- LLM output is untrusted: clamp scores, drop malformed evidence, cache by source hash, and surface provider/config failures as user-safe errors.
+
+</important>
+
+<important if="you are styling frontend UI">
+
+Use the Swiss design tokens unless an existing component establishes a narrower local pattern.
 
 | Element | Value |
-|---------|-------|
+| --- | --- |
 | Canvas background | `#F0F0E8` |
-| Ink (text) | `#000000` |
-| Hyper Blue (links) | `#1D4ED8` |
-| Signal Green (success) | `#15803D` |
-| Alert Orange (warning) | `#F97316` |
-| Alert Red (error) | `#DC2626` |
-| Headers font | `font-serif` |
-| Body font | `font-sans` |
-| Metadata font | `font-mono` |
+| Ink text | `#000000` |
+| Hyper Blue links | `#1D4ED8` |
+| Signal Green success | `#15803D` |
+| Alert Orange warning | `#F97316` |
+| Alert Red error | `#DC2626` |
+| Headers | `font-serif` |
+| Body | `font-sans` |
+| Metadata | `font-mono` |
 | Borders | `rounded-none`, 1px black, hard shadows |
 
----
+</important>
 
-## Definition of Done
+<important if="you are adding or modifying a textarea">
 
-Before completing a task:
+- Ensure Enter key presses call `stopPropagation()` so parent keyboard handlers do not intercept normal text entry.
 
-- [ ] Code compiles without errors
-- [ ] `npm run lint` passes
-- [ ] UI changes follow Swiss International Style
-- [ ] Python functions have type hints
-- [ ] Schema/prompt changes documented
+</important>
 
----
+<important if="you are changing templates, print views, or PDF generation">
 
-## Out of Scope
+- Read [PDF template guide](../docs/agent/design/pdf-template-guide.md).
+- Read [template system](../docs/agent/design/template-system.md).
+- For template controls and variants, read [resume templates](../docs/agent/features/resume-templates.md).
 
-Do NOT modify without explicit request:
-- `.github/workflows/` files
-- CI/CD configuration
-- Docker build behavior
-- Existing tests (removal/disabling)
+</important>
 
----
+<important if="you are changing a feature area">
 
-> **Full agent documentation**: [docs/agent/README.md](../docs/agent/README.md)
+| Feature | Doc |
+| --- | --- |
+| Custom sections | [custom-sections](../docs/agent/features/custom-sections.md) |
+| Resume templates | [resume-templates](../docs/agent/features/resume-templates.md) |
+| i18n | [i18n](../docs/agent/features/i18n.md) |
+| AI enrichment | [enrichment](../docs/agent/features/enrichment.md) |
+| JD matching | [jd-match](../docs/agent/features/jd-match.md) |
+| JD intake automation | [job-intake](../docs/agent/features/job-intake.md) |
+| Resume evaluation | [resume-evaluation](../docs/agent/features/resume-evaluation.md) |
+
+</important>
+
+<important if="you are changing schemas, prompt templates, or LLM behavior">
+
+- Update or call out the relevant docs and smoke-test expectations.
+- In PR notes or final handoff, explicitly mention schema and prompt changes so downstream behavior can be reviewed.
+
+</important>
+
+<important if="you are changing tests">
+
+- Do not remove or disable existing tests unless explicitly requested.
+- Backend tests live in `apps/backend/tests/` and use `test_*.py` naming.
+- Frontend tests live under `apps/frontend/tests/` and use `*.test.tsx` naming.
+
+</important>
+
+<important if="you are about to modify repository automation, deployment config, Docker behavior, or GitHub workflows">
+
+- Do not modify `.github/workflows/`, CI/CD configuration, or Docker build behavior without an explicit user request.
+
+</important>
+
+<important if="you are finishing a code change">
+
+- Verify the code compiles or explain why verification was not run.
+- For frontend changes, run `npm run lint` and `npm run format` from `apps/frontend`.
+- For backend behavior changes, run relevant `uv run pytest` tests from `apps/backend`.
+- Document any schema or prompt changes in the handoff.
+
+</important>

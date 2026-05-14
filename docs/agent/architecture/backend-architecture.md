@@ -1,6 +1,6 @@
 # Backend Architecture
 
-> FastAPI + Python 3.11+ | TinyDB | LiteLLM multi-provider
+> FastAPI + Python 3.13+ | TinyDB | LiteLLM multi-provider
 
 ## Directory Structure
 
@@ -11,10 +11,10 @@ apps/backend/app/
 ├── database.py          # TinyDB wrapper
 ├── llm.py               # LiteLLM multi-provider
 ├── pdf.py               # Playwright PDF rendering
-├── routers/             # API endpoints (health, config, resumes, jobs)
-├── services/            # parser.py, improver.py, cover_letter.py
-├── schemas/models.py    # Pydantic models
-└── prompts/templates.py # LLM prompts
+├── routers/             # API endpoints
+├── services/            # parser, improver, cover_letter, evaluation, job_intake
+├── schemas/             # Pydantic models
+└── prompts/             # LLM prompt templates
 ```
 
 ## API Endpoints
@@ -48,9 +48,23 @@ apps/backend/app/
 | POST | `/jobs/upload` | Store job description |
 | GET | `/jobs/{id}` | Fetch job |
 
+### Job Intake
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/jobs/intake/extract` | Extract reviewable JD text and metadata from manual text, job URL, PDF URL, or recruiter message |
+| POST | `/jobs/intake/pdf-upload` | Extract reviewable JD text from uploaded PDF bytes |
+| POST | `/jobs/intake/confirm` | Persist reviewed JD text as canonical job content |
+
+### Resume Evaluations
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/resumes/{id}/evaluations` | Create or fetch cached readiness/pre-tailor/post-tailor evaluation |
+| GET | `/resumes/{id}/evaluations` | List stored evaluations, optionally filtered by phase or job |
+| GET | `/resumes/{id}/evaluations/latest` | Return latest evaluations grouped by phase |
+
 ## Database (`database.py`)
 
-TinyDB tables: `resumes`, `jobs`, `improvements`
+TinyDB tables: `resumes`, `jobs`, `improvements`, `evaluations`
 
 ```python
 db.create_resume(content, content_type, filename, is_master, processed_data)
@@ -59,6 +73,9 @@ db.update_resume(resume_id, updates)
 db.delete_resume(resume_id) → bool
 db.set_master_resume(resume_id)  # Only one master allowed
 db.get_stats() → {total_resumes, total_jobs, total_improvements}
+db.create_job(content, resume_id, intake_metadata)
+db.create_evaluation(payload)
+db.list_evaluations(resume_id, phase, job_id)
 ```
 
 ## LLM Integration (`llm.py`)
@@ -96,6 +113,14 @@ await improve_resume(original, job, keywords)  # LLM call
 await generate_cover_letter(resume, job) → str    # LLM call
 await generate_outreach_message(resume, job) → str # LLM call
 ```
+
+### Job Intake (`services/job_intake/`)
+
+Extracts JD text from manual text, public job URLs, PDF URLs/uploads, and pasted recruiter messages. The service validates public URLs, redacts display/persisted URLs, rejects unsupported remote content types, keeps screening questions separate, and returns no raw scraped text.
+
+### Evaluation (`services/evaluation.py`)
+
+Creates structured LLM evaluations for `readiness`, `pre_tailor`, and `post_tailor`. Scores are clamped to 0-100, malformed evidence is discarded, results are cached by source hash, and provider/config failures are mapped to user-safe API errors.
 
 ## PDF Rendering (`pdf.py`)
 

@@ -6,6 +6,8 @@
 
 The Resume Builder includes a "JD Match" tab that shows how well a tailored resume matches the original job description.
 
+This is a deterministic keyword-comparison view. It is separate from the LLM-backed readiness/pre-tailor/post-tailor evaluation feature documented in [resume-evaluation.md](resume-evaluation.md).
+
 ## How It Works
 
 1. User tailors a resume against a job description
@@ -31,6 +33,7 @@ The Resume Builder includes a "JD Match" tab that shows how well a tailored resu
 | `apps/frontend/components/builder/jd-display.tsx` | Read-only JD display |
 | `apps/frontend/components/builder/highlighted-resume-view.tsx` | Resume with keyword highlighting |
 | `apps/backend/app/routers/resumes.py` | `GET /{resume_id}/job-description` endpoint |
+| `apps/backend/app/routers/evaluations.py` | Separate structured LLM evaluation endpoints |
 
 ## API Endpoint
 

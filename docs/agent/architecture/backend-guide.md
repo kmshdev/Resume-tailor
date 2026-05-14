@@ -20,10 +20,10 @@ apps/backend/app/
 ├── config.py       # Settings from env/file
 ├── database.py     # TinyDB wrapper
 ├── llm.py          # Multi-provider LLM
-├── routers/        # health, config, resumes, jobs
-├── services/       # parser, improver, cover_letter
+├── routers/        # health, config, resumes, jobs, job_intake, evaluations
+├── services/       # parser, improver, cover_letter, job_intake, evaluation
 ├── schemas/        # Pydantic models
-└── prompts/        # templates.py
+└── prompts/        # prompt templates
 ```
 
 ## Database Operations
@@ -35,7 +35,9 @@ db.list_resumes() → list[dict]
 db.update_resume(resume_id, updates)
 db.delete_resume(resume_id) → bool
 db.set_master_resume(resume_id)
-db.create_job(content, resume_id)
+db.create_job(content, resume_id, intake_metadata)
+db.create_evaluation(payload)
+db.list_evaluations(resume_id, phase, job_id)
 ```
 
 ## LLM Features
@@ -61,7 +63,10 @@ GET  /api/v1/status          # Full status
 GET/PUT /api/v1/config/llm-api-key
 POST /api/v1/resumes/upload  # PDF/DOCX
 POST /api/v1/jobs/intake/extract # Extract reviewable JD
+POST /api/v1/jobs/intake/pdf-upload # Extract uploaded PDF JD
 POST /api/v1/jobs/intake/confirm # Store reviewed JD
+POST /api/v1/resumes/{id}/evaluations # Readiness/pre/post score
+GET  /api/v1/resumes/{id}/evaluations/latest
 POST /api/v1/resumes/improve # Tailor (LLM)
 GET  /api/v1/resumes/{id}/pdf
 DELETE /api/v1/resumes/{id}
@@ -72,6 +77,8 @@ DELETE /api/v1/resumes/{id}
 **Upload:** File → markitdown → Markdown → LLM parse → JSON → TinyDB
 
 **JD Intake:** URL/PDF/message/manual source → Extract reviewable JD + metadata without raw scraped text → Store reviewed JD and redacted source metadata
+
+**Evaluation:** Resume + optional job/baseline → Structured LLM score → Clamp/drop untrusted model output → Cache by source hash → Store in TinyDB
 
 **Improve:** Resume + Job → Extract priority keywords (LLM) → Verify skill targets → Generate/apply diffs → Refine → Store
 
@@ -95,5 +102,5 @@ uv run uvicorn app.main:app --reload --port 8000
 ## Adding New Endpoints
 
 1. Create router in `app/routers/`
-2. Add Pydantic models to `app/schemas/models.py`
+2. Add Pydantic models under `app/schemas/`
 3. Register router in `app/main.py`
