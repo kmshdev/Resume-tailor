@@ -18,13 +18,7 @@ def client():
 class TestHealthEndpoint:
     """GET /api/v1/health"""
 
-    @patch("app.routers.health.check_llm_health", new_callable=AsyncMock)
-    async def test_health_returns_healthy(self, mock_health, client):
-        mock_health.return_value = {
-            "healthy": True,
-            "provider": "openai",
-            "model": "gpt-4",
-        }
+    async def test_health_returns_healthy(self, client):
         async with client:
             resp = await client.get("/api/v1/health")
         assert resp.status_code == 200
@@ -32,7 +26,7 @@ class TestHealthEndpoint:
         assert data["status"] == "healthy"
 
     @patch("app.routers.health.check_llm_health", new_callable=AsyncMock)
-    async def test_health_returns_degraded(self, mock_health, client):
+    async def test_health_does_not_call_llm(self, mock_health, client):
         mock_health.return_value = {
             "healthy": False,
             "provider": "openai",
@@ -43,7 +37,8 @@ class TestHealthEndpoint:
             resp = await client.get("/api/v1/health")
         assert resp.status_code == 200
         data = resp.json()
-        assert data["status"] == "degraded"
+        assert data["status"] == "healthy"
+        mock_health.assert_not_awaited()
 
 
 class TestStatusEndpoint:

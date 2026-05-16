@@ -50,8 +50,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           setContentLanguageState(config.content_language);
           localStorage.setItem(CONTENT_STORAGE_KEY, config.content_language);
         }
-      } catch (error) {
-        console.error('Failed to load language config:', error);
+      } catch {
         // Keep using cached/default values
       } finally {
         setIsLoading(false);

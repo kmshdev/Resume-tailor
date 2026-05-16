@@ -4,6 +4,10 @@
 
 Generic, reusable guides (Swiss design system, Next.js performance) live in [`../portable/`](../portable/README.md) as standalone packs that can be lifted out of this repo and dropped into any project. This index covers only the docs that are tied to Resume Matcher itself.
 
+## Agent Entrypoint
+
+Root [`AGENTS.md`](../../AGENTS.md) is the canonical Codex-first instruction surface for this repository. Provider-specific local folders such as `.claude/` are intentionally ignored so local assistant setup does not become project policy.
+
 ## Quick Navigation
 
 ### Core docs
@@ -50,6 +54,8 @@ Generic, reusable guides (Swiss design system, Next.js performance) live in [`..
 | [adding-resume-templates](features/adding-resume-templates.md) | How to add a new template |
 | [enrichment](features/enrichment.md) | AI enrichment flow |
 | [jd-match](features/jd-match.md) | Job description matching |
+| [job-intake](features/job-intake.md) | Reviewed JD intake from text, URLs, PDFs, and recruiter messages |
+| [resume-evaluation](features/resume-evaluation.md) | Readiness, pre-tailor, and post-tailor LLM evaluation |
 | [i18n](features/i18n.md) | Internationalization |
 | [i18n-preparation](features/i18n-preparation.md) | i18n setup notes |
 
@@ -62,7 +68,7 @@ Generic, reusable guides (Swiss design system, Next.js performance) live in [`..
 | Pack | Purpose |
 |------|---------|
 | [swiss-design-system](../portable/swiss-design-system/README.md) | Full Swiss style design system — required reading for frontend work |
-| [nextjs-performance](../portable/nextjs-performance/README.md) | Next.js 15 performance optimizations — required reading for frontend work |
+| [nextjs-performance](../portable/nextjs-performance/README.md) | Next.js performance optimizations — required reading for frontend work |
 
 ## Project Structure
 
@@ -91,3 +97,7 @@ apps/
 **Frontend changes:** `frontend-architecture` → portable [`swiss-design-system`](../portable/swiss-design-system/README.md) → portable [`nextjs-performance`](../portable/nextjs-performance/README.md) → `coding-standards`
 
 **Template/PDF changes:** `pdf-template-guide` → `template-system`
+
+**JD intake changes:** `features/job-intake` → `front-end-apis` → `backend-architecture` → `frontend-workflow`
+
+**Evaluation/dashboard changes:** `features/resume-evaluation` → `frontend-architecture` → `front-end-apis` → `llm-integration`

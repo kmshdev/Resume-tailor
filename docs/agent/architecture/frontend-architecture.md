@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-> Next.js 15 + React 19 | TypeScript | Tailwind | Swiss International Style
+> Next.js 16 + React 19 | TypeScript | Tailwind CSS v4 | Swiss International Style
 
 ## Directory Structure
 
@@ -18,10 +18,15 @@ apps/frontend/
 ├── components/
 │   ├── ui/                  # Button, Input, Dialog, etc.
 │   ├── builder/             # ResumeBuilder, forms/
+│   ├── dashboard/           # CommandCenter, TailorCardStack
+│   ├── evaluation/          # EvaluationCard, EvaluationPopover
+│   ├── fancy/               # shadcn-installed Fancy components
 │   ├── preview/             # PaginatedPreview, usePagination
-│   └── resume/              # Templates (single, two-column)
+│   ├── resume/              # Templates (single, two-column)
+│   ├── shell/               # AppShell, breadcrumbs, route tabs, compact settings
+│   └── tailor/              # JobIntakeWizard, TailorSessionCards
 ├── lib/
-│   ├── api/                 # client.ts, resume.ts, config.ts
+│   ├── api/                 # client, resume, config, job-intake, evaluation
 │   ├── context/             # status-cache.tsx, language-context.tsx
 │   └── constants/           # page-dimensions.ts
 └── messages/                # i18n translations
@@ -30,6 +35,9 @@ apps/frontend/
 ## Pages
 
 ### Dashboard (`/dashboard`)
+- App shell route with breadcrumbs, route tabs, compact settings, and help modal
+- CommandCenter layout: metric cards, resume context, Tailor workflow, activity
+- Evaluation cards for readiness, pre-tailor, and post-tailor
 - Master resume card + tailored resume tiles
 - States: `loading | pending | processing | ready | failed`
 - Auto-refreshes on window focus
@@ -42,9 +50,11 @@ apps/frontend/
 - Auto-saves to localStorage
 
 ### Tailor (`/tailor`)
-- Job description textarea
-- Calls: `POST /jobs/upload` → `POST /resumes/improve`
-- Redirects to `/resumes/[new_id]`
+- Fancy stacking-card session deck for Tailor progress
+- JD intake wizard for manual text, public job URL, PDF URL/upload, or pasted recruiter message
+- Calls: intake extract → review/edit → intake confirm → preview improvements → diff review → save tailored resume
+- Runs pre-tailor and post-tailor evaluations when possible
+- Redirects to `/resumes/[new_id]` after save
 
 ### Settings (`/settings`)
 - Provider selection (6 providers)
@@ -61,6 +71,8 @@ apps/frontend/
 
 **Styling:** `rounded-none`, hard shadows, `font-mono` for labels
 
+**Fancy cards:** `apps/frontend/components/fancy/stacking-cards.tsx` is installed through shadcn using the `@fancy` registry in `components.json`. The shared Tailor card presentation lives in `components/tailor/tailor-step-card.tsx`.
+
 ## Context Providers
 
 ### StatusCacheProvider
@@ -74,7 +86,7 @@ const { status, refreshStatus, incrementResumes, decrementResumes } = useStatusC
 ```typescript
 const { contentLanguage, setContentLanguage } = useLanguage();
 ```
-- Content generation language (en, es, zh, ja)
+- Content generation language (en, es, zh, ja, pt-BR)
 
 ## API Client (`lib/api/`)
 
@@ -90,6 +102,12 @@ updateResume, downloadResumePdf, deleteResume
 
 // config.ts
 fetchLlmConfig, updateLlmConfig, testLlmConnection, fetchSystemStatus
+
+// job-intake.ts
+extractJobIntake, uploadJobIntakePdf, confirmJobIntake
+
+// evaluation.ts
+createResumeEvaluation, fetchResumeEvaluations, fetchLatestResumeEvaluations
 ```
 
 ## localStorage Keys

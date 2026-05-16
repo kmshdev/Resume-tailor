@@ -35,8 +35,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     | 'link';
   /**
    * Button size:
-   * - `default`: Standard button (h-10)
-   * - `sm`: Small button (h-8)
+   * - `default`: Standard touch target (h-11)
+   * - `sm`: Compact visual label with a 44px target (h-11)
    * - `lg`: Large button (h-12)
    * - `icon`: Square icon button (h-9 w-9)
    */
@@ -166,8 +166,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // with smaller h-X w-X classes get the touch-area expansion via the
     // iconHitArea overlay above.
     const sizes = {
-      default: 'h-10 px-6 py-2',
-      sm: 'h-8 px-4 py-1 text-xs',
+      default: 'h-11 px-6 py-2',
+      sm: 'h-11 px-4 py-2 text-xs',
       lg: 'h-12 px-8 py-3 text-base',
       icon: cn('h-11 w-11 p-0', iconHitArea),
     };

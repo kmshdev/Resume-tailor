@@ -37,6 +37,13 @@ const detailedChanges: ResumeFieldDiff[] = [
     new_value: 'Go',
     confidence: 'high',
   },
+  {
+    field_path: 'additional.technicalSkills',
+    field_type: 'skill',
+    change_type: 'removed',
+    original_value: 'Legacy tool',
+    confidence: 'low',
+  },
 ];
 
 describe('DiffPreviewModal', () => {
@@ -85,6 +92,22 @@ describe('DiffPreviewModal', () => {
     expect(screen.getByText('new summary')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /tailor\.diffModal\.summaryChanges/i }));
     expect(screen.queryByText('new summary')).not.toBeInTheDocument();
+  });
+
+  it('highlights added and removed change text before save', () => {
+    render(
+      <DiffPreviewModal
+        isOpen
+        onClose={vi.fn()}
+        onReject={vi.fn()}
+        onConfirm={vi.fn()}
+        diffSummary={diffSummary}
+        detailedChanges={detailedChanges}
+      />
+    );
+
+    expect(screen.getByTestId('diff-added-highlight')).toHaveTextContent('Go');
+    expect(screen.getByTestId('diff-removed-highlight')).toHaveTextContent('Legacy tool');
   });
 
   it('fires confirm and reject handlers', () => {

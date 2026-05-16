@@ -33,10 +33,77 @@
     "popupBlocked": "Se bloqueó la ventana emergente. Permite las ventanas emergentes o abre manualmente esta URL: {url}"
   },
   "home": {
+    "brandName": "Resume Matcher",
     "brandLine1": "Currículum",
     "brandLine2": "Matcher",
     "docs": "Guía de uso",
-    "launchApp": "Iniciar app"
+    "launchApp": "Iniciar app",
+    "navHowItWorks": "Cómo funciona",
+    "navPrivacy": "Privacidad",
+    "navOpenApp": "Abrir app",
+    "heroEyebrow": "De oferta laboral a currículum listo para entrevista",
+    "heroTitle": "Adapta tu currículum sin adivinar.",
+    "heroSubtitle": "Pega un enlace de empleo, PDF o mensaje de reclutador. Revisa el resumen del puesto, previsualiza los cambios de IA y guarda un currículum ajustado al rol.",
+    "primaryCta": "Empezar con mi currículum",
+    "secondaryCta": "Ver cómo funciona",
+    "previewLabel": "Flujo guiado de personalización",
+    "previewTime": "Unos 3 minutos",
+    "previewResumeTitle": "Tu currículum",
+    "previewJobTitle": "Rol objetivo",
+    "previewMatch": "Listo para aplicar",
+    "trust": {
+      "review": {
+        "title": "Revisas antes de la IA",
+        "description": "Apruebas los detalles del puesto y cada cambio del currículum antes de guardar."
+      },
+      "private": {
+        "title": "Sin leer tu bandeja",
+        "description": "Usa un enlace público, PDF o nota pegada sin conectar cuentas privadas."
+      },
+      "plain": {
+        "title": "Pensado para postulantes",
+        "description": "El flujo explica el siguiente paso en lenguaje claro, sin obligarte a gestionar módulos."
+      }
+    },
+    "howItWorksEyebrow": "Cómo funciona",
+    "howItWorksTitle": "Una forma más tranquila de personalizar.",
+    "howItWorksSubtitle": "Resume Matcher mantiene la IA potente dentro de un flujo revisado y fácil para principiantes.",
+    "steps": {
+      "upload": {
+        "title": "Agrega tu currículum",
+        "description": "Sube una vez tu currículum base y úsalo como fuente principal."
+      },
+      "addJob": {
+        "title": "Trae la oferta",
+        "description": "Usa una URL de empleo, PDF, mensaje de reclutador o descripción pegada."
+      },
+      "review": {
+        "title": "Aprueba los cambios",
+        "description": "Revisa el resumen extraído y previsualiza los ajustes antes de guardar."
+      }
+    },
+    "features": {
+      "links": {
+        "title": "Enlaces de empleo",
+        "description": "Pega una URL pública y deja que la app lleve la descripción a revisión."
+      },
+      "pdfs": {
+        "title": "Puestos en PDF",
+        "description": "Usa un enlace PDF o sube un archivo local cuando la empresa comparte documentos."
+      },
+      "messages": {
+        "title": "Notas de reclutador",
+        "description": "Pega el mensaje, enlace del puesto y preguntas de filtro en un solo lugar."
+      },
+      "diffs": {
+        "title": "Cambios claros",
+        "description": "Mira qué cambió antes de crear el currículum personalizado final."
+      }
+    },
+    "privacyEyebrow": "Entrada con privacidad",
+    "privacyTitle": "Usa lo que pegas. Omite bandejas conectadas.",
+    "privacyBody": "La entrada de JD funciona con enlaces públicos, PDF y mensajes pegados. Tú controlas qué entra a la app y qué se guarda.",
+    "privacyCta": "Abrir la app"
   },
   "nav": {
     "dashboard": "Panel",
@@ -63,10 +130,13 @@
     "downloadPdf": "Descargar PDF",
     "tailorResume": "Personalizar para Empleo",
     "selectModule": "Seleccionar módulo",
+    "workspaceEyebrow": "Espacio de currículums",
+    "workspaceTitle": "Tu próxima postulación empieza aquí",
+    "workspaceSubtitle": "Completa la lista una vez y luego personaliza un currículum nuevo para cada rol sin buscar ajustes.",
     "masterResume": "Currículum maestro",
     "tailoredResume": "Currículum personalizado",
-    "initializeMasterResume": "Inicializar currículum maestro",
-    "initializeSequence": "Secuencia de inicialización",
+    "initializeMasterResume": "Agregar currículum base",
+    "initializeSequence": "Sube una vez, personaliza a menudo",
     "refreshStatus": "Actualizar estado",
     "retryProcessing": "Reintentar procesamiento",
     "retryingProcessing": "Reintentando...",
@@ -85,26 +155,112 @@
       "pending": "Pendiente"
     },
     "llmNotConfiguredTitle": "[ LLM NO CONFIGURADO ]",
-    "llmNotConfiguredMessage": "> Faltan claves API. La personalización del currículum está deshabilitada hasta configurarlo en Ajustes.",
-    "setupRequiredTitle": "[ CONFIGURACIÓN REQUERIDA ]",
-    "setupRequiredMessage": "> Configura la clave API en Ajustes para habilitar la personalización del currículum.",
+    "llmNotConfiguredMessage": "> Conecta un proveedor de IA una vez para habilitar personalización y lectura de currículums.",
+    "setupRequiredTitle": "Conecta un proveedor de IA",
+    "setupRequiredMessage": "Agrega tu clave de proveedor para desbloquear la personalización guiada.",
+    "tailorFirstRole": "Personalizar para un rol",
+    "guided": {
+      "eyebrow": "Empieza aquí",
+      "title": "Tres pasos simples",
+      "subtitle": "La app funciona mejor cuando tu proveedor de IA, currículum base y primer empleo objetivo están listos.",
+      "status": {
+        "done": "Listo",
+        "next": "Siguiente",
+        "locked": "Bloqueado"
+      },
+      "doneAction": "Preparado",
+      "ai": {
+        "title": "Conecta IA",
+        "description": "Agrega una clave API una vez para que Resume Matcher pueda leer, comparar y reescribir con seguridad.",
+        "action": "Abrir ajustes"
+      },
+      "resume": {
+        "title": "Agrega tu currículum",
+        "description": "Sube el currículum en el que más confías. Será tu base reutilizable.",
+        "action": "Subir currículum"
+      },
+      "job": {
+        "title": "Personaliza el primer rol",
+        "description": "Pega un enlace, PDF o mensaje de reclutador y revisa el resultado.",
+        "action": "Empezar"
+      }
+    },
     "uploadDialog": {
       "success": "Currículum subido con éxito.",
       "successMaster": "Currículum subido y establecido como maestro.",
       "successMissingId": "La subida fue exitosa pero no se devolvió el ID del currículum.",
       "parsingFailed": "Currículum subido pero el análisis de IA falló. Aún puedes personalizarlo manualmente.",
       "failed": "La subida falló.",
-      "dropzoneTitle": "Haz clic o arrastra un archivo",
-      "dropzoneSubtitle": "PDF, DOC, DOCX (Máx. 4MB)",
+      "dropzoneLabel": "Elegir archivo de currículum",
+      "dropzoneTitle": "Elegir archivo de currículum",
+      "dropzoneSubtitle": "PDF, DOC o DOCX de hasta 4MB. También puedes arrastrar y soltar.",
+      "invalidFileType": "Elige un archivo PDF, DOC o DOCX.",
+      "fileTooLarge": "Elige un archivo de hasta {maxSize}.",
+      "singleFileOnly": "Elige un solo archivo de currículum a la vez.",
       "tryDifferentFile": "Probar otro archivo",
       "parsingFailedKeepOpen": "El análisis de IA falló. Prueba otro archivo o cierra este diálogo."
-    }
+    },
+    "cardStack": {
+      "masterResume": "Currículum maestro",
+      "jobIntake": "Datos del empleo",
+      "tailorFlow": "Flujo de personalización",
+      "reviewLift": "Revisión y mejora"
+    },
+    "tailorDisabled": {
+      "missingMaster": "Agrega un currículum base antes de personalizar para un rol.",
+      "processing": "Espera a que el currículum base termine de procesarse.",
+      "failedProcessing": "Corrige el procesamiento fallido del currículum base antes de personalizar.",
+      "llmNotConfigured": "Conecta un proveedor de IA antes de personalizar para un rol."
+    },
+    "tailoredList": {
+      "loading": "Cargando currículums personalizados...",
+      "loadFailed": "No se pudieron cargar los currículums personalizados. Intenta actualizar."
+    },
+    "onboarding": {
+      "ariaLabel": "Inicio de currículum",
+      "eyebrow": "Empieza con el archivo que ya tienes",
+      "stepLabel": "PASO 01",
+      "uploadTitle": "Sube tu currículum actual",
+      "uploadDescription": "Lo leeremos una vez, lo guardaremos como base y luego te guiaremos para adaptarlo a cada puesto.",
+      "uploadAction": "Subir currículum"
+    },
+    "workflow": {
+      "ariaLabel": "Flujo de inicio del currículum",
+      "uploadResume": {
+        "title": "Sube tu currículum actual",
+        "description": "Empieza con el archivo que ya tienes. Ahora solo debes enfocarte en esto."
+      },
+      "reviewResume": {
+        "title": "Revisa tu currículum actual",
+        "description": "Leemos el archivo y comprobamos si está listo para personalizar.",
+        "kicker": "Currículum actual",
+        "currentTitle": "Currículum actual",
+        "status": "Revisando tu currículum",
+        "action": "Continuar"
+      },
+      "tailorRole": {
+        "title": "Personalizar para un rol",
+        "description": "Trae la oferta cuando estés listo. El flujo de personalización se abre cuando tu currículum actual esté listo."
+      },
+      "reviewLift": {
+        "title": "Revisa tu currículum personalizado",
+        "description": "Comprueba qué cambió antes de usar el currículum personalizado.",
+        "kicker": "Revisión y mejora",
+        "count": "{count} personalizados"
+      }
+    },
+    "tailorCta": "Personalizar para un rol"
   },
   "builder": {
     "title": "Constructor de CV",
     "editMode": "Modo Edición",
     "previewMode": "Modo Vista Previa",
     "createAndPreview": "Crear y previsualizar",
+    "mobile": {
+      "panelSwitcher": "Espacio del constructor",
+      "editor": "Editor",
+      "preview": "Vista previa"
+    },
     "unsavedDraft": "Borrador sin guardar",
     "personalInfo": "Información Personal",
     "summary": "Resumen",
@@ -502,27 +658,58 @@
     "pasteJobDescriptionBelow": "Pega la descripción del trabajo abajo",
     "jobDescriptionPlaceholder": "Pega la descripción del trabajo aquí...",
     "intake": {
-      "subtitle": "Agrega una URL de empleo, PDF, mensaje de reclutador o JD manual",
+      "subtitle": "Elige la forma más fácil de traer la oferta",
       "stepLabel": "Paso {step}",
       "sources": {
-        "manual_text": "Pegar manualmente",
-        "job_url": "URL de empleo",
-        "pdf_url": "URL de PDF",
+        "manual_text": "Pegar texto",
+        "job_url": "Pegar enlace",
+        "pdf_url": "Usar enlace PDF",
         "pdf_upload": "Subir PDF",
         "recruiter_message": "Mensaje del reclutador"
       },
-      "inputLabel": "Fuente del empleo",
+      "sourceDescriptions": {
+        "manual_text": "Ideal si ya copiaste la descripción completa.",
+        "job_url": "Usa una oferta pública de una empresa o bolsa de empleo.",
+        "pdf_url": "Pega un enlace directo a una descripción en PDF.",
+        "pdf_upload": "Elige un PDF local desde tu dispositivo.",
+        "recruiter_message": "Pega el DM o email con enlaces y preguntas de filtro."
+      },
+      "inputLabel": "Agrega tu fuente del empleo",
+      "inputHelp": {
+        "manual_text": {
+          "title": "¿Ya copiaste la oferta?",
+          "description": "Pega la descripción aquí. Podrás limpiarla en la siguiente pantalla antes de personalizar."
+        },
+        "job_url": {
+          "title": "¿Tienes un enlace de empleo?",
+          "description": "Usa una URL pública http o https. Los paneles privados y páginas con sesión se omiten a propósito."
+        },
+        "pdf_url": {
+          "title": "¿Tienes un enlace PDF?",
+          "description": "Pega la URL directa del PDF y Resume Matcher extraerá los detalles para revisión."
+        },
+        "pdf_upload": {
+          "title": "¿Tienes un PDF local?",
+          "description": "Sube el PDF desde tu dispositivo. El texto extraído necesitará tu aprobación."
+        },
+        "recruiter_message": {
+          "title": "¿Tienes un mensaje de reclutador?",
+          "description": "Pega la nota completa. Enlaces, detalles del rol y preguntas se separarán para revisión."
+        }
+      },
       "placeholders": {
         "manual_text": "Pega la descripción del puesto aquí...",
         "job_url": "https://company.com/jobs/role",
         "pdf_url": "https://company.com/job-description.pdf",
         "recruiter_message": "Pega el mensaje del reclutador, enlace del empleo y preguntas..."
       },
-      "extractButton": "Extraer JD",
+      "extractButton": "Revisar detalles",
       "extracting": "Extrayendo",
-      "reviewTitle": "Revisar JD extraída",
+      "reviewTitle": "Revisa lo encontrado",
       "changeSource": "Cambiar fuente",
       "reviewJdLabel": "Descripción del puesto usada para ajustar",
+      "screeningQuestionLabel": "Pregunta de filtro",
+      "draftAnswerLabel": "Respuesta borrador",
       "methods": {
         "manual": "Manual",
         "deterministic": "Analizado",
@@ -536,7 +723,7 @@
       "questionsTitle": "Preguntas de filtro",
       "needsInput": "Necesita tu aporte antes de enviarlo.",
       "warningsTitle": "Notas de revisión",
-      "confirmButton": "Usar esta JD",
+      "confirmButton": "Personalizar con esto",
       "confirming": "Guardando JD",
       "errors": {
         "extractFailed": "No se pudo extraer la descripción del puesto.",
@@ -615,6 +802,17 @@
       "timeout": "La solicitud agotó el tiempo de espera. Prueba con una descripción más corta o revisa tu conexión.",
       "failedToPreview": "No se pudo previsualizar el currículum. Revisa tu clave API en Configuración e inténtalo de nuevo.",
       "failedToConfirm": "No se pudieron aplicar los cambios. Inténtalo de nuevo."
+    },
+    "session": {
+      "deckLabel": "Tailoring session",
+      "steps": {
+        "add_job": "Add job",
+        "review_jd": "Review JD",
+        "pre_score": "Pre-score",
+        "tailor": "Tailor",
+        "review_changes": "Review changes",
+        "post_score": "Post-score"
+      }
     }
   },
   "settings": {
@@ -909,5 +1107,96 @@
     "clearApiKeysDescription": "Tendrás que volver a ingresarlas antes de usar las funciones de IA de nuevo.",
     "resetDatabase": "¿Restablecer todo y empezar de nuevo?",
     "resetDatabaseDescription": "Esto eliminará permanentemente cada currículum, descripción de trabajo y documento generado."
+  },
+  "evaluation": {
+    "details": "Evaluation details",
+    "confidence": "{value}% confidence",
+    "phases": {
+      "readiness": "Readiness",
+      "pre_tailor": "Pre-tailor",
+      "post_tailor": "Post-tailor"
+    },
+    "dimensions": {
+      "clarity": "Claridad",
+      "impact": "Impacto",
+      "ats_readability": "Legibilidad ATS",
+      "keyword_alignment": "Alineación de palabras clave",
+      "role_fit": "Adecuación al rol",
+      "evidence_strength": "Solidez de la evidencia"
+    },
+    "states": {
+      "checking": "Checking...",
+      "notChecked": "Not checked",
+      "stale": "Needs refresh"
+    },
+    "actions": {
+      "check": "Check",
+      "refresh": "Refresh"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load evaluation details.",
+      "checkFailed": "Couldn't run the evaluation check."
+    }
+  },
+  "shell": {
+    "breadcrumbs": {
+      "label": "Breadcrumbs",
+      "home": "Home"
+    },
+    "tabs": {
+      "label": "Product sections",
+      "dashboard": "Dashboard",
+      "tailor": "Tailor",
+      "builder": "Builder",
+      "settings": "Settings"
+    },
+    "pages": {
+      "dashboard": "Dashboard",
+      "tailor": "Tailor",
+      "builder": "Builder",
+      "settings": "Settings",
+      "resumes": "Resume"
+    },
+    "status": {
+      "title": "Model status",
+      "checking": "Checking",
+      "ready": "Ready",
+      "setupRequired": "Setup required",
+      "readyDetail": "Your configured model is ready for tailoring and evaluation.",
+      "setupDetail": "Configure or test your model before running AI actions.",
+      "lastChecked": "Last checked",
+      "refresh": "Refresh"
+    },
+    "settings": {
+      "open": "Settings",
+      "title": "Model and app settings",
+      "description": "Check model health and jump to the full settings page.",
+      "modelStatus": "Model status",
+      "provider": "Provider",
+      "model": "Model",
+      "fullSettings": "Full settings"
+    },
+    "help": {
+      "open": "Help",
+      "title": "How Resume Matcher uses your data",
+      "topics": {
+        "score": {
+          "title": "How scores are calculated",
+          "body": "Scores are generated from the reviewed resume, job description, and configured model response. They are guidance, not guarantees."
+        },
+        "data": {
+          "title": "What data is used",
+          "body": "Evaluation uses the resume text, reviewed job description, optional baseline resume, model/provider metadata, and bounded evidence snippets."
+        },
+        "recommendation": {
+          "title": "Why this recommendation appeared",
+          "body": "Recommendations must point to resume evidence, job-description evidence, or an explicit absence of evidence."
+        },
+        "tailor": {
+          "title": "What happens when I tailor",
+          "body": "The app previews changes first, asks for confirmation, stores the tailored resume, and then records a post-tailor score when evaluation succeeds."
+        }
+      }
+    }
   }
 }

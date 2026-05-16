@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Edit3, FileText, LinkIcon, MessageSquare, Upload } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { SelectionTileGroup, type SelectionTileOption } from '@/components/ui/selection-tile-group';
 import { useTranslations } from '@/lib/i18n';
 import type { IntakeSource } from './types';
 
@@ -25,32 +25,24 @@ interface SourceSelectorProps {
 
 export function SourceSelector({ sourceType, disabled, onSourceChange }: SourceSelectorProps) {
   const { t } = useTranslations();
+  const options: SelectionTileOption<IntakeSource>[] = SOURCES.map((source) => {
+    const Icon = source.icon;
+    return {
+      value: source.id,
+      label: t(`tailor.intake.sources.${source.id}`),
+      description: t(`tailor.intake.sourceDescriptions.${source.id}`),
+      icon: <Icon className="h-4 w-4" />,
+    };
+  });
 
   return (
-    <div>
-      <p className="font-mono text-xs font-bold uppercase text-blue-700 mb-3">
-        {t('tailor.intake.stepLabel', { step: 1 })}
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        {SOURCES.map((source) => {
-          const Icon = source.icon;
-          const selected = source.id === sourceType;
-          return (
-            <Button
-              key={source.id}
-              type="button"
-              variant={selected ? 'default' : 'outline'}
-              className="h-auto min-h-16 flex-col whitespace-normal px-3 py-3 text-center"
-              aria-pressed={selected}
-              disabled={disabled}
-              onClick={() => onSourceChange(source.id)}
-            >
-              <Icon className="w-4 h-4" />
-              {t(`tailor.intake.sources.${source.id}`)}
-            </Button>
-          );
-        })}
-      </div>
-    </div>
+    <SelectionTileGroup
+      label={t('tailor.intake.stepLabel', { step: 1 })}
+      options={options}
+      value={sourceType}
+      onValueChange={onSourceChange}
+      columns={4}
+      disabled={disabled}
+    />
   );
 }

@@ -52,11 +52,9 @@ apps/backend/data/config.json
 .cursor/
 .cursorrules
 
-# Claude Code — track only CLAUDE.md and settings.json, ignore everything else
-# (skills, subagents, thoughts, prompts, sessions are all personal workflow)
-.claude/*
-!.claude/CLAUDE.md
-!.claude/settings.json
+# Codex instructions are tracked in root AGENTS.md.
+# Provider-local assistant folders remain personal workflow and are not tracked.
+.claude/
 skills-lock.json
 
 # AI assistant tool folders (personal workflow, not tracked)
@@ -67,9 +65,10 @@ skills-lock.json
 .github/copilot-instructions.md
 .kilocode/
 .gemini/
-.codex/
+.codex/*
+!.codex/environments/
+!.codex/environments/**
 .firecrawl/
-AGENTS.md
 GEMINI.md
 CODEX.md
 

@@ -46,6 +46,8 @@ export {
   type JobIntakeConfirmResponse,
 } from './job-intake';
 
+export * from './evaluation';
+
 // Config operations
 export {
   fetchLlmConfig,

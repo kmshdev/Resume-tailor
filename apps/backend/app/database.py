@@ -47,6 +47,11 @@ class Database:
         """Improvement results table."""
         return self.db.table("improvements")
 
+    @property
+    def evaluations(self) -> Table:
+        """Resume evaluation table."""
+        return self.db.table("evaluations")
+
     def close(self) -> None:
         """Close database connection."""
         if self._db is not None:
@@ -272,6 +277,104 @@ class Database:
             Improvement.tailored_resume_id == tailored_resume_id
         )
         return result[0] if result else None
+
+    # Evaluation operations
+    def create_evaluation(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Create a resume evaluation entry."""
+        self.evaluations.insert(payload)
+        return payload
+
+    def get_evaluation_by_source_hash(
+        self,
+        source_hash: str,
+        *,
+        resume_id: str,
+        baseline_resume_id: str | None,
+        job_id: str | None,
+        phase: str,
+    ) -> dict[str, Any] | None:
+        """Return the newest evaluation matching a scoped source hash."""
+        Evaluation = Query()
+        candidates = self.evaluations.search(
+            (Evaluation.source_hash == source_hash)
+            & (Evaluation.resume_id == resume_id)
+            & (Evaluation.phase == phase)
+        )
+        matches = [
+            item
+            for item in candidates
+            if item.get("baseline_resume_id") == baseline_resume_id
+            and item.get("job_id") == job_id
+        ]
+        if not matches:
+            return None
+        return sorted(
+            matches,
+            key=lambda item: item.get("created_at", ""),
+            reverse=True,
+        )[0]
+
+    def list_evaluations(
+        self,
+        resume_id: str,
+        phase: str | None = None,
+        job_id: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """List evaluations for a resume, optionally filtered."""
+        Evaluation = Query()
+        query = Evaluation.resume_id == resume_id
+        if phase:
+            query = query & (Evaluation.phase == phase)
+        if job_id:
+            query = query & (Evaluation.job_id == job_id)
+        return sorted(
+            self.evaluations.search(query),
+            key=lambda item: item.get("created_at", ""),
+            reverse=True,
+        )
+
+    def get_latest_evaluation(
+        self,
+        resume_id: str,
+        phase: str | None = None,
+        job_id: str | None = None,
+    ) -> dict[str, Any] | None:
+        """Return the newest evaluation for a resume/filter combination."""
+        results = self.list_evaluations(resume_id=resume_id, phase=phase, job_id=job_id)
+        return results[0] if results else None
+
+    def list_evaluations_for_baseline(
+        self,
+        baseline_resume_id: str,
+        phase: str | None = None,
+        job_id: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """List evaluations whose baseline/master resume matches the supplied id."""
+        Evaluation = Query()
+        query = Evaluation.baseline_resume_id == baseline_resume_id
+        if phase:
+            query = query & (Evaluation.phase == phase)
+        if job_id:
+            query = query & (Evaluation.job_id == job_id)
+        return sorted(
+            self.evaluations.search(query),
+            key=lambda item: item.get("created_at", ""),
+            reverse=True,
+        )
+
+    def get_latest_evaluation_for_baseline(
+        self,
+        baseline_resume_id: str,
+        phase: str | None = None,
+        job_id: str | None = None,
+    ) -> dict[str, Any] | None:
+        """Return the newest evaluation for a baseline/master resume."""
+        results = self.list_evaluations_for_baseline(
+            baseline_resume_id=baseline_resume_id,
+            phase=phase,
+            job_id=job_id,
+        )
+        return results[0] if results else None
 
     # Stats
     def get_stats(self) -> dict[str, Any]:

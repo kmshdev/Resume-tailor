@@ -35,6 +35,15 @@ export function SourceInput({
 
   return (
     <div className="space-y-3">
+      <div className="border-2 border-black bg-white p-4">
+        <p className="font-mono text-xs font-bold uppercase text-green-700">
+          {t(`tailor.intake.inputHelp.${sourceType}.title`)}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-ink-soft">
+          {t(`tailor.intake.inputHelp.${sourceType}.description`)}
+        </p>
+      </div>
+
       <label htmlFor="job-intake-input" className="font-mono text-sm font-bold uppercase">
         {t('tailor.intake.inputLabel')}
       </label>

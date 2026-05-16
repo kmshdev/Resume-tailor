@@ -45,13 +45,45 @@ updateOutreachMessage(resumeId: string, content: string) → void
 ```typescript
 // Extract reviewable JD content before tailoring
 extractJobIntake(request) → JobIntakeExtractResponse
-uploadJobIntakePdf(file: File) → JobIntakeExtractResponse
+uploadJobIntakePdf(file: File, resumeId?: string) → JobIntakeExtractResponse
 confirmJobIntake(request) → { job_id }
 ```
 
 The reviewed `job_description` becomes the canonical job content used by tailoring. Screening questions, detected links, warnings, extraction method, and draft answers are stored as job metadata and are not appended to the JD used for keyword extraction.
 
 `JobIntakeExtractResponse` intentionally omits raw scraped text. Remote `source_url` values returned by intake helpers are safe display URLs with credentials, query strings, and fragments removed.
+
+Endpoint paths:
+
+| Method | Endpoint | Notes |
+| --- | --- | --- |
+| POST | `/jobs/intake/extract` | JSON body for `manual_text`, `job_url`, `pdf_url`, or `recruiter_message` |
+| POST | `/jobs/intake/pdf-upload` | Multipart PDF upload plus optional `resume_id` |
+| POST | `/jobs/intake/confirm` | Persists reviewed JD and reviewed `intake_metadata` |
+
+## Resume Evaluation Operations (`lib/api/evaluation.ts`)
+
+```typescript
+createResumeEvaluation(resumeId, request) → ResumeEvaluationResponse
+fetchResumeEvaluations(resumeId, filters?) → { evaluations }
+fetchLatestResumeEvaluations(resumeId, { jobId? }) → {
+  readiness,
+  pre_tailor,
+  post_tailor,
+}
+```
+
+Evaluation phases are `readiness`, `pre_tailor`, and `post_tailor`. Pre/post-tailor evaluations require `job_id`; post-tailor may include `baseline_resume_id` to compare the tailored resume against the original.
+
+Endpoint paths:
+
+| Method | Endpoint | Notes |
+| --- | --- | --- |
+| POST | `/resumes/{resume_id}/evaluations` | Creates or fetches cached structured LLM evaluation |
+| GET | `/resumes/{resume_id}/evaluations` | Optional query params: `phase`, `job_id` |
+| GET | `/resumes/{resume_id}/evaluations/latest` | Optional `job_id`; returns latest records by phase |
+
+Public response scores are clamped to 0-100. Evidence items are server-sanitized and marked with `evidence_source` values of `resume`, `job_description`, or `absence`.
 
 ## Config Operations (`lib/api/config.ts`)
 
