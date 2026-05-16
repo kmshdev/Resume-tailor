@@ -146,7 +146,7 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
   };
 
   return (
-    <div className="border border-black bg-white shadow-sw-default">
+    <div className="min-w-0 overflow-hidden border border-black bg-white shadow-sw-default">
       {/* Header - Always Visible */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -167,18 +167,18 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
 
       {/* Expandable Content */}
       {isExpanded && (
-        <div className="border-t border-black p-4 space-y-6">
+        <div className="space-y-6 border-t border-black p-4">
           {/* Template Selection */}
           <div>
             <h4 className="font-mono text-xs font-bold uppercase tracking-wider mb-3 text-ink-soft">
               {t('builder.formatting.template')}
             </h4>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {TEMPLATE_OPTIONS.map((template) => (
                 <button
                   key={template.id}
                   onClick={() => handleTemplateChange(template.id)}
-                  className={`group flex flex-col items-center p-2 border transition-all ${
+                  className={`group flex min-w-0 flex-col items-center border p-2 transition-all ${
                     settings.template === template.id
                       ? 'border-blue-700 bg-white shadow-[2px_2px_0px_0px_#1D4ED8]'
                       : 'border-black bg-white hover:bg-paper-tint hover:shadow-sw-xs'
@@ -209,12 +209,12 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
               <h4 className="font-mono text-xs font-bold uppercase tracking-wider mb-3 text-ink-soft">
                 {t('builder.formatting.accentColor')}
               </h4>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {(Object.keys(ACCENT_COLOR_MAP) as AccentColor[]).map((color) => (
                   <button
                     key={color}
                     onClick={() => handleAccentColorChange(color)}
-                    className={`flex items-center gap-2 px-3 py-2 border font-mono text-xs transition-all ${
+                    className={`flex min-w-0 items-center justify-center gap-2 border px-3 py-2 font-mono text-xs transition-all ${
                       settings.accentColor === color
                         ? 'border-blue-700 bg-white shadow-[2px_2px_0px_0px_#1D4ED8]'
                         : 'border-black bg-white hover:bg-paper-tint'
@@ -225,7 +225,9 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
                       className="w-4 h-4 border border-steel-grey"
                       style={{ backgroundColor: ACCENT_COLOR_MAP[color].primary }}
                     />
-                    <span>{t(`builder.formatting.accentColors.${color}`)}</span>
+                    <span className="truncate">
+                      {t(`builder.formatting.accentColors.${color}`)}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -237,12 +239,12 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
             <h4 className="font-mono text-xs font-bold uppercase tracking-wider mb-3 text-ink-soft">
               {t('builder.formatting.pageSize')}
             </h4>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {(Object.keys(PAGE_SIZE_INFO) as PageSize[]).map((size) => (
                 <button
                   key={size}
                   onClick={() => handlePageSizeChange(size)}
-                  className={`flex-1 px-3 py-2 border font-mono text-xs transition-all ${
+                  className={`min-w-0 border px-3 py-2 font-mono text-xs transition-all ${
                     settings.pageSize === size
                       ? 'border-blue-700 bg-white text-blue-700 shadow-[2px_2px_0px_0px_#1D4ED8]'
                       : 'border-black bg-white text-ink-soft hover:bg-paper-tint'
@@ -263,7 +265,7 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
             <h4 className="font-mono text-xs font-bold uppercase tracking-wider mb-3 text-ink-soft">
               {t('builder.formatting.margins')}
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <MarginSlider
                 label={t('builder.formatting.margin.top')}
                 value={settings.margins.top}
@@ -328,11 +330,11 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
                 onChange={(v) => handleFontChange('headerScale', v)}
               />
               {/* Header Font Family */}
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs w-16 text-ink-soft">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:items-center">
+                <span className="font-mono text-xs text-ink-soft">
                   {t('builder.formatting.headerFontFamily')}:
                 </span>
-                <div className="flex gap-1">
+                <div className="grid grid-cols-3 gap-1">
                   {(['serif', 'sans-serif', 'mono'] as HeaderFontFamily[]).map((font) => (
                     <button
                       key={font}
@@ -357,11 +359,11 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
                 </div>
               </div>
               {/* Body Font Family */}
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs w-16 text-ink-soft">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:items-center">
+                <span className="font-mono text-xs text-ink-soft">
                   {t('builder.formatting.bodyFontFamily')}:
                 </span>
-                <div className="flex gap-1">
+                <div className="grid grid-cols-3 gap-1">
                   {(['serif', 'sans-serif', 'mono'] as BodyFontFamily[]).map((font) => (
                     <button
                       key={font}
@@ -511,15 +513,15 @@ interface MarginSliderProps {
 
 const MarginSlider: React.FC<MarginSliderProps> = ({ label, value, onChange }) => {
   return (
-    <div className="flex items-center gap-2">
-      <span className="font-mono text-xs w-12 text-ink-soft">{label}:</span>
+    <div className="grid min-w-0 grid-cols-[4.5rem_minmax(0,1fr)_2.25rem] items-center gap-2">
+      <span className="min-w-0 font-mono text-xs text-ink-soft">{label}:</span>
       <input
         type="range"
         min={5}
         max={25}
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value, 10))}
-        className="flex-1 h-1 bg-paper-tint rounded-none appearance-none cursor-pointer
+        className="h-1 min-w-0 appearance-none rounded-none bg-paper-tint cursor-pointer
                    [&::-webkit-slider-thumb]:appearance-none
                    [&::-webkit-slider-thumb]:w-3
                    [&::-webkit-slider-thumb]:h-3
@@ -532,7 +534,7 @@ const MarginSlider: React.FC<MarginSliderProps> = ({ label, value, onChange }) =
                    [&::-moz-range-thumb]:border-none
                    [&::-moz-range-thumb]:cursor-pointer"
       />
-      <span className="font-mono text-xs w-6 text-right text-ink-soft">{value}</span>
+      <span className="font-mono text-xs text-right text-ink-soft">{value}</span>
     </div>
   );
 };
@@ -552,9 +554,9 @@ const SpacingSelector: React.FC<SpacingSelectorProps> = ({ label, value, onChang
   const levels: SpacingLevel[] = [1, 2, 3, 4, 5];
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="font-mono text-xs w-16 text-ink-soft">{label}:</span>
-      <div className="flex gap-1">
+    <div className="grid grid-cols-1 gap-2 sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:items-center">
+      <span className="font-mono text-xs text-ink-soft">{label}:</span>
+      <div className="grid grid-cols-5 gap-1">
         {levels.map((level) => (
           <button
             key={level}

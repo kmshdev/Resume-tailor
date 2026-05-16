@@ -256,6 +256,11 @@
     "editMode": "Edit Mode",
     "previewMode": "Preview Mode",
     "createAndPreview": "Create & Preview",
+    "mobile": {
+      "panelSwitcher": "Builder workspace",
+      "editor": "Editor",
+      "preview": "Preview"
+    },
     "unsavedDraft": "Unsaved Draft",
     "personalInfo": "Personal Information",
     "summary": "Summary",

@@ -256,6 +256,11 @@
     "editMode": "Modo Edición",
     "previewMode": "Modo Vista Previa",
     "createAndPreview": "Crear y previsualizar",
+    "mobile": {
+      "panelSwitcher": "Espacio del constructor",
+      "editor": "Editor",
+      "preview": "Vista previa"
+    },
     "unsavedDraft": "Borrador sin guardar",
     "personalInfo": "Información Personal",
     "summary": "Resumen",

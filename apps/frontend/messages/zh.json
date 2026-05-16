@@ -256,6 +256,11 @@
     "editMode": "编辑模式",
     "previewMode": "预览模式",
     "createAndPreview": "创建与预览",
+    "mobile": {
+      "panelSwitcher": "构建器工作区",
+      "editor": "编辑",
+      "preview": "预览"
+    },
     "unsavedDraft": "未保存草稿",
     "personalInfo": "个人信息",
     "summary": "个人简介",

@@ -40,6 +40,7 @@ import {
 } from '@/lib/api/resume';
 import { JDComparisonView } from './jd-comparison-view';
 import { RegenerateWizard } from './regenerate-wizard';
+import { BuilderMobilePanelSwitcher, type BuilderMobilePanel } from './mobile-panel-switcher';
 import { useRegenerateWizard } from '@/hooks/use-regenerate-wizard';
 import { useTranslations } from '@/lib/i18n';
 import { type TemplateSettings, DEFAULT_TEMPLATE_SETTINGS } from '@/lib/types/template-settings';
@@ -47,6 +48,7 @@ import { withLocalizedDefaultSections } from '@/lib/utils/section-helpers';
 import { useLanguage } from '@/lib/context/language-context';
 import { buildResumeFilename, downloadBlobAsFile, openUrlInNewTab } from '@/lib/utils/download';
 import type { RegenerateItemInput } from '@/lib/api/enrichment';
+import { cn } from '@/lib/utils';
 
 type TabId = 'resume' | 'cover-letter' | 'outreach' | 'jd-match';
 
@@ -133,6 +135,7 @@ const ResumeBuilderContent = () => {
 
   // Tab state
   const [activeTab, setActiveTab] = useState<TabId>('resume');
+  const [mobilePanel, setMobilePanel] = useState<BuilderMobilePanel>('editor');
 
   // Cover letter & outreach state
   const [coverLetter, setCoverLetter] = useState('');
@@ -600,9 +603,9 @@ const ResumeBuilderContent = () => {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-12rem)] w-full">
+    <div className="flex min-h-[calc(100vh-12rem)] w-full min-w-0">
       {/* Main Container */}
-      <div className="flex w-full flex-col border border-black bg-background shadow-sw-lg">
+      <div className="flex min-w-0 w-full flex-col border border-black bg-background shadow-sw-lg">
         {/* Action bar */}
         <div className="border-b border-black bg-background p-4 md:p-6 no-print">
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
@@ -621,7 +624,7 @@ const ResumeBuilderContent = () => {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:flex sm:flex-wrap">
               {/* Resume tab actions */}
               {activeTab === 'resume' && (
                 <>
@@ -630,6 +633,7 @@ const ResumeBuilderContent = () => {
                     size="sm"
                     onClick={() => regenerateWizard.startRegenerate()}
                     disabled={!resumeId}
+                    className="col-span-2 w-full min-w-0 sm:col-span-1 sm:w-auto"
                   >
                     <Sparkles className="w-4 h-4" />
                     {t('builder.regenerate.buttonLabel')}
@@ -639,11 +643,17 @@ const ResumeBuilderContent = () => {
                     size="sm"
                     onClick={handleReset}
                     disabled={!hasUnsavedChanges}
+                    className="w-full min-w-0 sm:w-auto"
                   >
                     <RotateCcw className="w-4 h-4" />
                     {t('common.reset')}
                   </Button>
-                  <Button size="sm" onClick={handleSave} disabled={!resumeId || isSaving}>
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={!resumeId || isSaving}
+                    className="w-full min-w-0 sm:w-auto"
+                  >
                     <Save className="w-4 h-4" />
                     {isSaving ? t('common.saving') : t('common.save')}
                   </Button>
@@ -652,6 +662,7 @@ const ResumeBuilderContent = () => {
                     size="sm"
                     onClick={handleDownload}
                     disabled={!resumeId || isDownloading}
+                    className="w-full min-w-0 sm:w-auto"
                   >
                     <Download className="w-4 h-4" />
                     {isDownloading ? t('common.generating') : t('common.download')}
@@ -667,6 +678,7 @@ const ResumeBuilderContent = () => {
                     size="sm"
                     onClick={handleGenerateCoverLetter}
                     disabled={isGeneratingCoverLetter}
+                    className="w-full min-w-0 sm:w-auto"
                   >
                     {isGeneratingCoverLetter ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -680,6 +692,7 @@ const ResumeBuilderContent = () => {
                     size="sm"
                     onClick={handleDownloadCoverLetter}
                     disabled={!resumeId || isDownloading}
+                    className="w-full min-w-0 sm:w-auto"
                   >
                     <Download className="w-4 h-4" />
                     {isDownloading ? t('common.generating') : t('common.download')}
@@ -695,6 +708,7 @@ const ResumeBuilderContent = () => {
                     size="sm"
                     onClick={handleGenerateOutreach}
                     disabled={isGeneratingOutreach}
+                    className="w-full min-w-0 sm:w-auto"
                   >
                     {isGeneratingOutreach ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -703,7 +717,12 @@ const ResumeBuilderContent = () => {
                     )}
                     {t('outreach.regenerate')}
                   </Button>
-                  <Button variant="success" size="sm" onClick={handleCopyOutreach}>
+                  <Button
+                    variant="success"
+                    size="sm"
+                    onClick={handleCopyOutreach}
+                    className="w-full min-w-0 sm:w-auto"
+                  >
                     {isCopied ? (
                       <>
                         <Check className="w-4 h-4" />
@@ -724,8 +743,48 @@ const ResumeBuilderContent = () => {
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 bg-black gap-[1px] flex-1 min-h-0">
+          <div className="space-y-3 bg-background p-4 lg:hidden no-print">
+            <BuilderMobilePanelSwitcher
+              activePanel={mobilePanel}
+              onPanelChange={setMobilePanel}
+              labels={{
+                ariaLabel: t('builder.mobile.panelSwitcher'),
+                editor: t('builder.mobile.editor'),
+                preview: t('builder.mobile.preview'),
+              }}
+            />
+            <RetroTabs
+              tabs={[
+                { id: 'resume', label: t('builder.previewTabs.resume') },
+                {
+                  id: 'cover-letter',
+                  label: t('builder.previewTabs.coverLetter'),
+                  disabled: !coverLetter,
+                },
+                {
+                  id: 'outreach',
+                  label: t('builder.previewTabs.outreach'),
+                  disabled: !outreachMessage,
+                },
+                {
+                  id: 'jd-match',
+                  label: t('builder.previewTabs.jdMatch'),
+                  disabled: !jobDescription,
+                },
+              ]}
+              activeTab={activeTab}
+              onTabChange={(id) => setActiveTab(id as TabId)}
+            />
+          </div>
+
           {/* Left Panel: Editor */}
-          <div className="bg-background p-6 md:p-8 overflow-y-auto no-print">
+          <div
+            data-testid="builder-editor-panel"
+            className={cn(
+              'min-w-0 bg-background p-4 overflow-y-auto no-print md:p-8 lg:block',
+              mobilePanel === 'editor' ? 'block' : 'hidden'
+            )}
+          >
             <div className="max-w-3xl mx-auto space-y-6">
               <div className="flex items-center gap-2 border-b-2 border-black pb-2">
                 <div className="w-3 h-3 bg-blue-700"></div>
@@ -833,9 +892,15 @@ const ResumeBuilderContent = () => {
           </div>
 
           {/* Right Panel: Preview with Tabs */}
-          <div className="bg-secondary overflow-hidden flex flex-col no-print">
+          <div
+            data-testid="builder-preview-panel"
+            className={cn(
+              'min-w-0 bg-secondary overflow-hidden flex-col no-print lg:flex',
+              mobilePanel === 'preview' ? 'flex' : 'hidden'
+            )}
+          >
             {/* Tabs Header */}
-            <div className="px-6 pt-3 shrink-0 bg-secondary">
+            <div className="hidden px-6 pt-3 shrink-0 bg-secondary lg:block">
               <RetroTabs
                 tabs={[
                   { id: 'resume', label: t('builder.previewTabs.resume') },

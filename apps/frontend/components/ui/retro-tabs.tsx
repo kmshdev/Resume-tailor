@@ -33,7 +33,10 @@ export const RetroTabs: React.FC<RetroTabsProps> = ({
   className,
 }) => {
   return (
-    <div className={cn('flex gap-0 border-b border-black', className)}>
+    <div
+      role="tablist"
+      className={cn('grid grid-cols-2 gap-0 border-b border-black sm:flex', className)}
+    >
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id;
         const isDisabled = tab.disabled;
@@ -41,10 +44,14 @@ export const RetroTabs: React.FC<RetroTabsProps> = ({
         return (
           <button
             key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            aria-disabled={isDisabled ? 'true' : undefined}
             onClick={() => !isDisabled && onTabChange(tab.id)}
             disabled={isDisabled}
             className={cn(
-              'px-4 py-2 font-mono text-xs uppercase tracking-wider transition-all',
+              'min-w-0 px-2 py-2 font-mono text-xs uppercase tracking-wider transition-all sm:px-4',
               'border border-b-0 border-black -mb-px',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2',
               isActive && [

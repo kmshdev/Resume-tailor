@@ -256,6 +256,11 @@
     "editMode": "Modo Edição",
     "previewMode": "Modo Visualização",
     "createAndPreview": "Criar e Visualizar",
+    "mobile": {
+      "panelSwitcher": "Área do construtor",
+      "editor": "Editor",
+      "preview": "Pré-visualização"
+    },
     "unsavedDraft": "Rascunho Não Salvo",
     "personalInfo": "Informações Pessoais",
     "summary": "Resumo",

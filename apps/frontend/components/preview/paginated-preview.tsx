@@ -15,7 +15,7 @@ interface PaginatedPreviewProps {
   settings: TemplateSettings;
 }
 
-const MIN_ZOOM = 0.4;
+const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 1.5;
 const ZOOM_STEP = 0.1;
 
@@ -75,7 +75,7 @@ export function PaginatedPreview({ resumeData, settings }: PaginatedPreviewProps
   const calculateAutoZoom = useCallback(() => {
     if (!containerRef.current || !autoZoom) return;
 
-    const containerWidth = containerRef.current.clientWidth - 48; // Padding
+    const containerWidth = containerRef.current.clientWidth - 32; // Mobile padding
     const pageWidthPx = mmToPx(PAGE_DIMENSIONS[settings.pageSize].width);
     const optimalZoom = Math.min(containerWidth / pageWidthPx, MAX_ZOOM);
     setZoom(Math.max(MIN_ZOOM, Math.min(optimalZoom, 0.75))); // Cap at 75% for usability
@@ -106,10 +106,10 @@ export function PaginatedPreview({ resumeData, settings }: PaginatedPreviewProps
   const contentArea = getContentAreaPx(settings.pageSize, settings.margins);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex h-full flex-col overflow-hidden">
       {/* Controls bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-steel-grey bg-secondary shrink-0">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-steel-grey bg-secondary px-3 py-2 shrink-0 md:px-4">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           {/* Zoom controls */}
           <Button
             variant="ghost"
@@ -137,14 +137,14 @@ export function PaginatedPreview({ resumeData, settings }: PaginatedPreviewProps
             <ZoomIn className="w-4 h-4" />
           </Button>
 
-          <div className="w-px h-5 bg-steel-grey mx-2" />
+          <div className="h-5 w-px bg-steel-grey mx-1 md:mx-2" />
 
           {/* Margin toggle */}
           <Button
             variant={showMargins ? 'secondary' : 'ghost'}
             size="sm"
             onClick={toggleMargins}
-            className="h-8 gap-1.5"
+            className="h-8 gap-1.5 px-2"
           >
             {showMargins ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             <span className="font-mono text-xs uppercase">{t('preview.margins')}</span>
@@ -165,7 +165,7 @@ export function PaginatedPreview({ resumeData, settings }: PaginatedPreviewProps
       </div>
 
       {/* Scrollable preview area */}
-      <div ref={containerRef} className="flex-1 overflow-auto bg-[#D5D5D0] p-6">
+      <div ref={containerRef} className="flex-1 overflow-auto bg-[#D5D5D0] p-4 md:p-6">
         {/* Hidden measurement container - renders content at actual size */}
         <div
           ref={measurementRef}

@@ -256,6 +256,11 @@
     "editMode": "編集モード",
     "previewMode": "プレビューモード",
     "createAndPreview": "作成＆プレビュー",
+    "mobile": {
+      "panelSwitcher": "ビルダー作業エリア",
+      "editor": "編集",
+      "preview": "プレビュー"
+    },
     "unsavedDraft": "未保存の下書き",
     "personalInfo": "個人情報",
     "summary": "概要",
