@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useReducedMotion } from 'motion/react';
 import { StackingCardItem, StackingCards } from '@/components/fancy/stacking-cards';
 import { TailorStepCard, type TailorStepState } from '@/components/tailor/tailor-step-card';
 import { useTranslations } from '@/lib/i18n';
@@ -50,6 +51,18 @@ export function TailorSessionCards({
 }: TailorSessionCardsProps) {
   const { t } = useTranslations();
   const completedSet = new Set<TailorSessionStep>(completedSteps);
+  const prefersReducedMotion = useReducedMotion();
+  const activeStepRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    if (typeof activeStepRef.current?.scrollIntoView !== 'function') return;
+    activeStepRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest',
+    });
+  }, [activeStep, prefersReducedMotion]);
 
   return (
     <section aria-label={t('tailor.session.deckLabel')} className="w-full">
@@ -57,6 +70,7 @@ export function TailorSessionCards({
         role="list"
         aria-label={t('tailor.session.deckLabel')}
         data-layout="fancy-stacking-cards"
+        data-motion={prefersReducedMotion ? 'reduced' : 'safe'}
         totalCards={TAILOR_SESSION_STEPS.length}
         scaleMultiplier={0.018}
         className="relative flex min-h-[44rem] flex-col gap-4"
@@ -81,13 +95,15 @@ export function TailorSessionCards({
               topPosition={`${5 + index * 2}rem`}
               className="min-h-40"
             >
-              <TailorStepCard
-                index={index}
-                title={t(`tailor.session.steps.${step}`)}
-                state={state}
-                score={typeof score === 'number' ? formatScore(score) : undefined}
-                warning={warning}
-              />
+              <div ref={isActive ? activeStepRef : undefined}>
+                <TailorStepCard
+                  index={index}
+                  title={t(`tailor.session.steps.${step}`)}
+                  state={state}
+                  score={typeof score === 'number' ? formatScore(score) : undefined}
+                  warning={warning}
+                />
+              </div>
             </StackingCardItem>
           );
         })}

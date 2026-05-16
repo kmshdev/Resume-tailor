@@ -44,9 +44,9 @@ export function AppShell({ children }: AppShellProps) {
     pageKey === 'dashboard' ? [] : [{ label: t(`shell.pages.${pageKey}`) }];
 
   return (
-    <div className="min-h-screen bg-background text-black">
-      <header className="border-b border-black bg-[#10131A] text-white">
-        <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen min-h-dvh flex-col bg-background text-black">
+      <header className="shrink-0 border-b border-black bg-[#10131A] text-white">
+        <div className="safe-area-shell-x safe-area-header mx-auto flex w-full max-w-[1440px] flex-col gap-4 pb-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <Breadcrumbs items={breadcrumbs} />
             <div className="flex flex-wrap items-center gap-3">
@@ -81,19 +81,19 @@ export function AppShell({ children }: AppShellProps) {
           <RouteTabs />
         </div>
       </header>
-      <main className="bg-background text-black">
-        <div className="mx-auto min-h-[calc(100vh-144px)] w-full max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
+      <main className="min-h-0 flex-1 bg-background text-black">
+        <div className="safe-area-shell-x safe-area-main mx-auto w-full max-w-[1440px] pt-6">
           {children}
         </div>
       </main>
       <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
-        <DialogContent className="max-w-2xl border border-black bg-background p-0 shadow-sw-lg">
-          <DialogHeader className="border-b border-black bg-white p-6 pr-14">
+        <DialogContent className="safe-area-overlay-panel max-w-2xl overflow-y-auto border border-black bg-background p-0 shadow-sw-lg">
+          <DialogHeader className="safe-area-dialog-header border-b border-black bg-white">
             <DialogTitle className="font-serif text-2xl font-bold">
               {t('shell.help.title')}
             </DialogTitle>
           </DialogHeader>
-          <div className="p-6">
+          <div className="safe-area-dialog-body">
             {HELP_TOPICS.map((topic, index) => (
               <Disclosure
                 key={topic}

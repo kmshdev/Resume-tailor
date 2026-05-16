@@ -22,7 +22,7 @@ export function Breadcrumbs({ items = [] }: BreadcrumbsProps) {
         <li>
           <Link
             href="/dashboard"
-            className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10131A]"
+            className="inline-flex min-h-11 min-w-11 items-center underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10131A]"
           >
             {t('shell.breadcrumbs.home')}
           </Link>
@@ -33,7 +33,7 @@ export function Breadcrumbs({ items = [] }: BreadcrumbsProps) {
             {item.href ? (
               <Link
                 href={item.href}
-                className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10131A]"
+                className="inline-flex min-h-11 min-w-11 items-center underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10131A]"
               >
                 {item.label}
               </Link>

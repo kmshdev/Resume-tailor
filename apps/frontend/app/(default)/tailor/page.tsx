@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useResumePreview } from '@/components/common/resume_previewer_context';
 import type { ImprovedResult } from '@/components/common/resume_previewer_context';
+import { OnboardingBreathingText } from '@/components/dashboard/onboarding/onboarding-motion';
 import type { ResumeData } from '@/components/dashboard/resume-component';
 import { previewImproveResume, confirmImproveResume } from '@/lib/api/resume';
 import { createResumeEvaluation } from '@/lib/api/evaluation';
@@ -461,8 +462,8 @@ export default function TailorPage() {
 
   return (
     <div className="w-full font-sans">
-      <div className="grid gap-6 xl:grid-cols-[minmax(240px,320px)_minmax(0,1fr)] xl:items-start">
-        <aside className="xl:sticky xl:top-6">
+      <div className="grid gap-6 lg:grid-cols-[minmax(240px,320px)_minmax(0,1fr)] lg:items-start">
+        <aside className="lg:sticky lg:top-6">
           <TailorSessionCards
             activeStep={activeSessionStep}
             completedSteps={completedSessionSteps}
@@ -601,7 +602,9 @@ export default function TailorPage() {
             {isLoading && (
               <div className="flex items-center justify-center gap-2 border-2 border-black bg-white p-4 font-mono text-sm">
                 <Loader2 className="h-5 w-5 animate-spin" />
-                {t('common.processing')}
+                <OnboardingBreathingText variant="label" className="text-blue-700">
+                  {t('common.processing')}
+                </OnboardingBreathingText>
                 {elapsed > 0 && <span className="text-xs opacity-70">{elapsed}s</span>}
               </div>
             )}

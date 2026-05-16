@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   experimental: {
     proxyTimeout: 240_000,
+    // Adds element/source attribution to Web Vitals reports without extra runtime deps.
+    webVitalsAttribution: ['CLS', 'FCP', 'FID', 'INP', 'LCP', 'TTFB'],
     // Tree-shake barrel imports — saves ~200-800ms cold start per route
     optimizePackageImports: [
       'lucide-react',

@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation';
 import AlertCircle from 'lucide-react/dist/esm/icons/alert-circle';
 import AlertTriangle from 'lucide-react/dist/esm/icons/alert-triangle';
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
-import Plus from 'lucide-react/dist/esm/icons/plus';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import Settings from 'lucide-react/dist/esm/icons/settings';
-import { CommandCenter } from '@/components/dashboard/command-center';
 import { ResumeUploadDialog } from '@/components/dashboard/resume-upload-dialog';
-import { TailorCardStack } from '@/components/dashboard/tailor-card-stack';
+import {
+  TailorCardStack,
+  type DashboardWorkflowStep,
+} from '@/components/dashboard/tailor-card-stack';
 import { EvaluationCard } from '@/components/evaluation/evaluation-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
@@ -49,6 +50,8 @@ export default function DashboardPage() {
   const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>('loading');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [tailoredResumes, setTailoredResumes] = useState<ResumeListItem[]>([]);
+  const [tailoredResumesLoading, setTailoredResumesLoading] = useState(true);
+  const [tailoredResumesError, setTailoredResumesError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [latestEvaluations, setLatestEvaluations] =
@@ -56,6 +59,7 @@ export default function DashboardPage() {
   const [evaluationsLoading, setEvaluationsLoading] = useState(false);
   const [evaluationErrors, setEvaluationErrors] = useState<EvaluationErrors>({});
   const [checkingPhase, setCheckingPhase] = useState<EvaluationPhase | null>(null);
+  const [dashboardStep, setDashboardStep] = useState<DashboardWorkflowStep>('uploadResume');
   const router = useRouter();
 
   const {
@@ -74,14 +78,26 @@ export default function DashboardPage() {
   const isTailorEnabled =
     Boolean(masterResumeId) && processingStatus === 'ready' && isLlmConfigured;
   const canRunReadinessEvaluation = isTailorEnabled;
+  const evaluationLoadFailedMessage = t('evaluation.errors.loadFailed');
+  const tailoredListLoadFailedMessage = t('dashboard.tailoredList.loadFailed');
+  const hasTailoredResume = tailoredResumes.length > 0;
 
   const formatDate = (value: string) => {
     if (!value) return t('common.unknown');
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return t('common.unknown');
 
+    const uiLocale = String(locale);
     const dateLocale =
-      locale === 'es' ? 'es-ES' : locale === 'zh' ? 'zh-CN' : locale === 'ja' ? 'ja-JP' : 'en-US';
+      uiLocale === 'es'
+        ? 'es-ES'
+        : uiLocale === 'zh'
+          ? 'zh-CN'
+          : uiLocale === 'ja'
+            ? 'ja-JP'
+            : uiLocale === 'pt' || uiLocale === 'pt-BR'
+              ? 'pt-BR'
+              : 'en-US';
 
     return date.toLocaleDateString(dateLocale, {
       month: 'short',
@@ -97,10 +113,14 @@ export default function DashboardPage() {
       const status = data.raw_resume?.processing_status || 'pending';
       setProcessingStatus(status as ProcessingStatus);
     } catch (err: unknown) {
-      console.error('Failed to check resume status:', err);
       if (err instanceof Error && err.message.includes('404')) {
+        evaluationRequestIdRef.current += 1;
         localStorage.removeItem('master_resume_id');
         setMasterResumeId(null);
+        setDashboardStep('uploadResume');
+        setLatestEvaluations(EMPTY_EVALUATIONS);
+        setEvaluationErrors({});
+        setEvaluationsLoading(false);
         return;
       }
       setProcessingStatus('failed');
@@ -117,14 +137,13 @@ export default function DashboardPage() {
         if (requestId === evaluationRequestIdRef.current) {
           setLatestEvaluations(latest);
         }
-      } catch (err) {
-        console.error('Failed to load latest evaluations:', err);
+      } catch {
         if (requestId === evaluationRequestIdRef.current) {
           setLatestEvaluations(EMPTY_EVALUATIONS);
           setEvaluationErrors({
-            readiness: t('evaluation.errors.loadFailed'),
-            pre_tailor: t('evaluation.errors.loadFailed'),
-            post_tailor: t('evaluation.errors.loadFailed'),
+            readiness: evaluationLoadFailedMessage,
+            pre_tailor: evaluationLoadFailedMessage,
+            post_tailor: evaluationLoadFailedMessage,
           });
         }
       } finally {
@@ -133,7 +152,7 @@ export default function DashboardPage() {
         }
       }
     },
-    [t]
+    [evaluationLoadFailedMessage]
   );
 
   useEffect(() => {
@@ -146,9 +165,12 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!masterResumeId) {
-      setLatestEvaluations(EMPTY_EVALUATIONS);
-      setEvaluationErrors({});
-      setEvaluationsLoading(false);
+      evaluationRequestIdRef.current += 1;
+      setLatestEvaluations((current) =>
+        current === EMPTY_EVALUATIONS ? current : EMPTY_EVALUATIONS
+      );
+      setEvaluationErrors((current) => (Object.keys(current).length === 0 ? current : {}));
+      setEvaluationsLoading((current) => (current ? false : current));
       return;
     }
 
@@ -156,8 +178,13 @@ export default function DashboardPage() {
   }, [loadLatestEvaluations, masterResumeId]);
 
   const loadTailoredResumes = useCallback(async () => {
+    const requestId = ++loadRequestIdRef.current;
+    setTailoredResumesLoading(true);
+    setTailoredResumesError(null);
     try {
       const data = await fetchResumeList(true);
+      if (requestId !== loadRequestIdRef.current) return;
+
       const masterFromList = data.find((r) => r.is_master);
       const storedId = localStorage.getItem('master_resume_id');
       const resolvedMasterId = masterFromList?.resume_id || storedId;
@@ -174,7 +201,6 @@ export default function DashboardPage() {
       const filtered = data.filter((r) => r.resume_id !== resolvedMasterId);
       setTailoredResumes(filtered);
       const tailoredWithParent = filtered.filter((r) => r.parent_id);
-      const requestId = ++loadRequestIdRef.current;
       const jobSnippets: Record<string, string> = {};
 
       await Promise.all(
@@ -202,15 +228,34 @@ export default function DashboardPage() {
             jobSnippet: jobSnippets[resume.resume_id] || resume.jobSnippet || '',
           }))
         );
+        setTailoredResumesLoading(false);
       }
-    } catch (err) {
-      console.error('Failed to load tailored resumes:', err);
+    } catch {
+      if (requestId === loadRequestIdRef.current) {
+        setTailoredResumes([]);
+        setTailoredResumesError(tailoredListLoadFailedMessage);
+        setTailoredResumesLoading(false);
+      }
     }
-  }, [checkResumeStatus]);
+  }, [checkResumeStatus, tailoredListLoadFailedMessage]);
 
   useEffect(() => {
     void loadTailoredResumes();
   }, [loadTailoredResumes]);
+
+  useEffect(() => {
+    if (!masterResumeId) {
+      setDashboardStep('uploadResume');
+      return;
+    }
+
+    if (hasTailoredResume) {
+      setDashboardStep('reviewLift');
+      return;
+    }
+
+    setDashboardStep((current) => (current === 'uploadResume' ? 'reviewResume' : current));
+  }, [hasTailoredResume, masterResumeId]);
 
   useEffect(() => {
     const handleFocus = () => {
@@ -259,25 +304,11 @@ export default function DashboardPage() {
     runEvaluation,
   ]);
 
-  const handleRefreshEvaluation = useCallback(
-    (phase: Exclude<EvaluationPhase, 'readiness'>) => {
-      const current = latestEvaluations[phase];
-      if (!current?.stale || !current.job_id) return;
-
-      void runEvaluation(current.resume_id, {
-        phase,
-        job_id: current.job_id,
-        baseline_resume_id:
-          phase === 'post_tailor' ? current.baseline_resume_id || masterResumeId : undefined,
-        force_refresh: true,
-      });
-    },
-    [latestEvaluations, masterResumeId, runEvaluation]
-  );
-
   const handleUploadComplete = (resumeId: string) => {
+    evaluationRequestIdRef.current += 1;
     localStorage.setItem('master_resume_id', resumeId);
     setMasterResumeId(resumeId);
+    setDashboardStep('reviewResume');
     checkResumeStatus(resumeId);
     incrementResumes();
     setHasMasterResume(true);
@@ -319,7 +350,12 @@ export default function DashboardPage() {
       decrementResumes();
       setHasMasterResume(false);
       localStorage.removeItem('master_resume_id');
+      evaluationRequestIdRef.current += 1;
       setMasterResumeId(null);
+      setDashboardStep('uploadResume');
+      setLatestEvaluations(EMPTY_EVALUATIONS);
+      setEvaluationErrors({});
+      setEvaluationsLoading(false);
       setProcessingStatus('loading');
       setIsUploadDialogOpen(true);
       await loadTailoredResumes();
@@ -380,16 +416,14 @@ export default function DashboardPage() {
     return Math.abs(hash);
   };
 
-  const hasTailoredResume = tailoredResumes.length > 0;
+  const tailorDisabledReason = (() => {
+    if (!masterResumeId) return t('dashboard.tailorDisabled.missingMaster');
+    if (!isLlmConfigured) return t('dashboard.tailorDisabled.llmNotConfigured');
+    if (processingStatus === 'failed') return t('dashboard.tailorDisabled.failedProcessing');
+    if (processingStatus !== 'ready') return t('dashboard.tailorDisabled.processing');
+    return null;
+  })();
   const readinessLoading = evaluationsLoading || checkingPhase === 'readiness';
-  const preTailorLoading = evaluationsLoading || checkingPhase === 'pre_tailor';
-  const postTailorLoading = evaluationsLoading || checkingPhase === 'post_tailor';
-  const canRefreshPreTailor = Boolean(
-    latestEvaluations.pre_tailor?.stale && latestEvaluations.pre_tailor.job_id && isLlmConfigured
-  );
-  const canRefreshPostTailor = Boolean(
-    latestEvaluations.post_tailor?.stale && latestEvaluations.post_tailor.job_id && isLlmConfigured
-  );
 
   const configurationWarning =
     masterResumeId && !isLlmConfigured && !statusLoading ? (
@@ -419,10 +453,10 @@ export default function DashboardPage() {
       <div className="flex items-start justify-between gap-4 border-b border-black pb-4">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-wide text-blue-700">
-            {t('dashboard.cardStack.masterResume')}
+            {t('dashboard.workflow.reviewResume.kicker')}
           </p>
           <h2 className="mt-2 font-serif text-3xl font-bold uppercase leading-none">
-            {t('dashboard.masterResume')}
+            {t('dashboard.workflow.reviewResume.currentTitle')}
           </h2>
         </div>
         <span
@@ -476,7 +510,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <CardTitle className="text-xl uppercase">
-                        {t('dashboard.initializeMasterResume')}
+                        {t('dashboard.onboarding.uploadTitle')}
                       </CardTitle>
                       <CardDescription className="mt-2 text-current opacity-70">
                         {'// '}
@@ -521,7 +555,7 @@ export default function DashboardPage() {
               </div>
 
               <CardTitle className="text-lg group-hover:text-primary">
-                {t('dashboard.masterResume')}
+                {t('dashboard.workflow.reviewResume.currentTitle')}
               </CardTitle>
 
               <div
@@ -562,43 +596,12 @@ export default function DashboardPage() {
     </section>
   );
 
-  const workflow = (
-    <section>
-      <div className="border-b border-black p-5 md:p-6">
-        <p className="font-mono text-xs font-bold uppercase tracking-wide text-blue-700">
-          {t('dashboard.cardStack.tailorFlow')}
-        </p>
-        <h2 className="mt-2 font-serif text-3xl font-bold uppercase leading-none">
-          {t('dashboard.tailorFirstRole')}
-        </h2>
-      </div>
-      <TailorCardStack
-        hasMasterResume={Boolean(masterResumeId)}
-        canUploadMaster={isLlmConfigured || statusLoading}
-        canTailor={isTailorEnabled}
-        hasTailoredResume={hasTailoredResume}
-        onUploadMaster={() => setIsUploadDialogOpen(true)}
-      />
-      <div className="border-t border-black p-5 md:p-6">
-        <Button
-          type="button"
-          onClick={() => router.push('/tailor')}
-          disabled={!isTailorEnabled}
-          className="w-full"
-        >
-          <Plus className="h-4 w-4" />
-          {t('dashboard.tailorFirstRole')}
-        </Button>
-      </div>
-    </section>
-  );
-
   const activity = (
     <section className="p-5 md:p-6">
       <div className="flex items-start justify-between gap-4 border-b border-black pb-4">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-wide text-blue-700">
-            {t('dashboard.cardStack.reviewLift')}
+            {t('dashboard.workflow.reviewLift.kicker')}
           </p>
           <h2 className="mt-2 font-serif text-3xl font-bold uppercase leading-none">
             {t('dashboard.tailoredResume')}
@@ -610,7 +613,19 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-5 max-h-[34rem] space-y-3 overflow-y-auto pr-1">
-        {tailoredResumes.length === 0 ? (
+        {tailoredResumesLoading ? (
+          <div className="border-2 border-black bg-white p-5 shadow-sw-default" role="status">
+            <p className="font-mono text-sm font-bold uppercase tracking-wide text-steel-grey">
+              {t('dashboard.tailoredList.loading')}
+            </p>
+          </div>
+        ) : tailoredResumesError ? (
+          <div className="border-2 border-red-600 bg-red-50 p-5 shadow-sw-default" role="alert">
+            <p className="font-mono text-sm font-bold uppercase tracking-wide text-red-600">
+              {tailoredResumesError}
+            </p>
+          </div>
+        ) : tailoredResumes.length === 0 ? (
           <div className="border-2 border-black bg-white p-5 shadow-sw-default">
             <p className="font-mono text-sm font-bold uppercase tracking-wide text-green-700">
               {t('dashboard.tailorFirstRole')}
@@ -661,46 +676,42 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <CommandCenter
-        ariaLabel={t('dashboard.workspaceEyebrow')}
-        alert={configurationWarning}
-        metrics={[
-          <EvaluationCard
-            key="readiness"
-            phase="readiness"
-            evaluation={latestEvaluations.readiness}
-            isLoading={readinessLoading}
-            error={evaluationErrors.readiness}
-            onCheck={canRunReadinessEvaluation ? handleRunReadinessEvaluation : undefined}
-            onRefresh={canRunReadinessEvaluation ? handleRunReadinessEvaluation : undefined}
-            disabled={!canRunReadinessEvaluation}
-          />,
-          <EvaluationCard
-            key="pre_tailor"
-            phase="pre_tailor"
-            evaluation={latestEvaluations.pre_tailor}
-            isLoading={preTailorLoading}
-            error={evaluationErrors.pre_tailor}
-            onRefresh={
-              canRefreshPreTailor ? () => handleRefreshEvaluation('pre_tailor') : undefined
-            }
-            disabled={!canRefreshPreTailor}
-          />,
-          <EvaluationCard
-            key="post_tailor"
-            phase="post_tailor"
-            evaluation={latestEvaluations.post_tailor}
-            isLoading={postTailorLoading}
-            error={evaluationErrors.post_tailor}
-            onRefresh={
-              canRefreshPostTailor ? () => handleRefreshEvaluation('post_tailor') : undefined
-            }
-            disabled={!canRefreshPostTailor}
-          />,
-        ]}
-        resumeContext={resumeContext}
-        workflow={workflow}
-        activity={activity}
+      {configurationWarning}
+      <div className="mx-auto max-w-5xl">
+        <TailorCardStack
+          activeStep={dashboardStep}
+          hasMasterResume={Boolean(masterResumeId)}
+          canUploadMaster
+          canTailor={isTailorEnabled}
+          hasTailoredResume={hasTailoredResume}
+          onUploadMaster={() => setIsUploadDialogOpen(true)}
+          onContinueToTailorStep={() => setDashboardStep('tailorRole')}
+          resumeContent={masterResumeId ? resumeContext : undefined}
+          readinessContent={
+            masterResumeId ? (
+              <EvaluationCard
+                phase="readiness"
+                evaluation={latestEvaluations.readiness}
+                isLoading={readinessLoading}
+                error={evaluationErrors.readiness}
+                onCheck={canRunReadinessEvaluation ? handleRunReadinessEvaluation : undefined}
+                onRefresh={canRunReadinessEvaluation ? handleRunReadinessEvaluation : undefined}
+                disabled={!canRunReadinessEvaluation}
+              />
+            ) : undefined
+          }
+          tailoredContent={activity}
+          disabledReason={tailorDisabledReason}
+          processingStatusText={getStatusDisplay().text}
+          tailoredCount={tailoredResumes.length}
+        />
+      </div>
+
+      <ResumeUploadDialog
+        open={isUploadDialogOpen}
+        onOpenChange={setIsUploadDialogOpen}
+        onUploadComplete={handleUploadComplete}
+        trigger={<span className="hidden" aria-hidden="true" />}
       />
 
       <ConfirmDialog

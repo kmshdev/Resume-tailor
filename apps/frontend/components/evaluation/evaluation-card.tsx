@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import RefreshCw from 'lucide-react/dist/esm/icons/refresh-cw';
 import ScanSearch from 'lucide-react/dist/esm/icons/scan-search';
@@ -44,10 +45,13 @@ export function EvaluationCard({
   disabled = false,
 }: EvaluationCardProps) {
   const { t } = useTranslations();
+  const statusId = useId();
+  const errorId = useId();
   const scoreAvailable = hasScore(evaluation);
   const stale = Boolean(evaluation?.stale);
   const showRefresh = stale && Boolean(onRefresh);
   const showCheck = !scoreAvailable && Boolean(onCheck);
+  const phaseLabel = t(`evaluation.phases.${phase}`);
   const actionLabel = showRefresh ? t('evaluation.actions.refresh') : t('evaluation.actions.check');
   const ActionIcon = showRefresh ? RefreshCw : ScanSearch;
   const statusLabel = isLoading
@@ -57,6 +61,9 @@ export function EvaluationCard({
       : scoreAvailable
         ? t('evaluation.confidence', { value: formatConfidence(evaluation.confidence) })
         : t('evaluation.states.notChecked');
+  const actionDisabled = isLoading || disabled || (!showCheck && !showRefresh);
+  const actionA11yLabel = `${actionLabel}: ${phaseLabel}. ${statusLabel}.`;
+  const describedBy = error ? `${statusId} ${errorId}` : statusId;
 
   const handleAction = () => {
     if (isLoading || disabled) return;
@@ -75,11 +82,13 @@ export function EvaluationCard({
         'flex min-h-52 flex-col border-2 border-black bg-background p-5 text-black',
         'shadow-sw-default'
       )}
+      aria-busy={isLoading ? 'true' : undefined}
+      aria-describedby={describedBy}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2">
           <p className="font-mono text-xs font-bold uppercase tracking-wide text-steel-grey">
-            {t(`evaluation.phases.${phase}`)}
+            {phaseLabel}
           </p>
           <p
             className={cn(
@@ -87,7 +96,18 @@ export function EvaluationCard({
               !scoreAvailable && 'text-steel-grey'
             )}
           >
-            {formatScore(evaluation)}
+            {isLoading && !scoreAvailable ? (
+              <>
+                <span
+                  aria-hidden="true"
+                  data-loading-placeholder="score"
+                  className="block h-12 w-20 border border-black bg-secondary motion-safe:animate-pulse motion-reduce:animate-none"
+                />
+                <span className="sr-only">{statusLabel}</span>
+              </>
+            ) : (
+              formatScore(evaluation)
+            )}
           </p>
         </div>
         <div
@@ -101,19 +121,37 @@ export function EvaluationCard({
                 : stale
                   ? 'bg-orange-500'
                   : 'bg-green-700',
-            !scoreAvailable && !isLoading && !error && 'bg-transparent'
+            !scoreAvailable && !isLoading && !error && 'bg-transparent',
+            isLoading && 'motion-safe:animate-pulse motion-reduce:animate-none'
           )}
         />
       </div>
 
       <div className="mt-auto space-y-4 pt-5">
         <div className="space-y-2">
-          <div className="flex min-h-5 items-center gap-2 font-mono text-xs uppercase tracking-wide text-ink-soft">
-            {isLoading ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : null}
+          <div
+            id={statusId}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="flex min-h-5 items-center gap-2 font-mono text-xs uppercase tracking-wide text-ink-soft"
+          >
+            {isLoading ? (
+              <Loader2
+                aria-hidden="true"
+                className="h-3.5 w-3.5 motion-safe:animate-spin motion-reduce:animate-none"
+              />
+            ) : null}
             <span>{statusLabel}</span>
           </div>
           {error ? (
-            <p className="font-mono text-xs uppercase tracking-wide text-red-600">{error}</p>
+            <p
+              id={errorId}
+              role="alert"
+              className="font-mono text-xs uppercase tracking-wide text-red-600"
+            >
+              {error}
+            </p>
           ) : null}
         </div>
 
@@ -125,12 +163,17 @@ export function EvaluationCard({
               variant={showRefresh ? 'warning' : 'outline'}
               size="sm"
               onClick={handleAction}
-              disabled={isLoading || disabled || (!showCheck && !showRefresh)}
-              aria-label={actionLabel}
+              disabled={actionDisabled}
+              aria-label={actionA11yLabel}
+              aria-describedby={describedBy}
+              title={actionA11yLabel}
               className={cn(showRefresh ? '' : 'bg-white text-black')}
             >
               {isLoading ? (
-                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                <Loader2
+                  aria-hidden="true"
+                  className="h-4 w-4 motion-safe:animate-spin motion-reduce:animate-none"
+                />
               ) : (
                 <ActionIcon aria-hidden="true" className="h-4 w-4" />
               )}

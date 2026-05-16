@@ -191,16 +191,63 @@
       "successMissingId": "アップロードは成功しましたが、履歴書 ID が返されませんでした。",
       "parsingFailed": "履歴書はアップロードされましたが、AI解析に失敗しました。手動でカスタマイズすることは可能です。",
       "failed": "アップロードに失敗しました。",
-      "dropzoneTitle": "クリックまたはファイルをドラッグ",
-      "dropzoneSubtitle": "PDF、DOC、DOCX（最大 4MB）",
+      "dropzoneLabel": "履歴書ファイルを選択",
+      "dropzoneTitle": "履歴書ファイルを選択",
+      "dropzoneSubtitle": "4MB までの PDF、DOC、DOCX。ドラッグ＆ドロップも利用できます。",
+      "invalidFileType": "PDF、DOC、または DOCX ファイルを選択してください。",
+      "fileTooLarge": "{maxSize} までのファイルを選択してください。",
+      "singleFileOnly": "履歴書ファイルは一度に 1 つ選択してください。",
       "tryDifferentFile": "別のファイルを試す",
       "parsingFailedKeepOpen": "AI 解析に失敗しました。別のファイルを試すか、このダイアログを閉じてください。"
     },
     "cardStack": {
-      "masterResume": "Master resume",
-      "jobIntake": "Job intake",
-      "tailorFlow": "Tailor flow",
-      "reviewLift": "Review lift"
+      "masterResume": "マスター履歴書",
+      "jobIntake": "求人情報の取り込み",
+      "tailorFlow": "調整フロー",
+      "reviewLift": "確認と改善"
+    },
+    "tailorDisabled": {
+      "missingMaster": "求人向けに調整する前にベース履歴書を追加してください。",
+      "processing": "ベース履歴書の処理が完了するまで待ってください。",
+      "failedProcessing": "調整する前に、失敗したベース履歴書の処理を修正してください。",
+      "llmNotConfigured": "求人向けに調整する前に AI プロバイダーを接続してください。"
+    },
+    "tailoredList": {
+      "loading": "カスタマイズ履歴書を読み込み中...",
+      "loadFailed": "カスタマイズ履歴書を読み込めませんでした。更新してください。"
+    },
+    "onboarding": {
+      "ariaLabel": "履歴書オンボーディング",
+      "eyebrow": "手元にあるファイルから始める",
+      "stepLabel": "ステップ 01",
+      "uploadTitle": "現在の履歴書をアップロード",
+      "uploadDescription": "一度読み取り、ベースとして保持し、その後は各求人向けの調整を案内します。",
+      "uploadAction": "履歴書をアップロード"
+    },
+    "workflow": {
+      "ariaLabel": "履歴書オンボーディングフロー",
+      "uploadResume": {
+        "title": "現在の履歴書をアップロード",
+        "description": "手元にあるファイルから始めます。今はこのカードだけに集中します。"
+      },
+      "reviewResume": {
+        "title": "現在の履歴書を確認",
+        "description": "ファイルを読み取り、調整できる状態か確認します。",
+        "kicker": "現在の履歴書",
+        "currentTitle": "現在の履歴書",
+        "status": "履歴書を確認中",
+        "action": "続ける"
+      },
+      "tailorRole": {
+        "title": "求人向けに調整",
+        "description": "準備ができたら求人情報を追加します。現在の履歴書が準備できてから調整フローを開きます。"
+      },
+      "reviewLift": {
+        "title": "調整済み履歴書を確認",
+        "description": "調整済み履歴書を使う前に、変更内容を確認します。",
+        "kicker": "確認と改善",
+        "count": "{count} 件調整済み"
+      }
     },
     "tailorCta": "求人向けに調整"
   },

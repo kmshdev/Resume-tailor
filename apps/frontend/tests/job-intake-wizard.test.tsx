@@ -41,6 +41,10 @@ function extraction(overrides: Partial<JobIntakeExtractResponse> = {}): JobIntak
   };
 }
 
+function sourceChoice(name: string) {
+  return screen.getByRole('radio', { name });
+}
+
 describe('JobIntakeWizard', () => {
   beforeEach(() => {
     extractJobIntake.mockReset();
@@ -66,6 +70,25 @@ describe('JobIntakeWizard', () => {
     expect(screen.getByRole('button', { name: 'tailor.intake.extracting' })).toBeDisabled();
   });
 
+  it('renders job source choices as accessible selection tiles', () => {
+    render(
+      <JobIntakeWizard
+        masterResumeId="resume-123"
+        disabled={false}
+        canTailor={true}
+        onJobConfirmed={vi.fn()}
+      />
+    );
+
+    const sourceGroup = screen.getByRole('radiogroup', { name: 'STEP 1' });
+    expect(sourceGroup).toBeInTheDocument();
+    expect(sourceChoice('tailor.intake.sources.manual_text')).toHaveAttribute(
+      'aria-checked',
+      'true'
+    );
+    expect(sourceChoice('tailor.intake.sources.job_url')).toHaveAttribute('aria-checked', 'false');
+  });
+
   it('extracts manual text, shows review, and confirms reviewed JD', async () => {
     extractJobIntake.mockResolvedValue(extraction());
     confirmJobIntake.mockResolvedValue({
@@ -84,7 +107,7 @@ describe('JobIntakeWizard', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.manual_text' }));
+    fireEvent.click(sourceChoice('tailor.intake.sources.manual_text'));
     fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
       target: {
         value: 'Senior Backend Engineer using Python, FastAPI, and AWS.',
@@ -212,9 +235,7 @@ describe('JobIntakeWizard', () => {
       />
     );
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'tailor.intake.sources.recruiter_message' })
-    );
+    fireEvent.click(sourceChoice('tailor.intake.sources.recruiter_message'));
     fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
       target: {
         value:
@@ -261,9 +282,7 @@ describe('JobIntakeWizard', () => {
       />
     );
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'tailor.intake.sources.recruiter_message' })
-    );
+    fireEvent.click(sourceChoice('tailor.intake.sources.recruiter_message'));
     fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
       target: {
         value:
@@ -316,7 +335,7 @@ describe('JobIntakeWizard', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
+    fireEvent.click(sourceChoice('tailor.intake.sources.pdf_upload'));
     fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
       target: {
         files: [new File(['fake pdf'], 'job.pdf', { type: 'application/pdf' })],
@@ -324,7 +343,7 @@ describe('JobIntakeWizard', () => {
     });
     expect(screen.getByRole('button', { name: 'tailor.intake.extractButton' })).not.toBeDisabled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.job_url' }));
+    fireEvent.click(sourceChoice('tailor.intake.sources.job_url'));
     expect(screen.getByLabelText('tailor.intake.inputLabel')).toHaveValue('');
 
     fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
@@ -332,7 +351,7 @@ describe('JobIntakeWizard', () => {
     });
     expect(screen.getByRole('button', { name: 'tailor.intake.extractButton' })).not.toBeDisabled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
+    fireEvent.click(sourceChoice('tailor.intake.sources.pdf_upload'));
     expect(screen.getByRole('button', { name: 'tailor.intake.extractButton' })).toBeDisabled();
   });
 
@@ -346,7 +365,7 @@ describe('JobIntakeWizard', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.job_url' }));
+    fireEvent.click(sourceChoice('tailor.intake.sources.job_url'));
     fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
       target: { value: 'ftp://company.example/jobs/backend' },
     });
@@ -366,7 +385,7 @@ describe('JobIntakeWizard', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
+    fireEvent.click(sourceChoice('tailor.intake.sources.pdf_upload'));
     fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
       target: {
         files: [new File(['not a pdf'], 'job.txt', { type: 'text/plain' })],
@@ -391,7 +410,7 @@ describe('JobIntakeWizard', () => {
     );
 
     const file = new File(['fake pdf'], 'job.pdf', { type: 'application/octet-stream' });
-    fireEvent.click(screen.getByRole('button', { name: 'tailor.intake.sources.pdf_upload' }));
+    fireEvent.click(sourceChoice('tailor.intake.sources.pdf_upload'));
     fireEvent.change(screen.getByLabelText('tailor.intake.inputLabel'), {
       target: { files: [file] },
     });

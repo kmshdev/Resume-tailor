@@ -191,16 +191,63 @@
       "successMissingId": "La subida fue exitosa pero no se devolvió el ID del currículum.",
       "parsingFailed": "Currículum subido pero el análisis de IA falló. Aún puedes personalizarlo manualmente.",
       "failed": "La subida falló.",
-      "dropzoneTitle": "Haz clic o arrastra un archivo",
-      "dropzoneSubtitle": "PDF, DOC, DOCX (Máx. 4MB)",
+      "dropzoneLabel": "Elegir archivo de currículum",
+      "dropzoneTitle": "Elegir archivo de currículum",
+      "dropzoneSubtitle": "PDF, DOC o DOCX de hasta 4MB. También puedes arrastrar y soltar.",
+      "invalidFileType": "Elige un archivo PDF, DOC o DOCX.",
+      "fileTooLarge": "Elige un archivo de hasta {maxSize}.",
+      "singleFileOnly": "Elige un solo archivo de currículum a la vez.",
       "tryDifferentFile": "Probar otro archivo",
       "parsingFailedKeepOpen": "El análisis de IA falló. Prueba otro archivo o cierra este diálogo."
     },
     "cardStack": {
-      "masterResume": "Master resume",
-      "jobIntake": "Job intake",
-      "tailorFlow": "Tailor flow",
-      "reviewLift": "Review lift"
+      "masterResume": "Currículum maestro",
+      "jobIntake": "Datos del empleo",
+      "tailorFlow": "Flujo de personalización",
+      "reviewLift": "Revisión y mejora"
+    },
+    "tailorDisabled": {
+      "missingMaster": "Agrega un currículum base antes de personalizar para un rol.",
+      "processing": "Espera a que el currículum base termine de procesarse.",
+      "failedProcessing": "Corrige el procesamiento fallido del currículum base antes de personalizar.",
+      "llmNotConfigured": "Conecta un proveedor de IA antes de personalizar para un rol."
+    },
+    "tailoredList": {
+      "loading": "Cargando currículums personalizados...",
+      "loadFailed": "No se pudieron cargar los currículums personalizados. Intenta actualizar."
+    },
+    "onboarding": {
+      "ariaLabel": "Inicio de currículum",
+      "eyebrow": "Empieza con el archivo que ya tienes",
+      "stepLabel": "PASO 01",
+      "uploadTitle": "Sube tu currículum actual",
+      "uploadDescription": "Lo leeremos una vez, lo guardaremos como base y luego te guiaremos para adaptarlo a cada puesto.",
+      "uploadAction": "Subir currículum"
+    },
+    "workflow": {
+      "ariaLabel": "Flujo de inicio del currículum",
+      "uploadResume": {
+        "title": "Sube tu currículum actual",
+        "description": "Empieza con el archivo que ya tienes. Ahora solo debes enfocarte en esto."
+      },
+      "reviewResume": {
+        "title": "Revisa tu currículum actual",
+        "description": "Leemos el archivo y comprobamos si está listo para personalizar.",
+        "kicker": "Currículum actual",
+        "currentTitle": "Currículum actual",
+        "status": "Revisando tu currículum",
+        "action": "Continuar"
+      },
+      "tailorRole": {
+        "title": "Personalizar para un rol",
+        "description": "Trae la oferta cuando estés listo. El flujo de personalización se abre cuando tu currículum actual esté listo."
+      },
+      "reviewLift": {
+        "title": "Revisa tu currículum personalizado",
+        "description": "Comprueba qué cambió antes de usar el currículum personalizado.",
+        "kicker": "Revisión y mejora",
+        "count": "{count} personalizados"
+      }
     },
     "tailorCta": "Personalizar para un rol"
   },

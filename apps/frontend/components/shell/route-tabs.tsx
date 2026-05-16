@@ -28,7 +28,7 @@ export function RouteTabs() {
               href={tab.href}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'border-black px-4 py-3 text-center font-mono text-xs font-medium uppercase tracking-wide',
+                'flex min-h-11 items-center justify-center border-black px-4 py-3 text-center font-mono text-xs font-medium uppercase tracking-wide',
                 'focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2',
                 'sm:border-l first:sm:border-l-0 odd:border-r sm:odd:border-r-0',
                 'border-t first:border-t-0 sm:border-t-0 [&:nth-child(2)]:border-t-0',

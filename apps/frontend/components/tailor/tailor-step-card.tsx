@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import Link from 'next/link';
 import ArrowRight from 'lucide-react/dist/esm/icons/arrow-right';
 import Check from 'lucide-react/dist/esm/icons/check';
@@ -21,6 +21,7 @@ interface TailorStepCardProps {
   actionHref?: string;
   onAction?: () => void;
   actionKind?: 'navigate' | 'upload';
+  children?: ReactNode;
   className?: string;
 }
 
@@ -41,8 +42,11 @@ export function TailorStepCard({
   actionHref,
   onAction,
   actionKind = 'navigate',
+  children,
   className,
 }: TailorStepCardProps) {
+  const stateDescriptionId = React.useId();
+  const stateText = `State: ${state}`;
   const ActionIcon = actionKind === 'upload' ? FileUp : ArrowRight;
   const statusIcon =
     state === 'complete' ? (
@@ -51,19 +55,23 @@ export function TailorStepCard({
       <Lock aria-hidden="true" className="h-4 w-4" />
     );
   const actionClassName =
-    'inline-flex h-11 w-11 items-center justify-center border border-black bg-white text-black shadow-sw-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none';
+    'inline-flex h-11 w-11 items-center justify-center border border-black bg-white text-black shadow-sw-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-700 focus-visible:ring-offset-2';
 
   return (
     <article
+      aria-describedby={stateDescriptionId}
       data-state={state}
       className={cn(
-        'flex min-h-40 flex-col justify-between border-2 border-black bg-background p-4 shadow-sw-default',
+        't-resize flex min-h-40 flex-col justify-between border-2 border-black bg-background p-4 shadow-sw-default',
         state === 'active' && 'bg-blue-50 shadow-sw-lg',
         state === 'complete' && 'bg-green-50',
         state === 'warning' && 'bg-orange-50',
         className
       )}
     >
+      <span id={stateDescriptionId} className="sr-only">
+        {stateText}
+      </span>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -115,8 +123,10 @@ export function TailorStepCard({
         </div>
       </div>
 
+      {children ? <div className="mt-5 min-w-0">{children}</div> : null}
+
       {warning ? (
-        <p className="mt-3 border border-orange-500 bg-white px-2 py-1 font-mono text-xs uppercase tracking-wide text-orange-700">
+        <p className="mt-3 whitespace-normal break-words border border-orange-500 bg-white px-2 py-1 font-mono text-xs uppercase tracking-wide text-orange-700 [overflow-wrap:anywhere]">
           {warning}
         </p>
       ) : (

@@ -191,16 +191,63 @@
       "successMissingId": "Upload concluído, mas sem ID retornado.",
       "parsingFailed": "Currículo enviado, mas a análise de IA falhou. Você ainda pode personalizá-lo manualmente.",
       "failed": "Falha no upload.",
-      "dropzoneTitle": "Clique ou Arraste o Arquivo",
-      "dropzoneSubtitle": "PDF, DOC, DOCX (Máximo 4MB)",
+      "dropzoneLabel": "Escolher arquivo de currículo",
+      "dropzoneTitle": "Escolher arquivo de currículo",
+      "dropzoneSubtitle": "PDF, DOC ou DOCX de até 4MB. Arrastar e soltar também é compatível.",
+      "invalidFileType": "Escolha um arquivo PDF, DOC ou DOCX.",
+      "fileTooLarge": "Escolha um arquivo de até {maxSize}.",
+      "singleFileOnly": "Escolha um arquivo de currículo por vez.",
       "tryDifferentFile": "Tentar outro arquivo",
       "parsingFailedKeepOpen": "A análise de IA falhou. Tente outro arquivo ou feche este diálogo."
     },
     "cardStack": {
-      "masterResume": "Master resume",
-      "jobIntake": "Job intake",
-      "tailorFlow": "Tailor flow",
-      "reviewLift": "Review lift"
+      "masterResume": "Currículo principal",
+      "jobIntake": "Dados da vaga",
+      "tailorFlow": "Fluxo de personalização",
+      "reviewLift": "Revisão e melhoria"
+    },
+    "tailorDisabled": {
+      "missingMaster": "Adicione um currículo base antes de personalizar para uma vaga.",
+      "processing": "Aguarde o currículo base terminar o processamento.",
+      "failedProcessing": "Corrija a falha no processamento do currículo base antes de personalizar.",
+      "llmNotConfigured": "Conecte um provedor de IA antes de personalizar para uma vaga."
+    },
+    "tailoredList": {
+      "loading": "Carregando currículos personalizados...",
+      "loadFailed": "Não foi possível carregar os currículos personalizados. Tente atualizar."
+    },
+    "onboarding": {
+      "ariaLabel": "Início do currículo",
+      "eyebrow": "Comece com o arquivo que você já tem",
+      "stepLabel": "ETAPA 01",
+      "uploadTitle": "Envie seu currículo atual",
+      "uploadDescription": "Vamos ler uma vez, manter como sua base e depois guiar a personalização para cada vaga.",
+      "uploadAction": "Enviar currículo"
+    },
+    "workflow": {
+      "ariaLabel": "Fluxo de início do currículo",
+      "uploadResume": {
+        "title": "Envie seu currículo atual",
+        "description": "Comece com o arquivo que você já tem. Agora este é o único foco."
+      },
+      "reviewResume": {
+        "title": "Revise seu currículo atual",
+        "description": "Lemos o arquivo e verificamos se ele está pronto para personalização.",
+        "kicker": "Currículo atual",
+        "currentTitle": "Currículo atual",
+        "status": "Revisando seu currículo",
+        "action": "Continuar"
+      },
+      "tailorRole": {
+        "title": "Personalizar para uma vaga",
+        "description": "Traga a vaga quando estiver pronto. O fluxo de personalização abre quando seu currículo atual estiver pronto."
+      },
+      "reviewLift": {
+        "title": "Revise seu currículo personalizado",
+        "description": "Confira o que mudou antes de usar o currículo personalizado.",
+        "kicker": "Revisão e melhoria",
+        "count": "{count} personalizados"
+      }
     },
     "tailorCta": "Personalizar para uma vaga"
   },

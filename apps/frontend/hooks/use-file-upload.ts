@@ -31,6 +31,12 @@ export type FileUploadOptions = {
   maxSize?: number; // in bytes
   accept?: string; // Comma-separated string of accepted file types
   multiple?: boolean;
+  validationMessages?: {
+    fileTooLarge?: string;
+    invalidType?: string;
+    singleFileOnly?: string;
+    maxFiles?: string;
+  };
   initialFiles?: FileMetadata[]; // To initialize with already uploaded files
   onFilesChange?: (files: FileWithPreview[]) => void;
   onFilesAdded?: (addedFiles: FileWithPreview[]) => void; // Called with newly added valid files
@@ -81,6 +87,7 @@ export const useFileUpload = (
     maxSize = Infinity,
     accept = '*/*', // More common default
     multiple = false,
+    validationMessages,
     initialFiles = [],
     onFilesChange,
     onFilesAdded,
@@ -126,7 +133,10 @@ export const useFileUpload = (
     (file: File): string | null => {
       // Simplified: always validates a File object
       if (file.size > maxSize) {
-        return `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`;
+        return (
+          validationMessages?.fileTooLarge ??
+          `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`
+        );
       }
 
       if (accept !== '*/*' && accept !== '*') {
@@ -149,12 +159,15 @@ export const useFileUpload = (
         });
 
         if (!isAccepted) {
-          return `File "${file.name}" type not accepted. Accepted types: ${accept}`;
+          return (
+            validationMessages?.invalidType ??
+            `File "${file.name}" type not accepted. Accepted types: ${accept}`
+          );
         }
       }
       return null;
     },
-    [accept, maxSize]
+    [accept, maxSize, validationMessages?.fileTooLarge, validationMessages?.invalidType]
   );
 
   const createPreview = useCallback((file: File): string | undefined => {
@@ -341,7 +354,9 @@ export const useFileUpload = (
       }
 
       if (!multiple && newFilesArray.length > 1) {
-        currentValidationErrors.push('Please select only one file.');
+        currentValidationErrors.push(
+          validationMessages?.singleFileOnly ?? 'Please select only one file.'
+        );
         setState((prev) => ({ ...prev, errors: currentValidationErrors }));
         if (inputRef.current) inputRef.current.value = '';
         return;
@@ -352,7 +367,9 @@ export const useFileUpload = (
         maxFiles !== Infinity &&
         state.files.length + newFilesArray.length > maxFiles
       ) {
-        currentValidationErrors.push(`You can only upload a maximum of ${maxFiles} files.`);
+        currentValidationErrors.push(
+          validationMessages?.maxFiles ?? `You can only upload a maximum of ${maxFiles} files.`
+        );
         setState((prev) => ({ ...prev, errors: [...prev.errors, ...currentValidationErrors] }));
         if (inputRef.current) inputRef.current.value = '';
         return;
@@ -457,6 +474,8 @@ export const useFileUpload = (
       onFilesChange,
       onFilesAdded, // Callbacks
       uploadFileInternal,
+      validationMessages?.maxFiles,
+      validationMessages?.singleFileOnly,
       // setState itself is stable.
     ]
   );

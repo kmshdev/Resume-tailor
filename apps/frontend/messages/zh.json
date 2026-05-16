@@ -191,16 +191,63 @@
       "successMissingId": "上传成功但未返回简历 ID。",
       "parsingFailed": "简历已上传但AI解析失败。您仍可手动定制。",
       "failed": "上传失败。",
-      "dropzoneTitle": "点击或拖拽文件",
-      "dropzoneSubtitle": "PDF、DOC、DOCX（最大 4MB）",
+      "dropzoneLabel": "选择简历文件",
+      "dropzoneTitle": "选择简历文件",
+      "dropzoneSubtitle": "支持最大 4MB 的 PDF、DOC 或 DOCX。也可以拖放上传。",
+      "invalidFileType": "请选择 PDF、DOC 或 DOCX 文件。",
+      "fileTooLarge": "请选择不超过 {maxSize} 的文件。",
+      "singleFileOnly": "一次只能选择一个简历文件。",
       "tryDifferentFile": "尝试其他文件",
       "parsingFailedKeepOpen": "AI 解析失败。请尝试其他文件，或关闭此对话框。"
     },
     "cardStack": {
-      "masterResume": "Master resume",
-      "jobIntake": "Job intake",
-      "tailorFlow": "Tailor flow",
-      "reviewLift": "Review lift"
+      "masterResume": "主简历",
+      "jobIntake": "职位信息录入",
+      "tailorFlow": "定制流程",
+      "reviewLift": "复核与提升"
+    },
+    "tailorDisabled": {
+      "missingMaster": "请先添加基础简历，再为职位定制。",
+      "processing": "请等待基础简历处理完成。",
+      "failedProcessing": "请先修复基础简历处理失败的问题，再进行定制。",
+      "llmNotConfigured": "请先连接 AI 提供商，再为职位定制。"
+    },
+    "tailoredList": {
+      "loading": "正在加载定制简历...",
+      "loadFailed": "无法加载定制简历。请尝试刷新。"
+    },
+    "onboarding": {
+      "ariaLabel": "简历引导",
+      "eyebrow": "从你已有的文件开始",
+      "stepLabel": "步骤 01",
+      "uploadTitle": "上传你当前的简历",
+      "uploadDescription": "我们会读取一次，将它作为基础版本，然后引导你为每个职位定制。",
+      "uploadAction": "上传简历"
+    },
+    "workflow": {
+      "ariaLabel": "简历引导流程",
+      "uploadResume": {
+        "title": "上传你当前的简历",
+        "description": "从你已有的文件开始。现在只需要关注这一张卡片。"
+      },
+      "reviewResume": {
+        "title": "检查你当前的简历",
+        "description": "我们会读取文件，并检查它是否已准备好用于定制。",
+        "kicker": "当前简历",
+        "currentTitle": "当前简历",
+        "status": "正在检查你的简历",
+        "action": "继续"
+      },
+      "tailorRole": {
+        "title": "为职位定制",
+        "description": "准备好后添加职位信息。当前简历准备就绪后才会打开定制流程。"
+      },
+      "reviewLift": {
+        "title": "检查定制简历",
+        "description": "使用定制简历前，先查看发生了哪些变化。",
+        "kicker": "复核与提升",
+        "count": "{count} 份定制"
+      }
     },
     "tailorCta": "为职位定制"
   },

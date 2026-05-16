@@ -23,27 +23,50 @@ export function CommandCenter({
   className,
 }: CommandCenterProps) {
   return (
-    <section
-      aria-label={ariaLabel}
-      className={cn('border-2 border-black bg-black shadow-[8px_8px_0px_0px_#000000]', className)}
-    >
-      {alert ? <div className="border-b-2 border-black bg-background p-4">{alert}</div> : null}
+    <section aria-label={ariaLabel} className={cn('space-y-4', className)}>
+      {alert ? (
+        <div className="border-2 border-black bg-background p-4 shadow-sw-default">{alert}</div>
+      ) : null}
 
       <div
-        data-testid="command-center-metrics"
-        className="grid grid-cols-1 gap-[1px] bg-black md:grid-cols-3 lg:grid-cols-3"
+        data-testid="command-center-metrics-row"
+        data-row="metrics"
+        className="border-2 border-black bg-black shadow-sw-default"
       >
-        {metrics.map((metric, index) => (
-          <div key={index} className="min-h-full bg-[#10131A]">
-            {metric}
-          </div>
-        ))}
+        <div
+          role="list"
+          aria-label={`${ariaLabel} metrics`}
+          data-testid="command-center-metrics"
+          className="grid grid-cols-1 gap-[1px] bg-black md:grid-cols-3 lg:grid-cols-3"
+        >
+          {metrics.map((metric, index) => (
+            <div key={index} role="listitem" className="min-h-full bg-[#10131A]">
+              {metric}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-[1px] bg-black lg:grid-cols-3">
-        <div className="min-w-0 bg-background text-black">{resumeContext}</div>
-        <div className="min-w-0 bg-white text-black">{workflow}</div>
-        <aside className="min-w-0 bg-background text-black">{activity}</aside>
+      <div
+        data-testid="command-center-workspace-row"
+        data-row="workspace"
+        className="border-2 border-black bg-black shadow-sw-lg"
+      >
+        <div
+          data-testid="command-center-body"
+          data-layout="workflow-priority"
+          className="grid grid-cols-1 gap-[1px] bg-black lg:grid-cols-[minmax(14rem,0.85fr)_minmax(22rem,1.25fr)_minmax(14rem,0.85fr)] xl:grid-cols-[minmax(18rem,0.9fr)_minmax(28rem,1.2fr)_minmax(18rem,0.9fr)]"
+        >
+          <div className="min-w-0 bg-background text-black">{resumeContext}</div>
+          <div
+            data-testid="command-center-workflow"
+            data-priority="primary"
+            className="min-w-0 bg-white text-black"
+          >
+            {workflow}
+          </div>
+          <aside className="min-w-0 bg-background text-black">{activity}</aside>
+        </div>
       </div>
     </section>
   );

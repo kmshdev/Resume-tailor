@@ -141,6 +141,49 @@
       "tailorFlow": "Tailor flow",
       "reviewLift": "Review lift"
     },
+    "tailorDisabled": {
+      "missingMaster": "Add a base resume before tailoring for a role.",
+      "processing": "Wait until the base resume finishes processing.",
+      "failedProcessing": "Fix the failed base resume processing before tailoring.",
+      "llmNotConfigured": "Connect an AI provider before tailoring for a role."
+    },
+    "tailoredList": {
+      "loading": "Loading tailored resumes...",
+      "loadFailed": "Tailored resumes could not be loaded. Try refreshing."
+    },
+    "onboarding": {
+      "ariaLabel": "Resume onboarding",
+      "eyebrow": "Start with the file you already have",
+      "stepLabel": "STEP 01",
+      "uploadTitle": "Upload your current resume",
+      "uploadDescription": "We will read it once, keep it as your base, and then guide you to tailor it for each role.",
+      "uploadAction": "Upload resume"
+    },
+    "workflow": {
+      "ariaLabel": "Resume onboarding flow",
+      "uploadResume": {
+        "title": "Upload your current resume",
+        "description": "Start with the file you already have. This is the only thing to focus on right now."
+      },
+      "reviewResume": {
+        "title": "Review your current resume",
+        "description": "We read the file and check whether it is ready to tailor.",
+        "kicker": "Current resume",
+        "currentTitle": "Current resume",
+        "status": "Reviewing your resume",
+        "action": "Continue"
+      },
+      "tailorRole": {
+        "title": "Tailor for a role",
+        "description": "Bring in the job post when you are ready. The tailoring flow opens only after your current resume is ready."
+      },
+      "reviewLift": {
+        "title": "Review your tailored resume",
+        "description": "Check what changed before using the tailored resume.",
+        "kicker": "Review lift",
+        "count": "{count} tailored"
+      }
+    },
     "tailorCta": "Tailor for a role",
     "initializeMasterResume": "Add Base Resume",
     "initializeSequence": "Upload once, tailor often",
@@ -198,8 +241,12 @@
       "successMissingId": "Upload succeeded but no Resume ID returned.",
       "parsingFailed": "Resume uploaded but AI parsing failed. You can still tailor it manually.",
       "failed": "Upload failed.",
-      "dropzoneTitle": "Click or Drag File",
-      "dropzoneSubtitle": "PDF, DOC, DOCX (Max 4MB)",
+      "dropzoneLabel": "Choose resume file",
+      "dropzoneTitle": "Choose resume file",
+      "dropzoneSubtitle": "PDF, DOC, or DOCX up to 4MB. Drag and drop is also supported.",
+      "invalidFileType": "Choose a PDF, DOC, or DOCX file.",
+      "fileTooLarge": "Choose a file up to {maxSize}.",
+      "singleFileOnly": "Choose one resume file at a time.",
       "tryDifferentFile": "Try Different File",
       "parsingFailedKeepOpen": "AI parsing failed. Try a different file or close this dialog."
     }

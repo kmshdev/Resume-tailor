@@ -9,9 +9,10 @@ interface PopoverProps {
   className?: string;
   label?: string;
   ariaLabel?: string;
+  labelId?: string;
 }
 
-export function Popover({ trigger, children, className, label, ariaLabel }: PopoverProps) {
+export function Popover({ trigger, children, className, label, ariaLabel, labelId }: PopoverProps) {
   const [open, setOpen] = useState(false);
   const contentId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -58,7 +59,7 @@ export function Popover({ trigger, children, className, label, ariaLabel }: Popo
         aria-haspopup="dialog"
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'inline-flex items-center gap-2 rounded-none border border-black bg-[#10131A] px-3 py-2',
+          'inline-flex min-h-11 items-center gap-2 rounded-none border border-black bg-[#10131A] px-3 py-2',
           'font-mono text-xs font-medium uppercase tracking-wide text-white shadow-sw-sm',
           'transition-[transform,box-shadow,background-color] duration-100 ease-out',
           'hover:translate-x-[1px] hover:translate-y-[1px] hover:bg-black hover:shadow-none',
@@ -71,9 +72,10 @@ export function Popover({ trigger, children, className, label, ariaLabel }: Popo
         <div
           id={contentId}
           role="dialog"
-          aria-label={dialogLabel}
+          aria-label={labelId ? undefined : dialogLabel}
+          aria-labelledby={labelId}
           className={cn(
-            'absolute right-0 top-full z-40 mt-2 w-80 border border-black bg-[#10131A] p-4 text-white shadow-sw-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95',
+            'fixed left-4 right-4 top-20 z-40 max-h-[calc(100vh-6rem)] overflow-y-auto border border-black bg-[#10131A] p-4 text-white shadow-sw-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95 motion-reduce:animate-none sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:max-h-[min(32rem,calc(100vh-8rem))] sm:w-80',
             className
           )}
         >

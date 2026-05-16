@@ -30,12 +30,18 @@ RUN npm run build
 # Stage 2: Final Image
 # ============================================
 FROM python:3.13-slim-bookworm
+COPY --from=ghcr.io/astral-sh/uv:0.10.9 /uv /uvx /bin/
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_NO_DEV=1 \
+    UV_PYTHON_DOWNLOADS=0 \
+    PATH="/app/backend/.venv/bin:${PATH}" \
     NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1
 
@@ -73,12 +79,17 @@ COPY --from=frontend-builder /usr/local/bin/node /usr/local/bin/node
 # Backend Setup
 # ============================================
 COPY apps/backend/pyproject.toml /app/backend/
-COPY apps/backend/app /app/backend/app
+COPY apps/backend/uv.lock /app/backend/
 
 WORKDIR /app/backend
 
-# Install Python dependencies
-RUN pip install .
+# Install locked Python dependencies before copying app code for better caching.
+RUN uv sync --locked --no-dev --no-install-project
+
+COPY apps/backend/app /app/backend/app
+
+# Install the backend package itself from the same locked environment.
+RUN uv sync --locked --no-dev --no-editable
 
 # ============================================
 # Frontend Setup

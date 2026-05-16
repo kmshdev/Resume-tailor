@@ -355,6 +355,31 @@ function StatCard({ label, value, variant }: StatCardProps) {
   );
 }
 
+function HighlightedDiffText({
+  children,
+  tone,
+  testId,
+}: {
+  children: string;
+  tone: 'added' | 'removed' | 'modified';
+  testId?: string;
+}) {
+  const toneClassName = {
+    added: 'bg-green-100 text-black',
+    removed: 'bg-red-100 text-black',
+    modified: 'bg-blue-100 text-black',
+  }[tone];
+
+  return (
+    <mark
+      data-testid={testId}
+      className={`box-decoration-clone px-1 font-mono text-sm ${toneClassName}`}
+    >
+      {children}
+    </mark>
+  );
+}
+
 // Helper component: collapsible change section
 interface ChangeSectionProps {
   title: string;
@@ -424,11 +449,23 @@ function ChangeItem({ change }: ChangeItemProps) {
         <div className="flex-1">
           {change.original_value && (
             <div className="line-through text-destructive font-mono text-sm mb-1">
-              {change.original_value}
+              <HighlightedDiffText
+                tone={change.change_type === 'removed' ? 'removed' : 'modified'}
+                testId={change.change_type === 'removed' ? 'diff-removed-highlight' : undefined}
+              >
+                {change.original_value}
+              </HighlightedDiffText>
             </div>
           )}
           {change.new_value && (
-            <div className="text-ink-soft font-mono text-sm">{change.new_value}</div>
+            <div className="text-ink-soft font-mono text-sm">
+              <HighlightedDiffText
+                tone={change.change_type === 'added' ? 'added' : 'modified'}
+                testId={change.change_type === 'added' ? 'diff-added-highlight' : undefined}
+              >
+                {change.new_value}
+              </HighlightedDiffText>
+            </div>
           )}
         </div>
         {change.change_type === 'added' && change.confidence === 'high' && (

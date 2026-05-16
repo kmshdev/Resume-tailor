@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import Info from 'lucide-react/dist/esm/icons/info';
 import type {
   EvaluationDimensionScores,
@@ -35,21 +36,25 @@ function formatConfidence(value: number): number {
 
 export function EvaluationPopover({ phase, evaluation, error }: EvaluationPopoverProps) {
   const { t } = useTranslations();
+  const headingId = useId();
 
   return (
     <Popover
       label={t('evaluation.details')}
+      labelId={headingId}
       trigger={
         <>
           <Info aria-hidden="true" className="h-4 w-4" />
           <span>{t('evaluation.details')}</span>
         </>
       }
-      className="w-[min(22rem,calc(100vw-2rem))] border-black bg-background text-black"
+      className="max-w-[calc(100vw-2rem)] border-black bg-background text-black sm:w-[22rem]"
     >
       <div className="space-y-4">
         <div className="space-y-2">
-          <p className="font-serif text-xl font-bold">{t('evaluation.details')}</p>
+          <h2 id={headingId} className="font-serif text-xl font-bold">
+            {t('evaluation.details')}
+          </h2>
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wide">
             <span aria-hidden="true" className="h-3 w-3 bg-blue-700" />
             <span>{t(`evaluation.phases.${phase}`)}</span>
@@ -66,7 +71,10 @@ export function EvaluationPopover({ phase, evaluation, error }: EvaluationPopove
         </div>
 
         {error ? (
-          <div className="border border-red-600 bg-red-50 p-3 font-mono text-xs uppercase tracking-wide text-red-700">
+          <div
+            role="alert"
+            className="border border-red-600 bg-red-50 p-3 font-mono text-xs uppercase tracking-wide text-red-700"
+          >
             {error}
           </div>
         ) : null}
