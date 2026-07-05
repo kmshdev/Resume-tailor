@@ -565,7 +565,7 @@ Stuck? Here are your options:
 
 - **Discord Community:** [dsc.gg/resume-matcher](https://dsc.gg/resume-matcher) - Active community for questions and discussions
 - **GitHub Issues:** [Open an issue](https://github.com/srbhr/Resume-Matcher/issues) for bugs or feature requests
-- **Documentation:** Check the [docs/agent/](docs/agent/) folder for detailed guides
+- **Documentation:** Check the [docs/agent/](docs/agent/README.md) folder for detailed guides
 
 ### Useful Documentation
 

@@ -489,7 +489,7 @@ Resume-Matcher/
 
 - **Discord:** [dsc.gg/resume-matcher](https://dsc.gg/resume-matcher) - 質問・議論に活発です
 - **GitHub Issues:** [Issue を作成](https://github.com/srbhr/Resume-Matcher/issues)（バグ報告や要望）
-- **ドキュメント:** 詳細は [docs/agent/](docs/agent/) を参照
+- **ドキュメント:** 詳細は [docs/agent/](docs/agent/README.md) を参照
 
 ### 参考ドキュメント
 
@@ -502,4 +502,3 @@ Resume-Matcher/
 ---
 
 楽しい履歴書づくりを！Resume Matcher が役立ったら、[リポジトリに Star](https://github.com/srbhr/Resume-Matcher) と [Discord 参加](https://dsc.gg/resume-matcher) をぜひ。
-

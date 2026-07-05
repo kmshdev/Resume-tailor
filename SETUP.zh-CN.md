@@ -489,7 +489,7 @@ Resume-Matcher/
 
 - **Discord 社区：** [dsc.gg/resume-matcher](https://dsc.gg/resume-matcher) - 提问与讨论都很活跃
 - **GitHub Issues：** [提交 Issue](https://github.com/srbhr/Resume-Matcher/issues) 反馈 bug 或提出需求
-- **项目文档：** 查看 [docs/agent/](docs/agent/) 获取更详细的指南
+- **项目文档：** 查看 [docs/agent/](docs/agent/README.md) 获取更详细的指南
 
 ### 推荐文档
 
@@ -502,4 +502,3 @@ Resume-Matcher/
 ---
 
 祝你简历制作顺利！如果 Resume Matcher 对你有帮助，欢迎 [给仓库点个 Star](https://github.com/srbhr/Resume-Matcher)，以及 [加入我们的 Discord](https://dsc.gg/resume-matcher)。
-
